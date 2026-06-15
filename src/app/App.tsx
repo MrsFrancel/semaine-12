@@ -499,9 +499,9 @@ function IntermediateStep({ candidateData, goTo }: { candidateData: CandidateDat
 // ─────────────────────────────────────────────
 // STEP 5 — MATCH FREE
 // ─────────────────────────────────────────────
-function MatchFreeStep({ goTo, setSelectedOffer }: { goTo: (s: Step) => void; setSelectedOffer: (o: Offer) => void }) {
+function MatchFreeStep({ offers, goTo, setSelectedOffer }: { offers: Offer[]; goTo: (s: Step) => void; setSelectedOffer: (o: Offer) => void }) {
   const isMobile = useWindowSize() < 768;
-  const sortedOffers = [...OFFERS].sort((a, b) => b.score - a.score);
+  const sortedOffers = [...offers].sort((a, b) => b.score - a.score);
   const bannerRef = useRef<HTMLDivElement>(null);
   const [bannerHeight, setBannerHeight] = useState(80);
 
@@ -868,17 +868,38 @@ function OfferDetailStep({ offer, goTo }: { offer: Offer; goTo: (s: Step) => voi
 // ─────────────────────────────────────────────
 // PROFILE STEP
 // ─────────────────────────────────────────────
-function ProfileStep({ candidateData, setCandidateData, isPremium, goTo }: { candidateData: CandidateData; setCandidateData: React.Dispatch<React.SetStateAction<CandidateData>>; isPremium: boolean; goTo: (s: Step) => void }) {
+function ProfileStep({ candidateData, setCandidateData, isPremium, onCvUpdate, goTo }: { candidateData: CandidateData; setCandidateData: React.Dispatch<React.SetStateAction<CandidateData>>; isPremium: boolean; onCvUpdate: () => void; goTo: (s: Step) => void }) {
   const isMobile = useWindowSize() < 768;
   const [newHard, setNewHard] = useState(''); const [newSoft, setNewSoft] = useState('');
   const [addingHard, setAddingHard] = useState(false); const [addingSoft, setAddingSoft] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [cvFileName, setCvFileName] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzeText, setAnalyzeText] = useState('');
+  const [cvUpdated, setCvUpdated] = useState(false);
+  const cvRef = useRef<HTMLInputElement>(null);
 
   const removeHard = (s: string) => setCandidateData(prev => ({ ...prev, hardSkills: prev.hardSkills.filter(x => x !== s) }));
   const removeSoft = (s: string) => setCandidateData(prev => ({ ...prev, softSkills: prev.softSkills.filter(x => x !== s) }));
   const addHard = () => { if (newHard.trim()) { setCandidateData(prev => ({ ...prev, hardSkills: [...prev.hardSkills, newHard.trim()] })); setNewHard(''); setAddingHard(false); } };
   const addSoft = () => { if (newSoft.trim()) { setCandidateData(prev => ({ ...prev, softSkills: [...prev.softSkills, newSoft.trim()] })); setNewSoft(''); setAddingSoft(false); } };
   const handleSave = () => { setSaved(true); setTimeout(() => { setSaved(false); goTo(isPremium ? 'match-premium' : 'match-free'); }, 2000); };
+
+  const handleCvUpload = (file: File) => {
+    setCvFileName(file.name);
+    setIsAnalyzing(true);
+    setCvUpdated(false);
+    const steps = ['Lecture du CV...', 'Extraction des compétences...', 'Mise à jour du profil...'];
+    let i = 0;
+    setAnalyzeText(steps[0]);
+    const interval = setInterval(() => { i++; if (i < steps.length) setAnalyzeText(steps[i]); else clearInterval(interval); }, 800);
+    setTimeout(() => {
+      clearInterval(interval);
+      setIsAnalyzing(false);
+      setCvUpdated(true);
+      onCvUpdate();
+    }, 2500);
+  };
 
   const addBtnStyle: React.CSSProperties = { background: 'transparent', border: `1px solid ${S.border}`, borderRadius: '27px', padding: '6px 16px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', color: S.textDark, letterSpacing: '0.3px' };
 
@@ -892,6 +913,39 @@ function ProfileStep({ candidateData, setCandidateData, isPremium, goTo }: { can
           <span className="mu-eyebrow">INFORMATIONS PERSONNELLES</span>
           <p style={{ fontSize: '24px', fontWeight: 700, color: S.textDark, marginBottom: '4px', lineHeight: '32px' }}>{candidateData.firstName} {candidateData.lastName}</p>
           <p style={{ fontSize: '16px', color: S.textBody, lineHeight: '28px' }}>{candidateData.email}</p>
+        </div>
+
+        {/* Section CV */}
+        <div style={{ ...cardStyle, padding: '32px', marginBottom: '24px' }}>
+          <span className="mu-eyebrow">MON CV</span>
+          <p style={{ fontSize: '15px', color: S.textBody, marginBottom: '20px', lineHeight: '24px' }}>
+            Importe une version à jour de ton CV pour actualiser automatiquement tes compétences.
+          </p>
+          <input ref={cvRef} type="file" accept=".pdf,.doc,.docx" style={{ display: 'none' }}
+            onChange={e => { const f = e.target.files?.[0]; if (f) handleCvUpload(f); }} />
+
+          {isAnalyzing ? (
+            <div style={{ background: S.bgSoft, borderRadius: '8px', padding: '20px' }}>
+              <div style={{ background: S.border, borderRadius: '100px', height: '6px', marginBottom: '12px', overflow: 'hidden' }}>
+                <div className="mu-progress-bar" style={{ background: S.primary, height: '100%', borderRadius: '100px', width: '0%' }} />
+              </div>
+              <p style={{ fontSize: '14px', fontWeight: 500, color: S.textDark, textAlign: 'center' }}>{analyzeText}</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <button onClick={() => cvRef.current?.click()} style={{ ...btnSmall }}>
+                {cvFileName ? 'Changer de CV' : '+ Importer mon CV'}
+              </button>
+              {cvFileName && !isAnalyzing && (
+                <span style={{ fontSize: '13px', color: S.textBody, letterSpacing: '0.3px' }}>{cvFileName}</span>
+              )}
+              {cvUpdated && (
+                <span style={{ fontSize: '13px', fontWeight: 500, color: S.success, letterSpacing: '0.3px' }}>
+                  ✓ Profil mis à jour
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Section 2 */}
@@ -942,13 +996,49 @@ function ProfileStep({ candidateData, setCandidateData, isPremium, goTo }: { can
 // ─────────────────────────────────────────────
 // APP
 // ─────────────────────────────────────────────
+
+// Compétences apportées par le nouveau CV — résolvent de vraies lacunes dans les offres
+const CV_UPDATE_SKILLS = {
+  hard: ['TikTok Ads', 'Google Tag Manager', 'A/B testing', 'Airtable', 'Meta Ads'],
+  soft: ['Rigueur', 'Adaptabilité'],
+};
+
+function recomputeOffers(offers: Offer[], allSkills: string[]): Offer[] {
+  return offers.map(offer => {
+    const resolved = offer.gapPoints.filter(g => allSkills.includes(g));
+    if (resolved.length === 0) return offer;
+    return {
+      ...offer,
+      score: Math.min(99, offer.score + resolved.length * 5),
+      matchPoints: [...offer.matchPoints, ...resolved],
+      gapPoints: offer.gapPoints.filter(g => !allSkills.includes(g)),
+    };
+  });
+}
+
 export default function App() {
   const [currentStep, setCurrentStep] = useState<Step>('auth');
   const [isPremium, setIsPremium] = useState(false);
   const [candidateData, setCandidateData] = useState<CandidateData>({ firstName: '', lastName: '', email: '', hardSkills: [], softSkills: [], personalityAnswers: {}, preferences: '' });
+  const [offers, setOffers] = useState<Offer[]>(OFFERS);
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const [showDowngradeModal, setShowDowngradeModal] = useState(false);
-  const goTo = (step: Step) => setCurrentStep(step);
+
+  const goTo = (step: Step) => {
+    setCurrentStep(step);
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+
+  const handleCvUpdate = () => {
+    setCandidateData(prev => {
+      const newHard = Array.from(new Set([...prev.hardSkills, ...CV_UPDATE_SKILLS.hard]));
+      const newSoft = Array.from(new Set([...prev.softSkills, ...CV_UPDATE_SKILLS.soft]));
+      setOffers(recomputeOffers(offers, newHard));
+      return { ...prev, hardSkills: newHard, softSkills: newSoft };
+    });
+  };
 
   return (
     <div className="mu-root" style={{ minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
@@ -958,12 +1048,12 @@ export default function App() {
       {currentStep === 'upload'           && <UploadStep setCandidateData={setCandidateData} goTo={goTo} />}
       {currentStep === 'questionnaire'    && <QuestionnaireStep candidateData={candidateData} setCandidateData={setCandidateData} goTo={goTo} />}
       {currentStep === 'intermediate'     && <IntermediateStep candidateData={candidateData} goTo={goTo} />}
-      {currentStep === 'match-free'       && <MatchFreeStep goTo={goTo} setSelectedOffer={setSelectedOffer} />}
+      {currentStep === 'match-free'       && <MatchFreeStep offers={offers} goTo={goTo} setSelectedOffer={setSelectedOffer} />}
       {currentStep === 'payment'          && <PaymentStep setIsPremium={setIsPremium} goTo={goTo} />}
-      {currentStep === 'match-premium'    && <MatchPremiumStep offers={OFFERS} setSelectedOffer={setSelectedOffer} setIsPremium={setIsPremium} setShowDowngradeModal={setShowDowngradeModal} goTo={goTo} />}
+      {currentStep === 'match-premium'    && <MatchPremiumStep offers={offers} setSelectedOffer={setSelectedOffer} setIsPremium={setIsPremium} setShowDowngradeModal={setShowDowngradeModal} goTo={goTo} />}
       {currentStep === 'offer-detail-free'&& selectedOffer && <OfferDetailFreeStep offer={selectedOffer} goTo={goTo} />}
       {currentStep === 'offer-detail'     && selectedOffer && <OfferDetailStep offer={selectedOffer} goTo={goTo} />}
-      {currentStep === 'profile'          && <ProfileStep candidateData={candidateData} setCandidateData={setCandidateData} isPremium={isPremium} goTo={goTo} />}
+      {currentStep === 'profile'          && <ProfileStep candidateData={candidateData} setCandidateData={setCandidateData} isPremium={isPremium} onCvUpdate={handleCvUpdate} goTo={goTo} />}
 
       {/* Downgrade modal */}
       {showDowngradeModal && (
