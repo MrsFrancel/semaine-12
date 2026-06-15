@@ -1,0 +1,322 @@
+Tu vas modifier le prototype React MatchU déjà généré.
+Ne recrée rien from scratch. Applique uniquement les 3 modifications suivantes.
+
+---
+
+MODIFICATION 1 — MODE FREE : ACCÈS AU DÉTAIL DE L'OFFRE
+
+Dans l'étape 'match-free', le bouton sur chaque carte doit s'appeler
+"Voir l'offre complète" et non "Débloquer les explications".
+
+onClick sur ce bouton → stocke l'offre dans selectedOffer
+et passe à un nouvel état 'offer-detail-free'.
+
+Crée le composant 'offer-detail-free' identique à 'offer-detail'
+(description complète + missions + bouton lien job board)
+SAUF que la colonne droite "Conseils personnalisés" est remplacée
+par ce bloc :
+
+[card bg --color-bg-cream, borderRadius 16px,
+border 1px --color-border-default, padding 32px]
+- Score [48px 700 --color-text-accent] : score de l'offre + "%"
+- Label [14px muted] : "de compatibilité"
+- Séparateur
+- Texte [16px 400 --color-text-default] :
+  "Découvre pourquoi tu matches et comment
+  améliorer tes chances sur cette offre."
+- CTA [pill bg --color-accent, color white, pleine largeur, 600 15px] :
+  "Passer en Premium — 9€/mois"
+  onClick → passe à 'payment'
+
+Bouton retour dans 'offer-detail-free' :
+onClick → passe à 'match-free'
+
+---
+
+MODIFICATION 2 — RETOUR EN MODE FREE DEPUIS PREMIUM
+
+Dans la sidebar de l'étape 'match-premium',
+le badge "Premium actif" devient cliquable.
+
+onClick sur le badge "Premium actif" →
+affiche une modale de confirmation par-dessus le contenu.
+
+La modale :
+[overlay bg rgba(0,0,0,0.4), centré]
+[card bg white, borderRadius 24px, padding 40px, max-width 440px]
+- H3 [Poppins 24px 700 navy] :
+  "Passer en version gratuite ?"
+- Texte [16px 400 muted] :
+  "Tu perdras accès aux explications,
+  aux onglets de tri et aux conseils personnalisés."
+- 2 boutons côte à côte :
+  Bouton gauche [outline pill, border 1px --color-border-strong] :
+  "Annuler"
+  onClick → ferme la modale (showDowngradeModal = false)
+
+  Bouton droite [pill bg --color-text-default, color white] :
+  "Passer en Free"
+  onClick →
+    isPremium = false
+    showDowngradeModal = false
+    currentStep = 'match-free'
+
+---
+
+MODIFICATION 3 — 25 OFFRES FICTIVES
+
+Remplace le tableau OFFERS existant par ce tableau de 25 offres.
+Répartition : 8 matchs forts (score >=75),
+10 matchs partiels (score 55-74), 7 matchs faibles (score <55).
+
+const OFFERS = [
+  { id:1, title:'Alternance Chef de Projet Digital',
+    company:'Publicis Groupe', location:'Paris 8e',
+    type:'Alternance 12 mois', score:92,
+    matchPoints:['Marketing digital','Gestion de projet','Canva','Notion'],
+    gapPoints:['SQL'],
+    description:"Rejoins l'équipe digitale de Publicis pour piloter des projets de transformation online pour des clients du secteur luxe et retail.",
+    missions:['Coordonner les équipes créa, tech et media','Rédiger les briefs et suivre les livrables','Analyser les performances et produire les reportings','Participer aux réunions clients'],
+    advice:["Mets en avant ton projet SEO en Master 1","Reformule 'stage de 2 mois' en 'mission de gestion de campagnes digitales'","Ajoute Trello ou Asana — mentionnés 3 fois dans la fiche"],
+    source:'LinkedIn' },
+
+  { id:2, title:'Alternance Traffic Manager',
+    company:'LVMH Digital', location:'Paris 1er',
+    type:'Alternance 12 mois', score:89,
+    matchPoints:['SEO/SEA','Google Analytics','Marketing digital'],
+    gapPoints:['Google Tag Manager','Expérience luxe'],
+    description:"Intègre la division digitale de LVMH pour piloter les campagnes d'acquisition sur les marchés européens.",
+    missions:['Gérer les campagnes Google Ads et Meta','Analyser les flux de trafic','Produire les reportings hebdomadaires','Collaborer avec les équipes e-commerce'],
+    advice:["Mentionne Google Analytics 4 explicitement","Ajoute une expérience chiffrée en acquisition payante","Contextualise tes projets autour de marques premium"],
+    source:'Welcome to the Jungle' },
+
+  { id:3, title:'Alternance Content Manager',
+    company:'Ubisoft', location:'Paris 17e',
+    type:'Alternance 12 mois', score:87,
+    matchPoints:['Copywriting','Marketing digital','Canva','Notion'],
+    gapPoints:['Adobe Premiere','Communauté gaming'],
+    description:"Rejoins l'équipe Brand Content d'Ubisoft pour produire les contenus éditoriaux des marques et franchises.",
+    missions:['Rédiger les contenus pour les réseaux sociaux et le blog','Coordonner les campagnes de lancement','Analyser les performances éditoriales','Collaborer avec les équipes créa et com'],
+    advice:["Mentionne ta capacité à t'approprier une culture de marque forte","Si tu joues à des jeux Ubisoft, c'est un atout à mentionner","Ajoute Figma ou Canva dans tes outils"],
+    source:'Indeed' },
+
+  { id:4, title:"Alternance Social Media Manager",
+    company:"L'Oreal", location:'Clichy',
+    type:'Alternance 12 mois', score:85,
+    matchPoints:['Copywriting','Canva','Marketing digital','Google Analytics'],
+    gapPoints:['TikTok Ads','Expérience beauté'],
+    description:"Intègre la direction digitale de L'Oreal pour gérer la présence social media des marques grand public.",
+    missions:['Créer et planifier les contenus pour Instagram, TikTok et LinkedIn','Analyser les performances et optimiser l\'engagement','Collaborer avec les influenceurs','Veille concurrentielle mensuelle'],
+    advice:["Mentionne des formats spécifiques créés avec Canva","TikTok est central — si tu as une pratique personnelle, indique-la","Ajoute des métriques d'engagement à tes expériences"],
+    source:'LinkedIn' },
+
+  { id:5, title:'Alternance Chargé de Marketing Digital',
+    company:'Decathlon', location:"Villeneuve d'Ascq",
+    type:'Alternance 12 mois', score:83,
+    matchPoints:['SEO/SEA','Google Analytics','Marketing digital','Copywriting'],
+    gapPoints:['E-commerce','Sport pratiqué'],
+    description:"Rejoins l'équipe marketing digital de Decathlon pour piloter les campagnes d'acquisition et de fidélisation.",
+    missions:['Piloter les campagnes SEA sur Google et Meta','Optimiser le SEO des fiches produits','Analyser les performances','Tester de nouveaux formats publicitaires'],
+    advice:["Mentionne ta pratique sportive personnelle si tu en as une","Le mot 'e-commerce' revient 5 fois — contextualise tes projets autour de ça","Mentionne ta maîtrise de GA4 spécifiquement"],
+    source:'Indeed' },
+
+  { id:6, title:'Alternance Product Marketing Manager',
+    company:'Doctolib', location:'Paris 10e',
+    type:'Alternance 12 mois', score:81,
+    matchPoints:['Marketing digital','Copywriting','Notion','Google Analytics'],
+    gapPoints:['Salesforce','Secteur santé'],
+    description:"Intègre l'équipe Product Marketing de Doctolib pour accélérer l'adoption des nouvelles fonctionnalités.",
+    missions:['Créer les contenus de lancement de fonctionnalités','Analyser les comportements utilisateurs','Collaborer avec les équipes produit et growth','Rédiger les newsletters et communications'],
+    advice:["Intègre des métriques dans tes descriptions de poste","La maîtrise de Notion est un vrai plus ici","Mentionne une expérience d'analyse de comportement utilisateur"],
+    source:'Welcome to the Jungle' },
+
+  { id:7, title:'Alternance Growth Marketing',
+    company:'Alan', location:'Paris 9e',
+    type:'Alternance 12 mois', score:79,
+    matchPoints:['Marketing digital','SEO/SEA','Google Analytics','Copywriting'],
+    gapPoints:['Python basics','A/B testing','Secteur assurance'],
+    description:"Rejoins l'équipe Growth d'Alan pour accélérer l'acquisition de nouveaux assurés via des canaux digitaux.",
+    missions:["Concevoir et lancer des campagnes d'acquisition multicanales","Analyser les funnels de conversion","Tester de nouveaux messages et formats","Collaborer avec les équipes produit et data"],
+    advice:["Structure ton CV autour de la logique funnel","Mentionne toute expérience d'A/B testing, même sur des projets perso","Montre ton intérêt pour la disruption sectorielle"],
+    source:'LinkedIn' },
+
+  { id:8, title:'Alternance Brand Content',
+    company:'Spotify France', location:'Paris 2e',
+    type:'Alternance 12 mois', score:76,
+    matchPoints:['Copywriting','Marketing digital','Canva'],
+    gapPoints:['Adobe Suite','Culture musicale','Anglais courant'],
+    description:"Intègre l'équipe Brand Content de Spotify France pour produire les campagnes éditoriales et culturelles.",
+    missions:['Rédiger les contenus pour les campagnes saisonnières','Collaborer avec les artistes et labels partenaires','Produire les assets visuels','Analyser les performances des campagnes'],
+    advice:["Valorise ta maîtrise de l'anglais à l'écrit dans ton CV","Mentionne ta relation à la musique et à la culture","Si tu as des bases Adobe, même légères, indique-les"],
+    source:'Indeed' },
+
+  { id:9, title:'Alternance Marketing Manager',
+    company:'Decathlon Digital', location:'Lille',
+    type:'Alternance 12 mois', score:74,
+    matchPoints:['SEO/SEA','Google Analytics','Copywriting'],
+    gapPoints:['Adobe Suite','Expérience e-commerce'],
+    description:"Intègre l'équipe marketing de Decathlon Digital pour piloter la stratégie de contenu et les campagnes d'acquisition.",
+    missions:['Piloter les campagnes SEA sur Google et Meta','Produire les contenus du blog et des réseaux sociaux','Analyser les KPIs','Collaborer avec les équipes produit et design'],
+    advice:["Mentionne ton expérience avec Google Analytics dans l'accroche","Ajoute des métriques concrètes à tes expériences passées","Contextualise tes projets autour de l'e-commerce"],
+    source:'Indeed' },
+
+  { id:10, title:'Alternance Chef de Projet Communication',
+    company:'SNCF', location:'Saint-Denis',
+    type:'Alternance 12 mois', score:71,
+    matchPoints:['Copywriting','Canva','Marketing digital'],
+    gapPoints:['Relations presse','Secteur transport','InDesign'],
+    description:"Rejoins la direction de la communication de SNCF pour piloter les campagnes institutionnelles.",
+    missions:['Rédiger les communiqués et les contenus éditoriaux','Piloter les campagnes de communication interne','Produire les supports visuels','Coordonner les agences créa et médias'],
+    advice:["Mentionne toute expérience de communication institutionnelle ou associative","Valorise ta capacité à apprendre InDesign","Structure ton CV de façon très claire"],
+    source:'LinkedIn' },
+
+  { id:11, title:'Alternance Digital Project Manager',
+    company:'Capgemini', location:'Paris 15e',
+    type:'Alternance 12 mois', score:69,
+    matchPoints:['Notion','Marketing digital','Google Analytics'],
+    gapPoints:['Jira','Agile Scrum','Expérience conseil'],
+    description:"Intègre la practice Digital de Capgemini pour accompagner des clients grands comptes dans leur transformation digitale.",
+    missions:['Cadrer et piloter des projets de transformation digitale','Animer les rituels agiles','Produire les livrables et présentations clients','Assurer le suivi des risques et plannings'],
+    advice:["Mentionne toute expérience de gestion de projet, même associative","La maîtrise de Notion peut compenser l'absence de Jira","Mets en avant tes capacités rédactionnelles"],
+    source:'Welcome to the Jungle' },
+
+  { id:12, title:'Alternance Community Manager',
+    company:'Red Bull France', location:'Paris 9e',
+    type:'Alternance 12 mois', score:67,
+    matchPoints:['Copywriting','Canva','Marketing digital'],
+    gapPoints:['Vidéo editing','Culture sport extrême','TikTok'],
+    description:"Rejoins l'équipe Social Media de Red Bull France pour animer les communautés et produire les contenus éditoriaux.",
+    missions:['Créer les contenus pour Instagram, TikTok et YouTube','Animer les communautés et répondre aux fans','Couvrir les événements Red Bull sur le terrain','Analyser les performances et produire les reportings'],
+    advice:["Valorise ta passion pour la culture que Red Bull représente","Si tu pratiques le montage vidéo en amateur, mentionne-le","Montre que tu comprends les codes TikTok"],
+    source:'Indeed' },
+
+  { id:13, title:'Alternance Chargé de Communication Digitale',
+    company:'Axa', location:'Paris 8e',
+    type:'Alternance 12 mois', score:64,
+    matchPoints:['Copywriting','Canva','Google Analytics'],
+    gapPoints:['Secteur assurance','Relations médias','InDesign'],
+    description:"Intègre la direction de la communication digitale d'Axa pour piloter les campagnes online et la présence éditoriale.",
+    missions:['Rédiger les contenus pour les canaux digitaux','Gérer les réseaux sociaux professionnels','Analyser les performances','Collaborer avec les agences et les équipes internes'],
+    advice:["Mentionne ta compréhension des enjeux de confiance dans le secteur financier","Mets en avant ta maîtrise de l'écrit","Cite des cas concrets d'analyse de trafic"],
+    source:'LinkedIn' },
+
+  { id:14, title:'Alternance Marketing Produit',
+    company:'Deezer', location:'Paris 11e',
+    type:'Alternance 12 mois', score:62,
+    matchPoints:['Marketing digital','Copywriting','Google Analytics'],
+    gapPoints:['Product management','Culture musicale','SQL'],
+    description:"Rejoins l'équipe Product Marketing de Deezer pour accélérer l'adoption des fonctionnalités premium.",
+    missions:["Créer les contenus de lancement de nouvelles fonctionnalités","Analyser les comportements utilisateurs","Collaborer avec les équipes produit et data","Piloter les campagnes d'activation"],
+    advice:["Mentionne ta relation à la musique et aux plateformes de streaming","Valorise toute expérience liée au produit","Mentionne ta maîtrise de GA4 spécifiquement"],
+    source:'Indeed' },
+
+  { id:15, title:'Alternance Chargé de Projet Digital',
+    company:'Bouygues Telecom', location:'Issy-les-Moulineaux',
+    type:'Alternance 12 mois', score:60,
+    matchPoints:['Marketing digital','Notion','Google Analytics'],
+    gapPoints:['UX Design','Secteur télécom','CRM Salesforce'],
+    description:"Intègre la direction digitale de Bouygues Telecom pour piloter des projets d'expérience client en ligne.",
+    missions:["Coordonner les projets de refonte des parcours digitaux","Analyser les comportements utilisateurs sur le site","Collaborer avec les équipes UX, tech et marketing","Suivre les KPIs et produire les reportings"],
+    advice:["Mentionne toute expérience liée à l'expérience utilisateur","La maîtrise de Notion est un atout pour la coordination projet","Une connaissance même basique des CRM est valorisée"],
+    source:'Welcome to the Jungle' },
+
+  { id:16, title:'Stage Assistant Marketing',
+    company:'Pierre Fabre', location:'Toulouse',
+    type:'Stage 6 mois', score:58,
+    matchPoints:['Marketing digital','Canva','Copywriting'],
+    gapPoints:['Secteur pharmaceutique','Marketing santé','PowerPoint avancé'],
+    description:"Rejoins l'équipe marketing de Pierre Fabre pour soutenir les campagnes des marques dermo-cosmétiques.",
+    missions:["Contribuer aux plans marketing des marques","Produire les supports de présentation","Analyser les ventes et les parts de marché","Coordonner avec les agences et les équipes terrain"],
+    advice:["Mentionne ta capacité d'adaptation aux contraintes réglementaires","Canva est un atout ici pour produire des supports rapidement","Mentionne toute connaissance des codes marketing beauté ou santé"],
+    source:'Indeed' },
+
+  { id:17, title:'Alternance Chargé de Marketing B2B',
+    company:'Salesforce France', location:'Paris 9e',
+    type:'Alternance 12 mois', score:57,
+    matchPoints:['Marketing digital','Copywriting','Google Analytics'],
+    gapPoints:['Marketing B2B','Salesforce CRM','Account-based marketing'],
+    description:"Intègre l'équipe marketing de Salesforce France pour générer des leads et soutenir l'équipe commerciale.",
+    missions:["Créer les contenus pour les campagnes B2B","Gérer les campagnes d'emailing et de nurturing","Analyser les performances des campagnes","Collaborer avec les équipes sales"],
+    advice:["Valorise toute expérience de relation professionnelle","Des bases sur les CRM sont un plus à mentionner","Mentionne tout outil d'emailing utilisé"],
+    source:'LinkedIn' },
+
+  { id:18, title:'Stage Chargé de Communication',
+    company:'WWF France', location:'Paris 16e',
+    type:'Stage 6 mois', score:55,
+    matchPoints:['Copywriting','Canva','Marketing digital'],
+    gapPoints:['Communication associative','Plaidoyer','Mobilisation citoyenne'],
+    description:"Rejoins l'équipe communication du WWF France pour sensibiliser le grand public aux enjeux environnementaux.",
+    missions:["Rédiger les contenus pour les campagnes de sensibilisation","Gérer les réseaux sociaux et la newsletter","Produire les supports visuels pour les actions terrain","Soutenir les campagnes de mobilisation citoyenne"],
+    advice:["Valorise clairement ton engagement sur les enjeux environnementaux","Ton ton doit être empathique et mobilisateur","Mentionne tout bénévolat ou engagement associatif"],
+    source:'Indeed' },
+
+  { id:19, title:'Stage Chargé de Communication',
+    company:'BNP Paribas', location:'Paris La Défense',
+    type:'Stage 6 mois', score:51,
+    matchPoints:['Copywriting','Canva'],
+    gapPoints:['Relations presse','InDesign','Secteur bancaire','Communication institutionnelle'],
+    description:"Rejoins la direction de la communication de BNP Paribas pour participer aux campagnes institutionnelles.",
+    missions:["Rédiger les communiqués de presse","Gérer les relations avec les journalistes","Produire les supports visuels pour les événements","Veille médiatique quotidienne"],
+    advice:["Ton profil est orienté digital — ce poste est très print et institutionnel","InDesign est central ici — même des bases sont indispensables","Mentionne une expérience en secteur réglementé si tu en as"],
+    source:'Welcome to the Jungle' },
+
+  { id:20, title:'Alternance Développeur Front-End',
+    company:'Thales', location:'Massy',
+    type:'Alternance 24 mois', score:18,
+    matchPoints:['Notion'],
+    gapPoints:['React','TypeScript','HTML/CSS avancé','Git','Expérience dev'],
+    description:"Intègre les équipes techniques de Thales pour développer des interfaces utilisateurs pour des systèmes critiques.",
+    missions:["Développer des composants React","Participer aux revues de code","Collaborer avec les équipes back-end","Rédiger la documentation technique"],
+    advice:["Ce poste est très technique et éloigné de ton profil marketing","Une formation en développement web serait nécessaire","Ton profil correspond mieux aux postes en marketing digital"],
+    source:'LinkedIn' },
+
+  { id:21, title:'Stage Assistant Comptable',
+    company:'Deloitte', location:'Paris 17e',
+    type:'Stage 6 mois', score:12,
+    matchPoints:[],
+    gapPoints:['Comptabilité','Excel avancé','Audit','Fiscalité','Formation finance'],
+    description:"Intègre les équipes d'audit de Deloitte pour assister les managers sur des missions clients.",
+    missions:["Préparer les dossiers d'audit","Analyser les états financiers","Participer aux missions chez les clients","Rédiger les synthèses et rapports"],
+    advice:["Ce poste est très éloigné de ton profil et de ta formation","Une formation en comptabilité ou finance est indispensable","Concentre tes recherches sur des postes en marketing digital"],
+    source:'Indeed' },
+
+  { id:22, title:'Alternance Ingénieur Data',
+    company:'Airbus', location:'Toulouse',
+    type:'Alternance 12 mois', score:15,
+    matchPoints:['Google Analytics'],
+    gapPoints:['Python','SQL','Machine Learning','Big Data','Formation ingénierie'],
+    description:"Rejoins les équipes Data d'Airbus pour développer des modèles prédictifs sur des données de production.",
+    missions:["Développer des pipelines de données","Construire des modèles de machine learning","Analyser des datasets complexes","Produire des visualisations de données"],
+    advice:["Ce poste nécessite une formation en data science ou ingénierie","Ton profil marketing est éloigné des exigences techniques","Des postes en marketing analytics correspondraient mieux à ton profil"],
+    source:'Welcome to the Jungle' },
+
+  { id:23, title:'Stage Assistant Juridique',
+    company:'Cabinet Gide', location:'Paris 8e',
+    type:'Stage 6 mois', score:8,
+    matchPoints:[],
+    gapPoints:['Droit des affaires','Formation juridique','Rédaction juridique','Anglais juridique'],
+    description:"Intègre le cabinet Gide pour assister les avocats sur des dossiers de droit des affaires.",
+    missions:["Effectuer des recherches juridiques","Rédiger des notes et mémos","Préparer les dossiers clients","Participer aux réunions avec les clients"],
+    advice:["Ce poste nécessite impérativement une formation en droit","Ton profil marketing n'est pas en adéquation avec ce poste","Concentre tes recherches sur des postes en marketing ou communication"],
+    source:'LinkedIn' },
+
+  { id:24, title:'Alternance Technicien Réseau',
+    company:'Orange', location:'Lyon',
+    type:'Alternance 24 mois', score:10,
+    matchPoints:[],
+    gapPoints:['Cisco','Administration réseau','Linux','Formation informatique','Protocoles TCP/IP'],
+    description:"Rejoins les équipes techniques d'Orange pour assurer la maintenance et l'évolution des infrastructures réseau.",
+    missions:["Configurer et maintenir les équipements réseau","Diagnostiquer et résoudre les incidents","Rédiger la documentation technique","Participer aux projets d'évolution des infrastructures"],
+    advice:["Ce poste nécessite une formation en informatique réseaux","Ton profil marketing est incompatible avec les exigences techniques","Des postes en digital marketing chez Orange correspondraient mieux"],
+    source:'Indeed' },
+
+  { id:25, title:'Stage Assistant Ressources Humaines',
+    company:'Renault', location:'Boulogne-Billancourt',
+    type:'Stage 6 mois', score:22,
+    matchPoints:['Copywriting','Notion'],
+    gapPoints:['Droit du travail','Recrutement','SIRH','Formation RH','Paie'],
+    description:"Intègre la direction des ressources humaines de Renault pour soutenir les équipes sur les projets RH.",
+    missions:["Assister sur les processus de recrutement","Gérer les dossiers administratifs RH","Participer aux projets de marque employeur","Soutenir l'organisation des événements internes"],
+    advice:["La marque employeur est la partie de ce poste la plus proche de ton profil","Une formation RH ou des bases en droit du travail sont attendues","Si tu t'intéresses aux RH, oriente-toi vers des postes en employer branding"],
+    source:'Welcome to the Jungle' }
+];

@@ -1,0 +1,241 @@
+Tu vas corriger uniquement le responsive du prototype React MatchU
+déjà généré. Ne touche à aucune logique, aucun state, aucun contenu.
+Corrige uniquement le CSS et la mise en page.
+
+---
+
+RÈGLES GLOBALES À APPLIQUER SUR TOUS LES COMPOSANTS :
+
+1. Ajoute cette règle globale en premier dans le CSS :
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+2. Aucun élément ne doit avoir une largeur fixe en pixels
+supérieure à 100vw.
+Remplace toutes les largeurs fixes (ex: width: 900px)
+par max-width avec width: 100%.
+
+---
+
+BREAKPOINTS À RESPECTER PARTOUT :
+
+Mobile : < 768px
+Tablet : 768px - 1024px
+Desktop : > 1024px
+
+---
+
+CORRECTIONS PAR COMPOSANT :
+
+TOUS LES COMPOSANTS — container principal :
+{
+  width: '100%',
+  maxWidth: '100%',
+  overflowX: 'hidden',
+  boxSizing: 'border-box',
+  padding: window.innerWidth < 768 ? '24px 16px' : '80px',
+}
+
+AUTH (écran 1) :
+Container centré :
+{
+  width: '100%',
+  maxWidth: '480px',
+  margin: '0 auto',
+  padding: '64px 16px',
+  boxSizing: 'border-box',
+}
+Les 2 inputs Prénom/Nom côte à côte sur desktop
+→ sur mobile : empilés verticalement (flexDirection: 'column')
+Tous les boutons : width: '100%'
+
+UPLOAD CV (écran 2) :
+Container :
+{
+  width: '100%',
+  maxWidth: '600px',
+  margin: '0 auto',
+  padding: window.innerWidth < 768 ? '40px 16px' : '80px 24px',
+  boxSizing: 'border-box',
+}
+Zone de drop : width: '100%', boxSizing: 'border-box'
+
+QUESTIONNAIRE (écran 3) :
+Container :
+{
+  width: '100%',
+  maxWidth: '900px',
+  margin: '0 auto',
+  padding: window.innerWidth < 768 ? '40px 16px' : '80px 24px',
+  boxSizing: 'border-box',
+}
+Layout 2 colonnes desktop → 1 colonne mobile :
+{
+  display: 'grid',
+  gridTemplateColumns: window.innerWidth < 768 ? '1fr' : '1fr 1fr',
+  gap: window.innerWidth < 768 ? '32px' : '64px',
+}
+Les chips de personnalité : flexWrap: 'wrap', gap: '8px'
+Les badges skills : flexWrap: 'wrap', gap: '8px'
+
+INTERMEDIATE (écran 4) :
+Container :
+{
+  width: '100%',
+  maxWidth: '800px',
+  margin: '0 auto',
+  padding: window.innerWidth < 768 ? '40px 16px' : '80px 24px',
+  boxSizing: 'border-box',
+}
+Les cards (POSTES COMPATIBLES et RECOMMANDATIONS) :
+width: '100%', boxSizing: 'border-box'
+Les pills postes compatibles : flexWrap: 'wrap', gap: '8px'
+
+MATCH FREE et MATCH PREMIUM (écrans 5 et 7) :
+
+Sur desktop (> 1024px) :
+Layout sidebar + contenu :
+{
+  display: 'flex',
+  flexDirection: 'row',
+  width: '100%',
+  minHeight: '100vh',
+}
+Sidebar : width: '260px', flexShrink: 0
+Contenu principal : flex: 1, overflow: 'auto'
+
+Sur mobile (< 768px) :
+Sidebar : cachée (display: 'none')
+Afficher à la place une barre de navigation en haut :
+{
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'space-around',
+  padding: '12px 16px',
+  borderBottom: '1px solid rgba(28,27,46,0.12)',
+  backgroundColor: '#F5F0E8',
+  width: '100%',
+}
+Avec 3 items texte : Offres / Profil / Paramètres
+
+Contenu principal sur mobile :
+padding: '16px', width: '100%', boxSizing: 'border-box'
+
+Bannière FREE :
+{
+  display: 'flex',
+  flexDirection: window.innerWidth < 768 ? 'column' : 'row',
+  alignItems: window.innerWidth < 768 ? 'flex-start' : 'center',
+  justifyContent: 'space-between',
+  gap: window.innerWidth < 768 ? '8px' : '0',
+  padding: '12px 16px',
+  width: '100%',
+  boxSizing: 'border-box',
+}
+
+Cartes offres :
+{
+  width: '100%',
+  boxSizing: 'border-box',
+  padding: '20px',
+}
+Tags matchPoints et gapPoints : flexWrap: 'wrap', gap: '6px'
+
+Onglets PREMIUM sur mobile :
+{
+  display: 'flex',
+  flexDirection: 'row',
+  overflowX: 'auto',
+  gap: '8px',
+  padding: '12px 16px',
+  WebkitOverflowScrolling: 'touch',
+  scrollbarWidth: 'none',
+}
+
+PAYMENT (écran 6) :
+Container :
+{
+  width: '100%',
+  maxWidth: '960px',
+  margin: '0 auto',
+  padding: window.innerWidth < 768 ? '40px 16px' : '80px 24px',
+  boxSizing: 'border-box',
+}
+Layout 2 colonnes desktop → 1 colonne mobile :
+{
+  display: 'grid',
+  gridTemplateColumns: window.innerWidth < 768 ? '1fr' : '60% 40%',
+  gap: window.innerWidth < 768 ? '32px' : '48px',
+}
+Les 2 inputs Date/CVV côte à côte :
+sur mobile → empilés (gridTemplateColumns: '1fr')
+Bouton CTA : width: '100%'
+
+OFFER DETAIL FREE et OFFER DETAIL PREMIUM (écrans 5b et 8) :
+Container :
+{
+  width: '100%',
+  maxWidth: '1100px',
+  margin: '0 auto',
+  padding: window.innerWidth < 768 ? '40px 16px' : '80px 24px',
+  boxSizing: 'border-box',
+}
+Layout 2 colonnes desktop → 1 colonne mobile :
+{
+  display: 'grid',
+  gridTemplateColumns: window.innerWidth < 768 ? '1fr' : '60% 40%',
+  gap: window.innerWidth < 768 ? '32px' : '48px',
+}
+Card conseils (colonne droite) :
+sur mobile : position static (pas sticky)
+sur desktop : position sticky, top: 40px
+
+---
+
+TYPOGRAPHIE RESPONSIVE SUR TOUS LES COMPOSANTS :
+
+H1 : fontSize: window.innerWidth < 768 ? '34px' : '52px'
+H2 : fontSize: window.innerWidth < 768 ? '28px' : '52px'
+H3 : fontSize: window.innerWidth < 768 ? '22px' : '36px'
+Score (48px) : fontSize: window.innerWidth < 768 ? '36px' : '48px'
+Score détail (56px) : fontSize: window.innerWidth < 768 ? '40px' : '56px'
+Corps de texte : fontSize: '16px' sur tous les écrans
+Labels muted : fontSize: '14px' sur tous les écrans
+
+---
+
+IMPORTANT :
+Utilise un hook useWindowSize ou écoute window.innerWidth
+avec useEffect + useState pour gérer le responsive en React.
+Ne pas utiliser de media queries CSS pures — utiliser
+les styles inline React conditionnels basés sur la largeur
+de la fenêtre.
+
+Exemple de hook à ajouter en haut du fichier :
+
+const useWindowSize = () => {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return width;
+};
+
+Puis dans App :
+const windowWidth = useWindowSize();
+const isMobile = windowWidth < 768;
+const isTablet = windowWidth >= 768 && windowWidth < 1024;
+
+Remplace tous les window.innerWidth dans ce prompt
+par la variable isMobile ou isTablet.
