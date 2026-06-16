@@ -276,7 +276,9 @@ function AuthStep({ setCandidateData, goTo }: { setCandidateData: React.Dispatch
     <div className="mu-step" style={{ background: S.bgSoft, minHeight: '100vh', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: isMobile ? '40px 16px' : '80px 24px', width: '100%', boxSizing: 'border-box' }}>
       <div style={{ width: '100%', maxWidth: '480px', boxSizing: 'border-box' }}>
         {/* Logo */}
-        <p style={{ fontSize: '24px', fontWeight: 700, color: S.primary, marginBottom: '40px', textAlign: 'center', letterSpacing: '-0.5px' }}>MatchU</p>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '40px' }}>
+          <img src="/logo.svg" alt="Match & Go" style={{ height: '48px', width: 'auto' }} />
+        </div>
 
         <h1 className="mu-h1" style={{ marginBottom: '12px', textAlign: 'center', fontSize: isMobile ? '34px' : undefined }}>
           Trouve ton <span className="mu-accent">alternance</span>.
@@ -531,7 +533,7 @@ function MatchFreeStep({ offers, goTo, setSelectedOffer }: { offers: Offer[]; go
       {/* Sidebar — hors du conteneur animé */}
       {!isMobile && (
         <div style={{ position: 'fixed', top: 0, left: 0, bottom: 0, width: '260px', overflowY: 'auto', zIndex: 90, backgroundColor: S.bgSoft, borderRight: `1px solid ${S.border}`, padding: '80px 24px 32px', boxSizing: 'border-box' }}>
-          <p style={{ fontSize: '20px', fontWeight: 700, color: S.primary, marginBottom: '32px', letterSpacing: '-0.3px' }}>MatchU</p>
+          <img src="/logo.svg" alt="Match & Go" style={{ height: '36px', width: 'auto', marginBottom: '32px' }} />
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {(['Offres', 'Profil', 'Paramètres'] as const).map((item, i) => (
               item === 'Profil' ? (
@@ -673,7 +675,7 @@ function MatchPremiumStep({ offers, setSelectedOffer, setIsPremium, setShowDowng
       {/* Sidebar — fixed desktop */}
       {!isMobile && (
         <div style={{ position: 'fixed', top: 0, left: 0, bottom: 0, width: '260px', overflowY: 'auto', zIndex: 90, backgroundColor: S.bgSoft, borderRight: `1px solid ${S.border}`, padding: '32px 24px', boxSizing: 'border-box' }}>
-          <p style={{ fontSize: '20px', fontWeight: 700, color: S.primary, marginBottom: '12px', letterSpacing: '-0.3px' }}>MatchU</p>
+          <img src="/logo.svg" alt="Match & Go" style={{ height: '36px', width: 'auto', marginBottom: '12px' }} />
           <span onClick={() => setShowDowngradeModal(true)} style={{ display: 'inline-flex', alignItems: 'center', backgroundColor: S.bgPale, color: S.primary, borderRadius: '27px', padding: '4px 12px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', userSelect: 'none', marginBottom: '24px', letterSpacing: '0.3px' }}>
             Premium actif
           </span>
