@@ -87,28 +87,19 @@ const GLOBAL_CSS = `
   html, body, #root { width: 100%; max-width: 100vw; overflow-x: hidden; }
 
   :root {
-    --color-primary:       #00B8D9;
-    --color-primary-dark:  #005490;
-    --color-primary-deep:  #034D82;
-    --color-primary-light: #27C0EF;
-    --color-primary-pale:  #EFFBFF;
-    --color-text-dark:     #183B56;
-    --color-text-body:     #90A3B4;
-    --color-text-muted:    #8EA9C1;
-    --color-text-white:    #FFFFFF;
-    --color-bg-white:      #FFFFFF;
-    --color-bg-soft:       #F5F9FF;
-    --color-bg-pale:       #EFFBFF;
-    --color-bg-footer:     #081315;
-    --color-border:        #EEF0F2;
-    --color-neutral:       #B3BAC5;
-    --color-neutral-dark:  #5A7184;
-    --color-warning:       #FAAD13;
+    --color-fuchsia:       #DB2777;
+    --color-fuchsia-light: #EC4899;
+    --color-peche:         #FF9A76;
+    --color-violet:        #7C3AED;
+    --color-creme:         #FDF6F0;
+    --color-bg-dark:       #1A0A12;
+    --color-footer:        #0D0508;
+    --color-text-dark:     #1A0A12;
+    --color-text-muted:    #A08090;
+    --color-border-light:  #F0E6EA;
     --color-success:       #36B37E;
-    --color-chart-light:   #9BE1F8;
-    --grad-hero:     linear-gradient(216.04deg, #27C0EF 13.84%, #00A8DB 83.53%);
-    --grad-cta:      linear-gradient(278.21deg, #005490 1.66%, #328BCB 96.78%);
-    --grad-section:  linear-gradient(270deg, #01B8D9 0%, #24CEED 100%);
+    --color-warning:       #FAAD13;
+    --grad-cta:            linear-gradient(278deg, #DB2777, #FF9A76);
   }
 
   .mu-root * {
@@ -121,13 +112,13 @@ const GLOBAL_CSS = `
   .mu-root p, .mu-root span, .mu-root div,
   .mu-root button, .mu-root input, .mu-root textarea { margin: 0; padding: 0; }
 
-  .mu-accent { color: #00B8D9; }
+  .mu-accent { color: #DB2777; }
 
   .mu-eyebrow {
     display: block;
     text-transform: uppercase;
     letter-spacing: 2px;
-    color: #90A3B4;
+    color: #A08090;
     font-size: 12px !important;
     font-weight: 500 !important;
     margin-bottom: 12px;
@@ -146,12 +137,12 @@ const GLOBAL_CSS = `
   .mu-card-hover { transition: transform 250ms ease; cursor: pointer; }
   .mu-card-hover:hover { transform: translateY(-4px); }
 
-  .mu-input-focus:focus { outline: none !important; border-color: #00B8D9 !important; }
+  .mu-input-focus:focus { outline: none !important; border-color: #DB2777 !important; }
 
-  .mu-h1        { font-size: 64px; font-weight: 700; line-height: 76px;  color: #183B56; }
-  .mu-h2        { font-size: 36px; font-weight: 700; line-height: 52px;  color: #183B56; }
-  .mu-h3        { font-size: 20px; font-weight: 700; line-height: 28px;  color: #183B56; }
-  .mu-h2-detail { font-size: 36px; font-weight: 700; line-height: 52px;  color: #183B56; }
+  .mu-h1        { font-size: 64px; font-weight: 700; line-height: 76px;  color: #1A0A12; }
+  .mu-h2        { font-size: 36px; font-weight: 700; line-height: 52px;  color: #1A0A12; }
+  .mu-h3        { font-size: 20px; font-weight: 700; line-height: 28px;  color: #1A0A12; }
+  .mu-h2-detail { font-size: 36px; font-weight: 700; line-height: 52px;  color: #1A0A12; }
 
   @media (max-width: 768px) {
     .mu-h1        { font-size: 34px; line-height: 1.2; }
@@ -163,27 +154,27 @@ const GLOBAL_CSS = `
 
 // ─── Design tokens (JS) ───────────────────────────────────────────────────────
 const S = {
-  primary:      '#00B8D9',
-  primaryDark:  '#005490',
-  primaryDeep:  '#034D82',
-  primaryLight: '#27C0EF',
-  bgPale:       '#EFFBFF',
-  textDark:     '#183B56',
-  textBody:     '#90A3B4',
-  textMuted:    '#8EA9C1',
+  primary:      '#DB2777',
+  primaryDark:  '#BE185D',
+  primaryDeep:  '#BE185D',
+  primaryLight: '#DB2777',
+  bgPale:       '#F0E6EA',
+  textDark:     '#1A0A12',
+  textBody:     '#A08090',
+  textMuted:    '#A08090',
   white:        '#FFFFFF',
   bgWhite:      '#FFFFFF',
-  bgSoft:       '#F5F9FF',
-  bgFooter:     '#081315',
-  border:       '#EEF0F2',
-  neutral:      '#B3BAC5',
-  neutralDark:  '#5A7184',
+  bgSoft:       '#FDF6F0',
+  bgFooter:     '#0D0508',
+  border:       '#F0E6EA',
+  neutral:      '#A08090',
+  neutralDark:  '#A08090',
   success:      '#36B37E',
   warning:      '#FAAD13',
-  chartLight:   '#9BE1F8',
-  gradHero:    'linear-gradient(216.04deg, #27C0EF 13.84%, #00A8DB 83.53%)',
-  gradCta:     'linear-gradient(278.21deg, #005490 1.66%, #328BCB 96.78%)',
-  gradSection: 'linear-gradient(270deg, #01B8D9 0%, #24CEED 100%)',
+  chartLight:   '#F0E6EA',
+  gradHero:    'linear-gradient(278deg, #DB2777, #FF9A76)',
+  gradCta:     'linear-gradient(278deg, #DB2777, #FF9A76)',
+  gradSection: 'linear-gradient(278deg, #DB2777, #FF9A76)',
 } as const;
 
 const inputStyle: React.CSSProperties = {
@@ -1059,7 +1050,7 @@ export default function App() {
 
       {/* Downgrade modal */}
       {showDowngradeModal && (
-        <div onClick={() => setShowDowngradeModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(24, 59, 86, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '24px' }}>
+        <div onClick={() => setShowDowngradeModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(26, 10, 18, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '24px' }}>
           <div onClick={e => e.stopPropagation()} style={{ backgroundColor: S.bgWhite, borderRadius: '8px', padding: '40px', maxWidth: '440px', width: '90%', filter: 'drop-shadow(0px 20px 47px rgba(0,0,0,0.12))' }}>
             <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '24px', fontWeight: 700, color: S.textDark, lineHeight: '32px', marginBottom: '12px' }}>Passer en version gratuite ?</h3>
             <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '16px', fontWeight: 400, color: S.textBody, lineHeight: '28px', marginBottom: '32px' }}>Tu perdras accès aux explications, aux onglets de tri et aux conseils personnalisés.</p>
