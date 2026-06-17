@@ -50,6 +50,15 @@ interface Offer {
   source: string;
 }
 
+interface SpecificCv {
+  offerId: number;
+  offerTitle: string;
+  company: string;
+  fileName: string;
+  uploadDate: string;
+  score: number;
+}
+
 const OFFERS: Offer[] = [
   { id: 1, title: 'Alternance Chef de Projet Digital', company: 'Publicis Groupe', location: 'Paris 8e', type: 'Alternance 12 mois', score: 92, matchPoints: ['Marketing digital', 'Gestion de projet', 'Canva', 'Notion'], gapPoints: ['SQL'], description: "Rejoins l'équipe digitale de Publicis pour piloter des projets de transformation online pour des clients du secteur luxe et retail.", missions: ['Coordonner les équipes créa, tech et media', 'Rédiger les briefs et suivre les livrables', 'Analyser les performances et produire les reportings', 'Participer aux réunions clients'], advice: ["Mets en avant ton projet SEO en Master 1", "Reformule 'stage de 2 mois' en 'mission de gestion de campagnes digitales'", "Ajoute Trello ou Asana - mentionnés 3 fois dans la fiche"], source: 'LinkedIn' },
   { id: 2, title: 'Alternance Traffic Manager', company: 'LVMH Digital', location: 'Paris 1er', type: 'Alternance 12 mois', score: 89, matchPoints: ['SEO/SEA', 'Google Analytics', 'Marketing digital'], gapPoints: ['Google Tag Manager', 'Expérience luxe'], description: "Intègre la division digitale de LVMH pour piloter les campagnes d'acquisition sur les marchés européens.", missions: ['Gérer les campagnes Google Ads et Meta', 'Analyser les flux de trafic', 'Produire les reportings hebdomadaires', 'Collaborer avec les équipes e-commerce'], advice: ["Mentionne Google Analytics 4 explicitement", "Ajoute une expérience chiffrée en acquisition payante", "Contextualise tes projets autour de marques premium"], source: 'Welcome to the Jungle' },
@@ -829,39 +838,473 @@ function OfferDetailFreeStep({ offer, goTo }: { offer: Offer; goTo: (s: Step) =>
 }
 
 // ─────────────────────────────────────────────
-// STEP 9 — OFFER DETAIL PREMIUM
+// SLUG HELPER
 // ─────────────────────────────────────────────
-function OfferDetailStep({ offer, goTo }: { offer: Offer; goTo: (s: Step) => void }) {
+function slugify(str: string, max = 30): string {
+  return str
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/\s+/g, '_')
+    .replace(/[^\w]/g, '')
+    .slice(0, max);
+}
+
+// ─────────────────────────────────────────────
+// STEP 9 — OFFER DETAIL PREMIUM (5 onglets)
+// ─────────────────────────────────────────────
+function OfferDetailStep({
+  offer, goTo, candidateData, specificCvs, setSpecificCvs, onCvUpdate,
+}: {
+  offer: Offer;
+  goTo: (s: Step) => void;
+  candidateData: CandidateData;
+  specificCvs: SpecificCv[];
+  setSpecificCvs: React.Dispatch<React.SetStateAction<SpecificCv[]>>;
+  onCvUpdate: () => void;
+}) {
   const isMobile = useWindowSize() < 768;
-  const rightCol = (
-    <div>
-      <div style={{ ...cardStyle, background: S.bgSoft, padding: '32px', position: isMobile ? 'static' : 'sticky', top: isMobile ? undefined : '40px' }}>
-        <span className="mu-eyebrow">TES CHANCES</span>
-        <span style={{ fontSize: isMobile ? '40px' : '56px', fontWeight: 700, color: S.primary, lineHeight: 1, display: 'block', marginBottom: '12px' }}>{offer.score}%</span>
-        <div style={{ background: S.border, height: '8px', borderRadius: '100px', marginBottom: '8px', overflow: 'hidden' }}>
-          <div style={{ background: S.gradCta, height: '100%', borderRadius: '100px', width: `${offer.score}%`, transition: '1s ease' }} />
-        </div>
-        <p style={{ fontSize: '14px', color: S.textBody, marginBottom: '24px', letterSpacing: '0.3px' }}>Compatibilité avec ce poste</p>
-        <hr style={{ border: 'none', borderTop: `1px solid ${S.border}`, marginBottom: '24px' }} />
-        <span className="mu-eyebrow">CONSEILS PERSONNALISÉS</span>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {offer.advice.map((a, i) => (
-            <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              <span style={{ color: S.primary, flexShrink: 0, fontSize: '18px', lineHeight: 1.4 }}>&bull;</span>
-              <p style={{ fontSize: '15px', lineHeight: '26px', color: S.textDark, letterSpacing: '0.3px' }}>{a}</p>
+  type Tab = 'offre' | 'profil' | 'cv' | 'lettre' | 'download';
+  const [activeTab, setActiveTab] = useState<Tab>('offre');
+
+  // ── CV state ──
+  const cvRef = useRef<HTMLInputElement>(null);
+  const [cvFileName, setCvFileName] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzeText, setAnalyzeText] = useState('');
+  const [progressKey, setProgressKey] = useState(0);
+  const [resolvedGaps, setResolvedGaps] = useState<string[]>([]);
+  const [remainingGaps, setRemainingGaps] = useState<string[]>(offer.gapPoints);
+  const [cvScore, setCvScore] = useState(offer.score);
+  const [cvUploaded, setCvUploaded] = useState(false);
+  const [applyToProfile, setApplyToProfile] = useState(false);
+  const [showApplyModal, setShowApplyModal] = useState(false);
+
+  // ── Letter state ──
+  const [letterText, setLetterText] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // ── Derived: letter bonus ──
+  const letterKeywords = (() => {
+    if (!letterText) return [] as string[];
+    const lower = letterText.toLowerCase();
+    const kws = [...offer.matchPoints, ...offer.gapPoints, ...offer.title.split(' ').filter(w => w.length > 4)];
+    return Array.from(new Set(kws.filter(kw => lower.includes(kw.toLowerCase()))));
+  })();
+  const letterWordCount = letterText.trim() ? letterText.trim().split(/\s+/).length : 0;
+  const letterBonus = Math.max(0, Math.min(10, letterKeywords.length) - (letterWordCount > 0 && letterWordCount < 100 ? 5 : 0));
+  const globalScore = Math.min(99, cvScore + letterBonus);
+
+  // ── CV recommendations ──
+  const recCount = cvScore < 40 ? 8 : cvScore < 60 ? 6 : cvScore < 75 ? 4 : cvScore < 90 ? 3 : 2;
+  const adviceRecs = offer.advice.slice(0, Math.min(offer.advice.length, recCount));
+  const gapRecs = remainingGaps.slice(0, Math.max(0, recCount - adviceRecs.length)).map(g => `Mentionne ${g} dans ton CV — critère présent dans la fiche de poste.`);
+  const recommendations = [...adviceRecs, ...gapRecs];
+
+  // ── CV upload handler ──
+  const handleCvUpload = (file: File) => {
+    const scoreAtUpload = cvScore;
+    setCvFileName(file.name);
+    setIsAnalyzing(true);
+    setProgressKey(k => k + 1);
+    setAnalyzeText('Lecture du CV...');
+    const steps = ['Lecture du CV...', 'Analyse des améliorations...', 'Calcul du nouveau score...'];
+    let i = 0;
+    const interval = setInterval(() => { i++; if (i < steps.length) setAnalyzeText(steps[i]); else clearInterval(interval); }, 800);
+    setTimeout(() => {
+      clearInterval(interval);
+      setIsAnalyzing(false);
+      setCvUploaded(true);
+      setRemainingGaps(prev => {
+        const count = Math.floor(Math.random() * 2) + 1;
+        const shuffled = [...prev].sort(() => Math.random() - 0.5);
+        const toResolve = shuffled.slice(0, Math.min(count, prev.length));
+        const newRemaining = prev.filter(g => !toResolve.includes(g));
+        const newScore = Math.min(99, scoreAtUpload + toResolve.length * 5);
+        setResolvedGaps(r => [...r, ...toResolve]);
+        setCvScore(newScore);
+        const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+        setSpecificCvs(all => {
+          const filtered = all.filter(c => c.offerId !== offer.id);
+          return [...filtered, { offerId: offer.id, offerTitle: offer.title, company: offer.company, fileName: file.name, uploadDate: today, score: newScore }];
+        });
+        return newRemaining;
+      });
+    }, 2500);
+  };
+
+  // ── Letter generation ──
+  const generateLetter = () => {
+    setIsGenerating(true);
+    setTimeout(() => {
+      const skills3 = offer.matchPoints.slice(0, 3).join(', ');
+      const letter = `Objet : Candidature – ${offer.title} – ${candidateData.firstName} ${candidateData.lastName}
+
+Madame, Monsieur,
+
+Actuellement en formation en marketing digital, je vous adresse ma candidature pour le poste de ${offer.title} au sein de ${offer.company}. Votre mission — ${offer.description.split('.')[0].toLowerCase()} — correspond pleinement à mes aspirations professionnelles.
+
+Fort(e) de mes compétences en ${skills3}, j'ai développé une approche rigoureuse et orientée résultats. ${recommendations[0] ? recommendations[0].split(' — ')[0] + '.' : ''} ${recommendations[1] ? recommendations[1].split(' — ')[0] + '.' : ''}
+
+Vos missions m'attirent particulièrement : ${offer.missions[0].toLowerCase()}${offer.missions[1] ? ', ainsi que ' + offer.missions[1].toLowerCase() : ''}. Je suis convaincu(e) que mon profil correspond aux attentes du poste et que je saurai m'intégrer rapidement dans votre équipe.
+
+Je reste disponible pour un entretien à votre convenance et vous adresse mes meilleures salutations.
+
+Cordialement,
+${candidateData.firstName} ${candidateData.lastName}
+${candidateData.email}`;
+      setLetterText(letter);
+      setIsGenerating(false);
+    }, 1500);
+  };
+
+  // ── Download helpers ──
+  const buildFileName = (prefix: string) =>
+    `${prefix}_${slugify(candidateData.firstName)}_${slugify(candidateData.lastName)}_${slugify(offer.title)}_${slugify(offer.company)}.txt`;
+
+  const downloadBlob = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadCv = () => downloadBlob(
+    `CV — ${candidateData.firstName} ${candidateData.lastName}\nFichier : ${cvFileName}\nScore : ${cvScore}%\nOffre : ${offer.title} chez ${offer.company}\n\nHARD SKILLS\n${candidateData.hardSkills.join(', ')}\n\nSOFT SKILLS\n${candidateData.softSkills.join(', ')}\n\nPOINTS RÉSOLUS\n${[...offer.matchPoints, ...resolvedGaps].join(', ')}\n\nAXES RESTANTS\n${remainingGaps.join(', ')}`,
+    buildFileName('CV')
+  );
+
+  const downloadLetter = () => downloadBlob(letterText, buildFileName('LM'));
+
+  const canDownload = cvUploaded || letterText.length > 0;
+
+  // ── Explanation maps ──
+  const matchExplain: Record<string, string> = {
+    'Marketing digital': 'compétence centrale de ce poste, mentionnée plusieurs fois dans la fiche',
+    'SEO/SEA': 'directement requis pour les campagnes d\'acquisition',
+    'Canva': 'outil de création visuelle attendu dans les missions',
+    'Google Analytics': 'indispensable pour le suivi des performances',
+    'Notion': 'outil de coordination mentionné dans la fiche',
+    'Copywriting': 'clé pour la production des contenus éditoriaux',
+  };
+  const gapExplain: Record<string, string> = {
+    'SQL': 'requis pour les reportings data, non détecté dans ton CV actuel',
+    'Google Tag Manager': 'outil de tracking attendu pour ce poste',
+    'TikTok Ads': 'canal prioritaire mentionné dans les missions',
+    'Adobe Premiere': 'montage vidéo requis pour la production de contenus',
+    'Adobe Suite': 'outils créatifs attendus pour ce poste',
+    'Jira': 'outil de gestion de projet utilisé par l\'équipe',
+    'Agile Scrum': 'méthode de travail de l\'équipe',
+    'Python basics': 'compétence analytique attendue pour ce rôle',
+    'A/B testing': 'pratique centrale sur ce poste growth',
+    'InDesign': 'outil print attendu pour ce poste communication',
+    'Salesforce': 'CRM utilisé par l\'équipe commerciale',
+    'Expérience luxe': 'contexte sectoriel valorisé par le recruteur',
+    'Expérience beauté': 'connaissance produit attendue pour ce rôle',
+    'Culture musicale': 'sensibilité à l\'univers de la marque attendue',
+    'Anglais courant': 'niveau requis pour travailler avec les équipes internationales',
+  };
+
+  const TABS: { key: Tab; label: string }[] = [
+    { key: 'offre',    label: "L'offre" },
+    { key: 'profil',   label: 'Mon profil' },
+    { key: 'cv',       label: 'Mon CV' },
+    { key: 'lettre',   label: 'Ma lettre' },
+    { key: 'download', label: 'Télécharger' },
+  ];
+
+  const titleWords = offer.title.split(' ');
+  const titleLast  = titleWords.slice(-1)[0];
+  const titleStart = titleWords.slice(0, -1).join(' ');
+
+  return (
+    <div className="mu-root" style={{ minHeight: '100vh', width: '100%', background: S.bgWhite, boxSizing: 'border-box' }}>
+
+      {/* ── HEADER ── */}
+      <div style={{ background: S.bgSoft, borderBottom: `1px solid ${S.border}`, padding: isMobile ? '24px 16px 20px' : '32px 40px 24px', boxSizing: 'border-box' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <BackButton onClick={() => goTo('match-premium')} />
+          <span className="mu-eyebrow">DÉTAIL DE L'OFFRE</span>
+          <h2 className="mu-h2" style={{ marginBottom: '4px', fontSize: isMobile ? '22px' : undefined }}>
+            {titleStart} <span className="mu-accent">{titleLast}</span>
+          </h2>
+          <p style={{ fontSize: '14px', color: S.textBody, marginBottom: '20px', letterSpacing: '0.3px' }}>
+            {offer.company} · {offer.location} · {offer.type}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '12px' }}>
+            <span style={{ fontSize: isMobile ? '40px' : '56px', fontWeight: 700, color: S.primary, lineHeight: 1, transition: 'all 0.5s ease' }}>
+              {globalScore}%
+            </span>
+            <div>
+              <p style={{ fontSize: '13px', color: S.textBody, marginBottom: '4px', letterSpacing: '0.3px' }}>Score global de compatibilité</p>
+              {letterBonus > 0 && <p style={{ fontSize: '12px', color: S.success, fontWeight: 500 }}>+{letterBonus} pts bonus lettre</p>}
             </div>
-          ))}
+          </div>
+          <div style={{ background: S.border, height: '8px', borderRadius: '100px', overflow: 'hidden', maxWidth: '400px' }}>
+            <div style={{ background: S.gradCta, height: '100%', borderRadius: '100px', width: `${globalScore}%`, transition: '1s ease' }} />
+          </div>
         </div>
       </div>
+
+      {/* ── TABS ── */}
+      <div style={{ borderBottom: `1px solid ${S.border}`, background: S.bgWhite, position: 'sticky', top: 0, zIndex: 50 }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: isMobile ? '0 16px' : '0 40px', display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' as React.CSSProperties['scrollbarWidth'] }}>
+          {TABS.map(tab => {
+            const disabled = tab.key === 'download' && !canDownload;
+            return (
+              <button key={tab.key} onClick={() => !disabled && setActiveTab(tab.key)}
+                title={disabled ? 'Complète au moins un artefact pour déverrouiller' : undefined}
+                style={{ background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === tab.key ? S.primary : 'transparent'}`, padding: '16px 20px', fontSize: '14px', fontWeight: activeTab === tab.key ? 700 : 500, color: disabled ? S.border : activeTab === tab.key ? S.primary : S.textBody, cursor: disabled ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', transition: '150ms ease', flexShrink: 0, letterSpacing: '0.3px' }}>
+                {tab.label}{tab.key === 'download' && !canDownload ? ' 🔒' : ''}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── CONTENT ── */}
+      <div className="mu-step" style={{ maxWidth: '1100px', margin: '0 auto', padding: isMobile ? '24px 16px' : '40px 40px', boxSizing: 'border-box' }}>
+
+        {/* ── TAB 1 — L'offre ── */}
+        {activeTab === 'offre' && (
+          <div style={{ maxWidth: '720px' }}>
+            <span className="mu-eyebrow">DESCRIPTION</span>
+            <p style={{ fontSize: '16px', lineHeight: '28px', color: S.textDark, marginBottom: '40px' }}>{offer.description}</p>
+            <span className="mu-eyebrow">MISSIONS PRINCIPALES</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '48px' }}>
+              {offer.missions.map((m, i) => (
+                <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                  <span style={{ color: S.primary, flexShrink: 0, fontSize: '18px', lineHeight: 1.4 }}>&bull;</span>
+                  <p style={{ fontSize: '16px', lineHeight: '28px', color: S.textDark }}>{m}</p>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => alert(`Redirection vers ${offer.source}`)} style={{ ...btnNavy }}>
+              Voir l'offre sur {offer.source} &nbsp;&#8599;
+            </button>
+          </div>
+        )}
+
+        {/* ── TAB 2 — Mon profil ── */}
+        {activeTab === 'profil' && (
+          <div>
+            <div style={{ background: S.gradCta, borderRadius: '8px', padding: isMobile ? '20px 24px' : '24px 32px', display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center', marginBottom: '24px' }}>
+              <p style={{ color: S.white, fontWeight: 500, fontSize: '16px', letterSpacing: '0.3px' }}>
+                <span style={{ fontSize: isMobile ? '28px' : '36px', fontWeight: 700, display: 'block', lineHeight: 1 }}>{offer.matchPoints.length}</span>points forts
+              </p>
+              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '24px' }}>·</span>
+              <p style={{ color: S.white, fontWeight: 500, fontSize: '16px', letterSpacing: '0.3px' }}>
+                <span style={{ fontSize: isMobile ? '28px' : '36px', fontWeight: 700, display: 'block', lineHeight: 1 }}>{remainingGaps.length}</span>axes d'amélioration
+              </p>
+              {resolvedGaps.length > 0 && (
+                <>
+                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '24px' }}>·</span>
+                  <p style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '16px', letterSpacing: '0.3px' }}>
+                    <span style={{ fontSize: isMobile ? '28px' : '36px', fontWeight: 700, display: 'block', lineHeight: 1 }}>{resolvedGaps.length}</span>résolus via CV v2
+                  </p>
+                </>
+              )}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '24px' }}>
+              <div style={{ ...cardStyle, padding: '28px' }}>
+                <span className="mu-eyebrow">TES FORCES</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {offer.matchPoints.map(pt => (
+                    <div key={pt} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                      <span style={{ color: S.success, flexShrink: 0, fontWeight: 700, marginTop: '2px' }}>✓</span>
+                      <div>
+                        <p style={{ fontSize: '14px', fontWeight: 600, color: S.textDark, marginBottom: '3px' }}>{pt}</p>
+                        <p style={{ fontSize: '13px', color: S.textBody, lineHeight: '20px' }}>{matchExplain[pt] || 'compétence valorisée sur ce poste'}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ ...cardStyle, padding: '28px' }}>
+                <span className="mu-eyebrow">TES AXES D'AMÉLIORATION</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {remainingGaps.length === 0
+                    ? <p style={{ fontSize: '14px', color: S.success, fontWeight: 500 }}>✓ Tous les écarts ont été comblés !</p>
+                    : remainingGaps.map(pt => (
+                      <div key={pt} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                        <span style={{ color: '#B91C1C', flexShrink: 0, fontWeight: 700, marginTop: '2px' }}>✗</span>
+                        <div>
+                          <p style={{ fontSize: '14px', fontWeight: 600, color: S.textDark, marginBottom: '3px' }}>{pt}</p>
+                          <p style={{ fontSize: '13px', color: S.textBody, lineHeight: '20px' }}>{gapExplain[pt] || 'critère requis, non détecté dans ton CV actuel'}</p>
+                        </div>
+                      </div>
+                    ))
+                  }
+                  {resolvedGaps.length > 0 && (
+                    <div style={{ borderTop: `1px solid ${S.border}`, paddingTop: '16px', marginTop: '4px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 600, color: S.success, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Résolus par ton CV v2</p>
+                      {resolvedGaps.map(pt => (
+                        <div key={pt} style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '8px' }}>
+                          <span style={{ color: S.success, fontWeight: 700 }}>✓</span>
+                          <p style={{ fontSize: '14px', fontWeight: 500, color: S.success }}>{pt}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 3 — Mon CV ── */}
+        {activeTab === 'cv' && (
+          <div style={{ maxWidth: '720px' }}>
+            <div style={{ ...cardStyle, padding: '28px', marginBottom: '28px' }}>
+              <span className="mu-eyebrow">RECOMMANDATIONS CV ({recommendations.length})</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {recommendations.map((rec, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                    <span style={{ color: S.primary, flexShrink: 0, fontWeight: 700, fontSize: '15px', minWidth: '20px', textAlign: 'center', lineHeight: '26px' }}>{i + 1}</span>
+                    <p style={{ fontSize: '15px', color: S.textDark, lineHeight: '26px' }}>{rec}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ ...cardStyle, padding: '28px' }}>
+              <span className="mu-eyebrow">OPTIMISER MON CV POUR CETTE OFFRE</span>
+              <p style={{ fontSize: '14px', color: S.textBody, lineHeight: '22px', marginBottom: '20px' }}>
+                Uploade une version améliorée de ton CV. Match&amp;Go recalcule ton score en tenant compte des critères spécifiques de cette offre.
+              </p>
+              <div onClick={() => !isAnalyzing && cvRef.current?.click()} style={{ ...cardStyle, border: `1.5px dashed ${S.border}`, padding: '36px 24px', cursor: isAnalyzing ? 'default' : 'pointer', marginBottom: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', minHeight: '130px', background: S.bgSoft }}>
+                {!isAnalyzing ? (
+                  <>
+                    <p style={{ fontSize: '15px', fontWeight: 500, color: S.textDark }}>{cvFileName || 'Glisse ton CV ici ou clique pour sélectionner'}</p>
+                    <p style={{ fontSize: '13px', color: S.textBody }}>PDF, Word – max 5 Mo</p>
+                  </>
+                ) : (
+                  <div style={{ width: '100%' }}>
+                    <div style={{ background: S.border, borderRadius: '100px', height: '6px', marginBottom: '16px', overflow: 'hidden' }}>
+                      <div key={progressKey} className="mu-progress-bar" style={{ background: S.primary, height: '100%', borderRadius: '100px', width: '0%' }} />
+                    </div>
+                    <p style={{ fontSize: '14px', fontWeight: 500, color: S.textDark, textAlign: 'center' }}>{analyzeText}</p>
+                  </div>
+                )}
+              </div>
+              <input ref={cvRef} type="file" accept=".pdf,.doc,.docx" style={{ display: 'none' }} onChange={e => { const f = e.target.files?.[0]; if (f) handleCvUpload(f); }} />
+              {resolvedGaps.length > 0 && (
+                <div style={{ background: '#EDFAF3', borderRadius: '8px', padding: '16px', marginBottom: '16px' }}>
+                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#1A7A4A', marginBottom: '8px' }}>✓ Compétences détectées dans ton CV v2</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {resolvedGaps.map(g => <span key={g} style={{ background: S.white, color: '#1A7A4A', border: '1px solid #86EFAC', borderRadius: '27px', padding: '4px 12px', fontSize: '12px', fontWeight: 500 }}>✓ {g}</span>)}
+                  </div>
+                </div>
+              )}
+              {cvUploaded && (
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', marginTop: '12px' }}>
+                  <input type="checkbox" checked={applyToProfile} onChange={e => { setApplyToProfile(e.target.checked); if (e.target.checked) setShowApplyModal(true); }} style={{ accentColor: S.primary, width: '16px', height: '16px', cursor: 'pointer' }} />
+                  <span style={{ fontSize: '14px', color: S.textDark, fontWeight: 500 }}>Appliquer ce CV à mon profil général</span>
+                </label>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 4 — Ma lettre ── */}
+        {activeTab === 'lettre' && (
+          <div style={{ maxWidth: '800px' }}>
+            {!letterText && !isGenerating && (
+              <div style={{ textAlign: 'center', padding: isMobile ? '40px 16px' : '64px 24px' }}>
+                <p style={{ fontSize: '16px', color: S.textBody, marginBottom: '28px', lineHeight: '28px' }}>
+                  Génère une proposition de lettre de motivation personnalisée,<br />basée sur ton profil et les critères de cette offre.
+                </p>
+                <button onClick={generateLetter} style={{ ...btnNavy }}>Générer une proposition de lettre</button>
+              </div>
+            )}
+            {isGenerating && (
+              <div style={{ textAlign: 'center', padding: isMobile ? '40px 16px' : '64px 24px' }}>
+                <div style={{ background: S.border, borderRadius: '100px', height: '6px', overflow: 'hidden', maxWidth: '300px', margin: '0 auto 20px' }}>
+                  <div className="mu-progress-bar" style={{ background: S.primary, height: '100%', borderRadius: '100px', width: '0%' }} />
+                </div>
+                <p style={{ fontSize: '15px', fontWeight: 500, color: S.textDark }}>Génération en cours...</p>
+              </div>
+            )}
+            {letterText && !isGenerating && (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{ background: letterBonus > 0 ? '#EDFAF3' : S.bgSoft, borderRadius: '8px', padding: '10px 16px' }}>
+                    <span style={{ fontSize: '14px', fontWeight: 600, color: letterBonus > 0 ? '#1A7A4A' : S.textBody }}>
+                      Bonus lettre : +{letterBonus} point{letterBonus > 1 ? 's' : ''} ({letterKeywords.length} mot{letterKeywords.length > 1 ? 's-clés' : '-clé'} détecté{letterKeywords.length > 1 ? 's' : ''})
+                    </span>
+                    {letterWordCount > 0 && letterWordCount < 100 && <span style={{ fontSize: '12px', color: '#B91C1C', marginLeft: '8px' }}>· trop courte (−5 pts)</span>}
+                  </div>
+                  <button onClick={generateLetter} style={{ ...btnSmall, background: 'transparent', color: S.primary, border: `1px solid ${S.border}` }}>Régénérer</button>
+                </div>
+                <textarea value={letterText} onChange={e => setLetterText(e.target.value)} className="mu-input-focus" style={{ ...inputStyle, minHeight: '400px', resize: 'vertical', lineHeight: '28px', borderRadius: '8px' }} />
+                <p style={{ fontSize: '13px', color: S.textBody, marginTop: '8px', letterSpacing: '0.3px' }}>{letterWordCount} mots</p>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── TAB 5 — Télécharger ── */}
+        {activeTab === 'download' && (
+          <div style={{ maxWidth: '720px' }}>
+            {!canDownload ? (
+              <div style={{ textAlign: 'center', padding: isMobile ? '40px 16px' : '64px 24px' }}>
+                <p style={{ fontSize: '16px', color: S.textBody, lineHeight: '28px' }}>
+                  Complète au moins un artefact pour accéder aux téléchargements.<br />
+                  Optimise ton CV (onglet "Mon CV") ou rédige ta lettre (onglet "Ma lettre").
+                </p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {cvUploaded && (
+                  <div style={{ ...cardStyle, padding: '24px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', gap: '16px' }}>
+                    <div>
+                      <span className="mu-eyebrow" style={{ marginBottom: '4px' }}>CV OPTIMISÉ</span>
+                      <p style={{ fontSize: '15px', fontWeight: 600, color: S.textDark }}>{cvFileName}</p>
+                      <p style={{ fontSize: '13px', color: S.textBody, marginTop: '4px', letterSpacing: '0.3px' }}>Score atteint : <span style={{ color: S.primary, fontWeight: 700 }}>{cvScore}%</span></p>
+                    </div>
+                    <button onClick={downloadCv} style={{ ...btnSmall, flexShrink: 0 }}>Télécharger CV</button>
+                  </div>
+                )}
+                {letterText.length > 0 && (
+                  <div style={{ ...cardStyle, padding: '24px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', gap: '16px' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span className="mu-eyebrow" style={{ marginBottom: '4px' }}>LETTRE DE MOTIVATION</span>
+                      <p style={{ fontSize: '13px', color: S.textDark, lineHeight: '22px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as React.CSSProperties['WebkitBoxOrient'] }}>
+                        {letterText.split('\n').filter(l => l.trim()).slice(0, 2).join(' — ')}
+                      </p>
+                    </div>
+                    <button onClick={downloadLetter} style={{ ...btnSmall, flexShrink: 0 }}>Télécharger LM</button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── Modal — Appliquer au profil général ── */}
+      {showApplyModal && (
+        <div onClick={() => { setShowApplyModal(false); setApplyToProfile(false); }} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(26,10,18,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '24px' }}>
+          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: S.bgWhite, borderRadius: '8px', padding: '40px', maxWidth: '440px', width: '90%', filter: 'drop-shadow(0px 20px 47px rgba(0,0,0,0.12))' }}>
+            <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '22px', fontWeight: 700, color: S.textDark, lineHeight: '30px', marginBottom: '12px' }}>Appliquer à ton profil général ?</h3>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '15px', color: S.textBody, lineHeight: '26px', marginBottom: '28px' }}>
+              {resolvedGaps.length > 0
+                ? `Les compétences ${resolvedGaps.join(', ')} seront ajoutées à ton profil et les scores de toutes tes offres recalculés.`
+                : 'Ton profil général sera mis à jour avec ce nouveau CV.'}
+            </p>
+            <div style={{ display: 'flex', gap: '12px', flexDirection: isMobile ? 'column' : 'row' }}>
+              <button onClick={() => { setShowApplyModal(false); setApplyToProfile(false); }} style={{ flex: 1, background: 'transparent', border: `1.5px solid ${S.border}`, borderRadius: '4px', padding: '13px 24px', fontFamily: 'DM Sans, sans-serif', fontSize: '14px', fontWeight: 500, color: S.textDark, cursor: 'pointer', letterSpacing: '0.3px' }}>Annuler</button>
+              <button onClick={() => { onCvUpdate(); setShowApplyModal(false); }} style={{ flex: 1, background: S.gradCta, border: 'none', borderRadius: '4px', padding: '14px 24px', fontFamily: 'DM Sans, sans-serif', fontSize: '14px', fontWeight: 500, color: S.white, cursor: 'pointer', letterSpacing: '0.3px' }}>Confirmer</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-  return <DetailLayout offer={offer} backStep="match-premium" goTo={goTo} rightCol={rightCol} />;
 }
 
 // ─────────────────────────────────────────────
 // PROFILE STEP
 // ─────────────────────────────────────────────
-function ProfileStep({ candidateData, setCandidateData, isPremium, onCvUpdate, goTo }: { candidateData: CandidateData; setCandidateData: React.Dispatch<React.SetStateAction<CandidateData>>; isPremium: boolean; onCvUpdate: () => void; goTo: (s: Step) => void }) {
+function ProfileStep({ candidateData, setCandidateData, isPremium, onCvUpdate, goTo, specificCvs, setSpecificCvs }: { candidateData: CandidateData; setCandidateData: React.Dispatch<React.SetStateAction<CandidateData>>; isPremium: boolean; onCvUpdate: () => void; goTo: (s: Step) => void; specificCvs: SpecificCv[]; setSpecificCvs: React.Dispatch<React.SetStateAction<SpecificCv[]>>; }) {
   const isMobile = useWindowSize() < 768;
   const [newHard, setNewHard] = useState(''); const [newSoft, setNewSoft] = useState('');
   const [addingHard, setAddingHard] = useState(false); const [addingSoft, setAddingSoft] = useState(false);
@@ -871,6 +1314,10 @@ function ProfileStep({ candidateData, setCandidateData, isPremium, onCvUpdate, g
   const [analyzeText, setAnalyzeText] = useState('');
   const [cvUpdated, setCvUpdated] = useState(false);
   const cvRef = useRef<HTMLInputElement>(null);
+  const updateCvRef = useRef<HTMLInputElement>(null);
+  const [updatingCvId, setUpdatingCvId] = useState<number | null>(null);
+  const [isUpdateAnalyzing, setIsUpdateAnalyzing] = useState(false);
+  const [updateAnalyzeText, setUpdateAnalyzeText] = useState('');
 
   const removeHard = (s: string) => setCandidateData(prev => ({ ...prev, hardSkills: prev.hardSkills.filter(x => x !== s) }));
   const removeSoft = (s: string) => setCandidateData(prev => ({ ...prev, softSkills: prev.softSkills.filter(x => x !== s) }));
@@ -892,6 +1339,33 @@ function ProfileStep({ candidateData, setCandidateData, isPremium, onCvUpdate, g
       setCvUpdated(true);
       onCvUpdate();
     }, 2500);
+  };
+
+  const handleSpecificCvUpdate = (cv: SpecificCv, file: File) => {
+    setIsUpdateAnalyzing(true);
+    setUpdatingCvId(cv.offerId);
+    setUpdateAnalyzeText('Lecture du CV...');
+    const steps = ['Lecture du CV...', 'Analyse des améliorations...', 'Mise à jour du score...'];
+    let i = 0;
+    const interval = setInterval(() => { i++; if (i < steps.length) setUpdateAnalyzeText(steps[i]); else clearInterval(interval); }, 800);
+    setTimeout(() => {
+      clearInterval(interval);
+      setIsUpdateAnalyzing(false);
+      setUpdatingCvId(null);
+      const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+      setSpecificCvs(prev => prev.map(c => c.offerId === cv.offerId ? { ...c, fileName: file.name, uploadDate: today, score: Math.min(99, c.score + 5) } : c));
+    }, 2500);
+  };
+
+  const downloadSpecificCv = (cv: SpecificCv) => {
+    const content = `CV — ${candidateData.firstName} ${candidateData.lastName}\nFichier : ${cv.fileName}\nOffre : ${cv.offerTitle} chez ${cv.company}\nScore : ${cv.score}%\nDate : ${cv.uploadDate}\n\nHARD SKILLS\n${candidateData.hardSkills.join(', ')}\n\nSOFT SKILLS\n${candidateData.softSkills.join(', ')}`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `CV_${slugify(candidateData.firstName)}_${slugify(candidateData.lastName)}_${slugify(cv.offerTitle)}_${slugify(cv.company)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const addBtnStyle: React.CSSProperties = { background: 'transparent', border: `1px solid ${S.border}`, borderRadius: '27px', padding: '6px 16px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', color: S.textDark, letterSpacing: '0.3px' };
@@ -939,6 +1413,47 @@ function ProfileStep({ candidateData, setCandidateData, isPremium, onCvUpdate, g
               )}
             </div>
           )}
+        </div>
+
+        {/* Section — CVs spécifiques */}
+        <div style={{ ...cardStyle, padding: '32px', marginBottom: '24px' }}>
+          <span className="mu-eyebrow">MES CVs SPÉCIFIQUES</span>
+          {specificCvs.length === 0 ? (
+            <p style={{ fontSize: '14px', color: S.textBody, lineHeight: '22px' }}>Aucun CV spécifique pour le moment. Optimise ton CV depuis une offre.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {specificCvs.map(cv => (
+                <div key={cv.offerId} style={{ background: S.bgSoft, borderRadius: '8px', padding: '16px 20px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                    <div>
+                      <p style={{ fontSize: '15px', fontWeight: 600, color: S.textDark, marginBottom: '2px' }}>{cv.offerTitle}</p>
+                      <p style={{ fontSize: '13px', color: S.textBody, letterSpacing: '0.3px' }}>{cv.company} · Score : <span style={{ color: S.primary, fontWeight: 600 }}>{cv.score}%</span></p>
+                      <p style={{ fontSize: '12px', color: S.textBody, marginTop: '4px', letterSpacing: '0.3px' }}>{cv.uploadDate} · {cv.fileName}</p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                      <button onClick={() => downloadSpecificCv(cv)} style={{ ...btnSmall }}>Télécharger</button>
+                      <button onClick={() => { setUpdatingCvId(cv.offerId); updateCvRef.current?.click(); }} disabled={isUpdateAnalyzing && updatingCvId === cv.offerId} style={{ ...btnSmall, background: 'transparent', color: S.primary, border: `1px solid ${S.border}` }}>
+                        {isUpdateAnalyzing && updatingCvId === cv.offerId ? 'Analyse...' : 'Mettre à jour'}
+                      </button>
+                    </div>
+                  </div>
+                  {isUpdateAnalyzing && updatingCvId === cv.offerId && (
+                    <div style={{ marginTop: '12px' }}>
+                      <div style={{ background: S.border, borderRadius: '100px', height: '4px', overflow: 'hidden', marginBottom: '8px' }}>
+                        <div className="mu-progress-bar" style={{ background: S.primary, height: '100%', borderRadius: '100px', width: '0%' }} />
+                      </div>
+                      <p style={{ fontSize: '12px', color: S.textBody, letterSpacing: '0.3px' }}>{updateAnalyzeText}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          <input ref={updateCvRef} type="file" accept=".pdf,.doc,.docx" style={{ display: 'none' }} onChange={e => {
+            const f = e.target.files?.[0];
+            const cv = updatingCvId !== null ? specificCvs.find(c => c.offerId === updatingCvId) : null;
+            if (f && cv) handleSpecificCvUpdate(cv, f);
+          }} />
         </div>
 
         {/* Section 2 */}
@@ -1016,6 +1531,7 @@ export default function App() {
   const [offers, setOffers] = useState<Offer[]>(OFFERS);
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const [showDowngradeModal, setShowDowngradeModal] = useState(false);
+  const [specificCvs, setSpecificCvs] = useState<SpecificCv[]>([]);
 
   const goTo = (step: Step) => {
     setCurrentStep(step);
@@ -1045,8 +1561,8 @@ export default function App() {
       {currentStep === 'payment'          && <PaymentStep setIsPremium={setIsPremium} goTo={goTo} />}
       {currentStep === 'match-premium'    && <MatchPremiumStep offers={offers} setSelectedOffer={setSelectedOffer} setIsPremium={setIsPremium} setShowDowngradeModal={setShowDowngradeModal} goTo={goTo} />}
       {currentStep === 'offer-detail-free'&& selectedOffer && <OfferDetailFreeStep offer={selectedOffer} goTo={goTo} />}
-      {currentStep === 'offer-detail'     && selectedOffer && <OfferDetailStep offer={selectedOffer} goTo={goTo} />}
-      {currentStep === 'profile'          && <ProfileStep candidateData={candidateData} setCandidateData={setCandidateData} isPremium={isPremium} onCvUpdate={handleCvUpdate} goTo={goTo} />}
+      {currentStep === 'offer-detail'     && selectedOffer && <OfferDetailStep offer={selectedOffer} goTo={goTo} candidateData={candidateData} specificCvs={specificCvs} setSpecificCvs={setSpecificCvs} onCvUpdate={handleCvUpdate} />}
+      {currentStep === 'profile'          && <ProfileStep candidateData={candidateData} setCandidateData={setCandidateData} isPremium={isPremium} onCvUpdate={handleCvUpdate} goTo={goTo} specificCvs={specificCvs} setSpecificCvs={setSpecificCvs} />}
 
       {/* Downgrade modal */}
       {showDowngradeModal && (
