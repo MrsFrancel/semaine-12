@@ -524,7 +524,7 @@ function MatchFreeStep({ offers, goTo, setSelectedOffer }: { offers: Offer[]; go
     <>
       {/* Banner — hors du conteneur animé pour que position:fixed soit ancré à la fenêtre */}
       <div ref={bannerRef} style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: S.gradSection, color: S.white, padding: '12px 24px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', gap: '8px', boxSizing: 'border-box' }}>
-        <p style={{ fontSize: '14px', fontWeight: 500, color: S.white, letterSpacing: '0.3px' }}>Tu es en version gratuite : score visible, explications masquées</p>
+        <p style={{ fontSize: '14px', fontWeight: 500, color: S.white, letterSpacing: '0.3px' }}>Version gratuite : score de compatibilité visible uniquement. Premium : forces &amp; faiblesses détaillées, CV optimisé par offre, lettre de motivation générée, artefacts téléchargeables prêts pour les recruteurs.</p>
         <button onClick={() => goTo('payment')} style={{ background: S.bgWhite, color: S.primary, border: 'none', borderRadius: '4px', padding: '0 20px', height: '38px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap', letterSpacing: '0.3px' }}>
           Passer en Premium - 9€/mois
         </button>
@@ -592,6 +592,28 @@ function FreeOfferCard({ offer, goTo, setSelectedOffer, isMobile }: { offer: Off
       <div style={{ backgroundColor: S.bgSoft, borderRadius: '8px', padding: '12px', filter: 'blur(4px)', userSelect: 'none', pointerEvents: 'none', marginBottom: '16px' }}>
         <p style={{ fontSize: '13px', color: S.textDark }}>██████ ██████ ████ ███████ █████</p>
       </div>
+
+      {/* Bloc A — aperçu flouté forces & faiblesses */}
+      <div style={{ position: 'relative', marginBottom: '12px' }}>
+        <span className="mu-eyebrow" style={{ marginBottom: '8px' }}>FORCES &amp; FAIBLESSES</span>
+        <span style={{ position: 'absolute', top: 0, right: 0, fontSize: '14px' }}>🔒</span>
+        <div style={{ filter: 'blur(5px)', userSelect: 'none', pointerEvents: 'none', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <span style={{ background: '#EDFAF3', color: '#1A7A4A', borderRadius: '27px', padding: '4px 12px', fontSize: '12px', fontWeight: 500 }}>██████</span>
+            <span style={{ background: '#EDFAF3', color: '#1A7A4A', borderRadius: '27px', padding: '4px 12px', fontSize: '12px', fontWeight: 500 }}>████████</span>
+          </div>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <span style={{ background: '#FEF2F2', color: '#B91C1C', borderRadius: '27px', padding: '4px 12px', fontSize: '12px', fontWeight: 500 }}>█████</span>
+            <span style={{ background: '#FEF2F2', color: '#B91C1C', borderRadius: '27px', padding: '4px 12px', fontSize: '12px', fontWeight: 500 }}>███████</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Bloc B — artefacts verrouillés */}
+      <p style={{ fontSize: '12px', color: S.textBody, marginBottom: '12px', letterSpacing: '0.3px' }}>
+        🔒 CV optimisé <span style={{ color: S.textMuted }}> · </span>🔒 Lettre de motivation <span style={{ color: S.textMuted }}> · </span>🔒 Téléchargement ATS
+      </p>
+
       <button onClick={() => { setSelectedOffer(offer); goTo('offer-detail-free'); }} style={{ ...btnSmall, background: S.gradCta }}>
         Voir l'offre complète
       </button>
@@ -607,7 +629,12 @@ function PaymentStep({ setIsPremium, goTo }: { setIsPremium: (v: boolean) => voi
   const [form, setForm] = useState({ cardNumber: '', expiry: '', cvv: '', name: '' });
   const [isProcessing, setIsProcessing] = useState(false);
   const handlePay = () => { setIsProcessing(true); setTimeout(() => { setIsPremium(true); goTo('match-premium'); }, 1500); };
-  const FEATURES = ['Score de compatibilité expliqué critère par critère', 'Offres classées en 3 niveaux : forts, partiels, faibles', 'Conseils personnalisés CV pour chaque offre', 'Alertes nouvelles offres en temps réel'];
+  const FEATURES = [
+    'Analyse détaillée de tes forces et faiblesses face à chaque offre',
+    'CV itératif spécifique à l\'offre : upload ta v2, le score se met à jour',
+    'Génération et édition de ta lettre de motivation optimisée pour le poste',
+    'Téléchargement de tes artefacts (CV + LM) prêts pour les ATS et recruteurs',
+  ];
 
   return (
     <div className="mu-step" style={{ background: S.bgSoft, minHeight: '100vh', display: 'flex', justifyContent: 'center', padding: isMobile ? '40px 16px' : '80px 24px', width: '100%', boxSizing: 'border-box' }}>
@@ -818,23 +845,104 @@ function DetailLayout({ offer, backStep, goTo, rightCol }: { offer: Offer; backS
 // ─────────────────────────────────────────────
 function OfferDetailFreeStep({ offer, goTo }: { offer: Offer; goTo: (s: Step) => void }) {
   const isMobile = useWindowSize() < 768;
-  const rightCol = (
-    <div>
-      <div style={{ ...cardStyle, background: S.bgSoft, padding: '32px', position: isMobile ? 'static' : 'sticky', top: isMobile ? undefined : '40px' }}>
-        <span className="mu-eyebrow">TES CHANCES</span>
-        <span style={{ fontSize: isMobile ? '36px' : '48px', fontWeight: 700, color: S.primary, lineHeight: 1, display: 'block', marginBottom: '4px' }}>{offer.score}%</span>
-        <p style={{ fontSize: '14px', color: S.textBody, marginBottom: '24px', letterSpacing: '0.3px' }}>de compatibilité</p>
-        <hr style={{ border: 'none', borderTop: `1px solid ${S.border}`, marginBottom: '24px' }} />
-        <p style={{ fontSize: '16px', color: S.textDark, lineHeight: '28px', marginBottom: '24px' }}>
-          Découvre pourquoi tu matches et comment améliorer tes chances sur cette offre.
-        </p>
-        <button onClick={() => goTo('payment')} style={{ ...btnNavy, width: '100%' }}>
-          Passer en Premium - 9€/mois
-        </button>
+  type FreeTab = 'offre' | 'profil' | 'cv' | 'lettre' | 'download';
+  const [activeTab, setActiveTab] = useState<FreeTab>('offre');
+
+  const LOCKED_CONTENT: Record<Exclude<FreeTab, 'offre'>, { desc: string }> = {
+    profil:   { desc: 'Découvre en détail tes forces et tes axes d\'amélioration pour cette offre.' },
+    cv:       { desc: 'Optimise ton CV spécifiquement pour ce poste et vois ton score monter en temps réel.' },
+    lettre:   { desc: 'Génère et personnalise ta lettre de motivation optimisée pour ce poste.' },
+    download: { desc: 'Télécharge ton CV et ta lettre prêts à l\'emploi avec une nomenclature ATS.' },
+  };
+
+  const FREE_TABS: { key: FreeTab; label: string }[] = [
+    { key: 'offre',    label: "L'offre" },
+    { key: 'profil',   label: 'Mon profil 🔒' },
+    { key: 'cv',       label: 'Mon CV 🔒' },
+    { key: 'lettre',   label: 'Ma lettre 🔒' },
+    { key: 'download', label: 'Télécharger 🔒' },
+  ];
+
+  const titleWords = offer.title.split(' ');
+  const titleLast  = titleWords.slice(-1)[0];
+  const titleStart = titleWords.slice(0, -1).join(' ');
+
+  return (
+    <div className="mu-root" style={{ minHeight: '100vh', width: '100%', background: S.bgWhite, boxSizing: 'border-box' }}>
+
+      {/* Header */}
+      <div style={{ background: S.bgSoft, borderBottom: `1px solid ${S.border}`, padding: isMobile ? '24px 16px 20px' : '32px 40px 24px', boxSizing: 'border-box' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <BackButton onClick={() => goTo('match-free')} />
+          <span className="mu-eyebrow">DÉTAIL DE L'OFFRE</span>
+          <h2 className="mu-h2" style={{ marginBottom: '4px', fontSize: isMobile ? '22px' : undefined }}>
+            {titleStart} <span className="mu-accent">{titleLast}</span>
+          </h2>
+          <p style={{ fontSize: '14px', color: S.textBody, marginBottom: '20px', letterSpacing: '0.3px' }}>
+            {offer.company} · {offer.location} · {offer.type}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: isMobile ? '40px' : '56px', fontWeight: 700, color: S.primary, lineHeight: 1 }}>
+              {offer.score}%
+            </span>
+            <p style={{ fontSize: '13px', color: S.textBody, letterSpacing: '0.3px' }}>de compatibilité</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ borderBottom: `1px solid ${S.border}`, background: S.bgWhite, position: 'sticky', top: 0, zIndex: 50 }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: isMobile ? '0 16px' : '0 40px', display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' as React.CSSProperties['scrollbarWidth'] }}>
+          {FREE_TABS.map(tab => {
+            const locked = tab.key !== 'offre';
+            return (
+              <button key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                style={{ background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === tab.key ? S.primary : 'transparent'}`, padding: '16px 20px', fontSize: '14px', fontWeight: activeTab === tab.key ? 700 : 500, color: locked ? S.textBody : activeTab === tab.key ? S.primary : S.textBody, cursor: 'pointer', whiteSpace: 'nowrap', transition: '150ms ease', flexShrink: 0, letterSpacing: '0.3px' }}>
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="mu-step" style={{ maxWidth: '1100px', margin: '0 auto', padding: isMobile ? '24px 16px' : '40px 40px', boxSizing: 'border-box' }}>
+
+        {activeTab === 'offre' && (
+          <div style={{ maxWidth: '720px' }}>
+            <span className="mu-eyebrow">DESCRIPTION</span>
+            <p style={{ fontSize: '16px', lineHeight: '28px', color: S.textDark, marginBottom: '40px' }}>{offer.description}</p>
+            <span className="mu-eyebrow">MISSIONS PRINCIPALES</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '48px' }}>
+              {offer.missions.map((m, i) => (
+                <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                  <span style={{ color: S.primary, flexShrink: 0, fontSize: '18px', lineHeight: 1.4 }}>&bull;</span>
+                  <p style={{ fontSize: '16px', lineHeight: '28px', color: S.textDark }}>{m}</p>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => alert(`Redirection vers ${offer.source}`)} style={{ ...btnNavy }}>
+              Voir l'offre sur {offer.source} &nbsp;&#8599;
+            </button>
+          </div>
+        )}
+
+        {activeTab !== 'offre' && (
+          <div style={{ textAlign: 'center', padding: isMobile ? '48px 16px' : '80px 24px', maxWidth: '480px', margin: '0 auto' }}>
+            <div style={{ fontSize: '48px', marginBottom: '24px' }}>🔒</div>
+            <h3 className="mu-h3" style={{ marginBottom: '16px' }}>Fonctionnalité Premium</h3>
+            <p style={{ fontSize: '16px', color: S.textBody, lineHeight: '28px', marginBottom: '32px' }}>
+              {LOCKED_CONTENT[activeTab as Exclude<FreeTab, 'offre'>].desc}
+            </p>
+            <button onClick={() => goTo('payment')} style={{ ...btnNavy }}>
+              Passer en Premium — 9€/mois
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
-  return <DetailLayout offer={offer} backStep="match-free" goTo={goTo} rightCol={rightCol} />;
 }
 
 // ─────────────────────────────────────────────
