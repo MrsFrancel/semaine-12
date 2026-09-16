@@ -61,6 +61,7 @@ export function OffresScreen() {
         { name: 'Expérience', level: 'mid', fill: 55, note: 'Pas encore évalué pour un profil précis.' },
         { name: 'Mots-clés du secteur', level: 'mid', fill: 50, note: profile || 'Profil recherché non précisé.' },
       ],
+      expectedSkills: skills.split(',').map((s) => s.trim()).filter(Boolean),
       description,
       missions: missions.split('\n').map((m) => m.trim()).filter(Boolean),
       exclusive: true,

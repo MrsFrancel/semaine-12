@@ -13,6 +13,7 @@ export interface Offer {
   type: string;
   score: number;
   criteria: Criterion[];
+  expectedSkills: string[];
   description: string;
   missions: string[];
   exclusive: boolean;
@@ -29,19 +30,21 @@ export interface Candidature {
 export const OFFERS: Offer[] = [
   {
     id: 1, title: 'Alternance Chef de Projet Digital', company: 'Publicis Groupe', location: 'Paris 8e', type: 'Alternance · 12 mois', score: 92, exclusive: true,
+    expectedSkills: ['Gestion de projet', 'Trello', 'Asana', 'Communication', 'Marketing digital'],
     criteria: [
       { name: 'Compétences techniques', level: 'strong', fill: 90, note: '5 compétences clés sur 6 retrouvées dans ton CV.' },
       { name: 'Expérience', level: 'strong', fill: 82, note: 'Ton stage de gestion de projet correspond bien.' },
-      { name: 'Mots-clés du secteur', level: 'mid', fill: 55, note: 'Ajoute "Trello" ou "Asana" — cités 3 fois dans la fiche.' },
+      { name: 'Mots-clés du secteur', level: 'mid', fill: 55, note: 'Ajoute "Trello" ou "Asana", cités 3 fois dans la fiche.' },
     ],
     description: "Rejoins l'équipe digitale de Publicis pour piloter des projets de transformation online pour des clients du secteur luxe et retail.",
     missions: ['Coordonner les équipes créa, tech et media', 'Rédiger les briefs et suivre les livrables', 'Analyser les performances et produire les reportings'],
   },
   {
     id: 2, title: 'Alternance Traffic Manager', company: 'LVMH Digital', location: 'Paris 1er', type: 'Alternance · 12 mois', score: 78, exclusive: true,
+    expectedSkills: ['SEO/SEA', 'Google Analytics', 'GA4', 'Acquisition payante'],
     criteria: [
       { name: 'Compétences techniques', level: 'strong', fill: 88, note: 'SEO/SEA et Google Analytics bien couverts.' },
-      { name: 'Expérience', level: 'mid', fill: 55, note: '1 an vs 2 ans attendus — à compenser par tes projets perso.' },
+      { name: 'Expérience', level: 'mid', fill: 55, note: '1 an vs 2 ans attendus, à compenser par tes projets perso.' },
       { name: 'Mots-clés du secteur', level: 'low', fill: 25, note: 'Ajoute "GA4" et "acquisition payante" à ton CV.' },
     ],
     description: "Intègre la division digitale de LVMH pour piloter les campagnes d'acquisition sur les marchés européens.",
@@ -49,6 +52,7 @@ export const OFFERS: Offer[] = [
   },
   {
     id: 3, title: 'Alternance Content Manager', company: 'Ubisoft', location: 'Paris 17e', type: 'Alternance · 12 mois', score: 87, exclusive: true,
+    expectedSkills: ['Copywriting', 'Notion', 'Réseaux sociaux', 'Gaming'],
     criteria: [
       { name: 'Compétences techniques', level: 'strong', fill: 85, note: 'Copywriting et Notion bien présents.' },
       { name: 'Expérience', level: 'strong', fill: 78, note: 'Tes projets éditoriaux collent au poste.' },
@@ -59,6 +63,7 @@ export const OFFERS: Offer[] = [
   },
   {
     id: 4, title: 'Alternance Social Media Manager', company: "L'Oréal", location: 'Clichy', type: 'Alternance · 12 mois', score: 65, exclusive: true,
+    expectedSkills: ['Canva', 'Google Analytics', 'TikTok Ads', 'Réseaux sociaux'],
     criteria: [
       { name: 'Compétences techniques', level: 'mid', fill: 58, note: 'Canva et Analytics présents, TikTok Ads absent.' },
       { name: 'Expérience', level: 'mid', fill: 50, note: 'Une expérience social media renforcerait ton profil.' },
@@ -69,6 +74,7 @@ export const OFFERS: Offer[] = [
   },
   {
     id: 5, title: 'Stage Assistant Comptable', company: 'Deloitte', location: 'Paris 17e', type: 'Stage · 6 mois', score: 14, exclusive: true,
+    expectedSkills: ['Comptabilité', 'Audit', 'Excel', 'Finance'],
     criteria: [
       { name: 'Compétences techniques', level: 'low', fill: 8, note: 'Aucune compétence comptable identifiée.' },
       { name: 'Expérience', level: 'low', fill: 5, note: 'Aucune expérience en audit ou finance.' },
@@ -82,6 +88,7 @@ export const OFFERS: Offer[] = [
 export const EXTERNAL_OFFERS: Offer[] = [
   {
     id: 101, title: 'Alternance Growth Marketing', company: 'Alan', location: 'Paris 9e', type: 'Alternance · 12 mois', score: 79, exclusive: false,
+    expectedSkills: ['Marketing digital', 'SEO/SEA', 'A/B testing', 'Funnel'],
     criteria: [
       { name: 'Compétences techniques', level: 'strong', fill: 84, note: 'Marketing digital et SEO/SEA bien couverts.' },
       { name: 'Expérience', level: 'mid', fill: 52, note: 'A/B testing absent de ton CV.' },
@@ -92,6 +99,7 @@ export const EXTERNAL_OFFERS: Offer[] = [
   },
   {
     id: 102, title: 'Alternance Brand Content', company: 'Spotify France', location: 'Paris 2e', type: 'Alternance · 12 mois', score: 61, exclusive: false,
+    expectedSkills: ['Copywriting', 'Adobe Suite', 'Anglais', 'Culture musicale'],
     criteria: [
       { name: 'Compétences techniques', level: 'mid', fill: 55, note: 'Copywriting présent, Adobe Suite absent.' },
       { name: 'Expérience', level: 'low', fill: 32, note: 'Aucune expérience culture/musique identifiée.' },
@@ -121,20 +129,20 @@ export interface Student {
 }
 
 export const STUDENTS: Student[] = [
-  { id: 1, coachId: 1, name: 'Léa Bernard', promo: 'Marketing Digital — Promo 2026', lastActivity: '9 jours', inactiveDays: 9, candidatures: 3, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'SEO/SEA', 'Google Analytics', 'Canva'], experience: 'Stage 6 mois — Chargée de communication digitale, agence Nova.' } },
-  { id: 2, coachId: 2, name: 'Hugo Martin', promo: 'Marketing Digital — Promo 2026', lastActivity: 'Aujourd\'hui', inactiveDays: 0, candidatures: 11, entretiens: 2, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Gestion de projet', 'Notion', 'Trello', 'Copywriting'], experience: 'Stage 6 mois — Assistant chef de projet, Havas.' } },
-  { id: 3, coachId: 1, name: 'Ahn Nguyen', promo: 'Marketing Digital — Promo 2026', lastActivity: '2 jours', inactiveDays: 2, candidatures: 6, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Copywriting', 'Réseaux sociaux', 'Canva'], experience: 'Alternance 1 an — Community manager, studio indépendant.' } },
-  { id: 4, coachId: 2, name: 'Jefté Moïse', promo: 'Marketing Digital — Promo 2026', lastActivity: '14 jours', inactiveDays: 14, candidatures: 4, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['SEO/SEA', 'Google Analytics', 'Excel'], experience: 'Stage 4 mois — Chargé de trafic, régie média.' } },
-  { id: 5, coachId: 1, name: 'Camille Roussel', promo: 'Marketing Digital — Promo 2026', lastActivity: '1 jour', inactiveDays: 1, candidatures: 8, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'Copywriting', 'Notion'], experience: 'Stage 6 mois — Assistante marketing, start-up e-commerce.' } },
-  { id: 6, coachId: 2, name: 'Younes Belkacem', promo: 'Marketing Digital — Promo 2026', lastActivity: '5 jours', inactiveDays: 5, candidatures: 5, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['SEO/SEA', 'Canva', 'Google Analytics'], experience: 'Stage 3 mois — Assistant SEO, agence indépendante.' } },
-  { id: 7, coachId: 1, name: 'Manon Girard', promo: 'Marketing Digital — Promo 2025', lastActivity: '3 jours', inactiveDays: 3, candidatures: 9, entretiens: 2, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'Google Analytics', 'Copywriting', 'Notion'], experience: 'Alternance 1 an — Chargée de projet digital, Decathlon.' } },
-  { id: 8, coachId: 2, name: 'Ibrahim Kane', promo: 'Marketing Digital — Promo 2025', lastActivity: '11 jours', inactiveDays: 11, candidatures: 2, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Notion', 'Trello', 'Excel'], experience: 'Stage 2 mois — Assistant administratif marketing.' } },
-  { id: 9, coachId: 1, name: 'Zoé Lambert', promo: 'Marketing Digital — Promo 2025', lastActivity: 'Aujourd\'hui', inactiveDays: 0, candidatures: 14, entretiens: 3, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'SEO/SEA', 'Google Analytics', 'Copywriting'], experience: 'Alternance 1 an — Traffic manager, LVMH Digital.' } },
-  { id: 10, coachId: 2, name: 'Thibault Perrin', promo: 'Marketing Digital — Promo 2025', lastActivity: '6 jours', inactiveDays: 6, candidatures: 4, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Canva', 'Copywriting', 'Réseaux sociaux'], experience: 'Stage 6 mois — Community manager, marque DNVB.' } },
-  { id: 11, coachId: 1, name: 'Nour Aït Ali', promo: 'Marketing Digital — Promo 2025', lastActivity: '2 jours', inactiveDays: 2, candidatures: 7, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'Notion', 'Canva'], experience: 'Stage 6 mois — Assistante chef de projet, agence de com.' } },
+  { id: 1, coachId: 1, name: 'Léa Bernard', promo: 'Marketing Digital — Promo 2026', lastActivity: '9 jours', inactiveDays: 9, candidatures: 3, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'SEO/SEA', 'Google Analytics', 'Canva'], experience: 'Stage 6 mois, Chargée de communication digitale, agence Nova.' } },
+  { id: 2, coachId: 2, name: 'Hugo Martin', promo: 'Marketing Digital — Promo 2026', lastActivity: 'Aujourd\'hui', inactiveDays: 0, candidatures: 11, entretiens: 2, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Gestion de projet', 'Notion', 'Trello', 'Copywriting'], experience: 'Stage 6 mois, Assistant chef de projet, Havas.' } },
+  { id: 3, coachId: 1, name: 'Ahn Nguyen', promo: 'Marketing Digital — Promo 2026', lastActivity: '2 jours', inactiveDays: 2, candidatures: 6, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Copywriting', 'Réseaux sociaux', 'Canva'], experience: 'Alternance 1 an, Community manager, studio indépendant.' } },
+  { id: 4, coachId: 2, name: 'Jefté Moïse', promo: 'Marketing Digital — Promo 2026', lastActivity: '14 jours', inactiveDays: 14, candidatures: 4, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['SEO/SEA', 'Google Analytics', 'Excel'], experience: 'Stage 4 mois, Chargé de trafic, régie média.' } },
+  { id: 5, coachId: 1, name: 'Camille Roussel', promo: 'Marketing Digital — Promo 2026', lastActivity: '1 jour', inactiveDays: 1, candidatures: 8, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'Copywriting', 'Notion'], experience: 'Stage 6 mois, Assistante marketing, start-up e-commerce.' } },
+  { id: 6, coachId: 2, name: 'Younes Belkacem', promo: 'Marketing Digital — Promo 2026', lastActivity: '5 jours', inactiveDays: 5, candidatures: 5, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['SEO/SEA', 'Canva', 'Google Analytics'], experience: 'Stage 3 mois, Assistant SEO, agence indépendante.' } },
+  { id: 7, coachId: 1, name: 'Manon Girard', promo: 'Marketing Digital — Promo 2025', lastActivity: '3 jours', inactiveDays: 3, candidatures: 9, entretiens: 2, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'Google Analytics', 'Copywriting', 'Notion'], experience: 'Alternance 1 an, Chargée de projet digital, Decathlon.' } },
+  { id: 8, coachId: 2, name: 'Ibrahim Kane', promo: 'Marketing Digital — Promo 2025', lastActivity: '11 jours', inactiveDays: 11, candidatures: 2, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Notion', 'Trello', 'Excel'], experience: 'Stage 2 mois, Assistant administratif marketing.' } },
+  { id: 9, coachId: 1, name: 'Zoé Lambert', promo: 'Marketing Digital — Promo 2025', lastActivity: 'Aujourd\'hui', inactiveDays: 0, candidatures: 14, entretiens: 3, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'SEO/SEA', 'Google Analytics', 'Copywriting'], experience: 'Alternance 1 an, Traffic manager, LVMH Digital.' } },
+  { id: 10, coachId: 2, name: 'Thibault Perrin', promo: 'Marketing Digital — Promo 2025', lastActivity: '6 jours', inactiveDays: 6, candidatures: 4, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Canva', 'Copywriting', 'Réseaux sociaux'], experience: 'Stage 6 mois, Community manager, marque DNVB.' } },
+  { id: 11, coachId: 1, name: 'Nour Aït Ali', promo: 'Marketing Digital — Promo 2025', lastActivity: '2 jours', inactiveDays: 2, candidatures: 7, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'Notion', 'Canva'], experience: 'Stage 6 mois, Assistante chef de projet, agence de com.' } },
   { id: 12, coachId: 2, name: 'Paul Fontaine', promo: 'Marketing Digital — Promo 2025', lastActivity: '20 jours', inactiveDays: 20, candidatures: 1, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Excel', 'Notion'], experience: 'Aucune expérience professionnelle renseignée.' } },
-  { id: 13, coachId: 1, name: 'Salomé Weber', promo: 'Marketing Digital — Promo 2026', lastActivity: '4 jours', inactiveDays: 4, candidatures: 6, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Copywriting', 'Google Analytics', 'SEO/SEA'], experience: 'Stage 6 mois — Chargée de contenu, media digital.' } },
-  { id: 14, coachId: 2, name: 'Adam Chevalier', promo: 'Marketing Digital — Promo 2026', lastActivity: '8 jours', inactiveDays: 8, candidatures: 3, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Notion', 'Canva', 'Marketing digital'], experience: 'Stage 4 mois — Assistant marketing, PME locale.' } },
+  { id: 13, coachId: 1, name: 'Salomé Weber', promo: 'Marketing Digital — Promo 2026', lastActivity: '4 jours', inactiveDays: 4, candidatures: 6, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Copywriting', 'Google Analytics', 'SEO/SEA'], experience: 'Stage 6 mois, Chargée de contenu, media digital.' } },
+  { id: 14, coachId: 2, name: 'Adam Chevalier', promo: 'Marketing Digital — Promo 2026', lastActivity: '8 jours', inactiveDays: 8, candidatures: 3, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Notion', 'Canva', 'Marketing digital'], experience: 'Stage 4 mois, Assistant marketing, PME locale.' } },
 ];
 
 export interface Coach {
@@ -169,6 +177,26 @@ export function studentPhone(student: Student): string {
 export function promoYear(student: Student): string {
   const match = student.promo.match(/\d{4}/);
   return match ? match[0] : '2026';
+}
+
+export const CURRENT_STUDENT_ID = 1;
+
+export interface CvData {
+  formation: string;
+  experience: string;
+  hardSkills: string[];
+  softSkills: string[];
+  languages: string;
+}
+
+export function defaultCvFor(student: Student): CvData {
+  return {
+    formation: student.cv.formation,
+    experience: student.cv.experience,
+    hardSkills: [...student.cv.hardSkills],
+    softSkills: softSkillsFor(student),
+    languages: 'Français (natif), Anglais (professionnel)',
+  };
 }
 
 export const STATUS_LABEL: Record<CandidatureStatus, string> = {

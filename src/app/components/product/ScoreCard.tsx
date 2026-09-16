@@ -13,7 +13,7 @@ const LEVEL_BAR: Record<Criterion['level'], string> = {
   low: 'bg-match-low',
 };
 
-export function ScoreCard({ offer }: { offer: Offer }) {
+export function ScoreCard({ offer, score, criteria }: { offer: Offer; score: number; criteria: Criterion[] }) {
   return (
     <Card>
       <CardHeader className="flex-row items-start justify-between gap-4 flex-wrap">
@@ -22,11 +22,12 @@ export function ScoreCard({ offer }: { offer: Offer }) {
           <p className="text-muted-foreground text-sm mt-0.5">{offer.company} · {offer.location} · {offer.type}</p>
         </div>
         <div className="font-mono text-3xl font-semibold text-primary tabular-nums">
-          {offer.score}<span className="text-sm text-muted-foreground font-sans font-normal">% de match</span>
+          {score}<span className="text-sm text-muted-foreground font-sans font-normal">% de match</span>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        {offer.criteria.map((c) => (
+        <p className="text-xs text-muted-foreground -mt-2">Recalculé à partir de ton CV et de ta lettre actuels pour cette offre.</p>
+        {criteria.map((c) => (
           <div key={c.name} className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm font-medium">{c.name}</span>
