@@ -49,7 +49,7 @@ export function CandidatureScreen({
 }: {
   offer: Offer;
   profileCv: CvData;
-  onPushProfileCv: (cv: CvData) => void;
+  onPushProfileCv: (cv: CvData, label: string) => void;
   onBack: () => void;
 }) {
   const [status, setStatus] = useState<CandidatureStatus>('a-preparer');
@@ -103,7 +103,7 @@ export function CandidatureScreen({
 
   const commitSave = (scope: 'offer' | 'profile') => {
     setCv(draftCv);
-    if (scope === 'profile') onPushProfileCv(draftCv);
+    if (scope === 'profile') onPushProfileCv(draftCv, `Adapté pour "${offer.title}" chez ${offer.company}`);
     setSaveScopeOpen(false);
     setCvEditorOpen(false);
   };

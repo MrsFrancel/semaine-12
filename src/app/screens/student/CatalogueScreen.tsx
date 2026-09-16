@@ -3,16 +3,51 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/ta
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
 import { OfferCard } from '../../components/product/OfferCard';
-import { OFFERS, EXTERNAL_OFFERS, type Offer } from '../../lib/mock-data';
+import { OFFERS, type Offer } from '../../lib/mock-data';
 
-export function CatalogueScreen({ onOpenOffer }: { onOpenOffer: (offer: Offer) => void }) {
+let nextExternalId = 200;
+
+function extractOfferFromLink(link: string): Offer {
+  return {
+    id: nextExternalId++,
+    title: 'Alternance UX Writer',
+    company: 'Doctolib',
+    location: 'Paris 11e',
+    type: 'Alternance · 12 mois',
+    score: 55,
+    criteria: [
+      { name: 'Compétences techniques', level: 'mid', fill: 50, note: 'Copywriting présent, UX Writing à préciser.' },
+      { name: 'Expérience', level: 'mid', fill: 45, note: 'Pas encore évalué pour ce profil.' },
+      { name: 'Mots-clés du secteur', level: 'low', fill: 35, note: 'Le vocabulaire produit/santé est peu présent dans ton CV.' },
+    ],
+    expectedSkills: ['Copywriting', 'UX Writing', 'Notion', 'Anglais'],
+    description: `Ajoutée depuis ${link.startsWith('http') ? 'un lien' : 'un texte collé'}. Rejoins l'équipe Contenu de Doctolib pour écrire les parcours produit.`,
+    missions: ['Rédiger les micro-contenus du produit', 'Travailler avec les designers sur les parcours utilisateurs', 'Maintenir la cohérence éditoriale'],
+    exclusive: false,
+  };
+}
+
+export function CatalogueScreen({
+  externalOffers,
+  onAddExternalOffer,
+  onOpenOffer,
+}: {
+  externalOffers: Offer[];
+  onAddExternalOffer: (offer: Offer) => void;
+  onOpenOffer: (offer: Offer) => void;
+}) {
   const [link, setLink] = useState('');
   const [checking, setChecking] = useState(false);
 
   const check = () => {
     if (!link.trim()) return;
     setChecking(true);
-    setTimeout(() => setChecking(false), 1200);
+    setTimeout(() => {
+      const newOffer = extractOfferFromLink(link.trim());
+      setChecking(false);
+      setLink('');
+      onAddExternalOffer(newOffer);
+    }, 1200);
   };
 
   return (
@@ -25,7 +60,7 @@ export function CatalogueScreen({ onOpenOffer }: { onOpenOffer: (offer: Offer) =
       <Tabs defaultValue="ecole">
         <TabsList>
           <TabsTrigger value="ecole">Offres école ({OFFERS.length})</TabsTrigger>
-          <TabsTrigger value="externes">Offres externes ({EXTERNAL_OFFERS.length})</TabsTrigger>
+          <TabsTrigger value="externes">Offres externes ({externalOffers.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="ecole" className="mt-4">
@@ -39,12 +74,12 @@ export function CatalogueScreen({ onOpenOffer }: { onOpenOffer: (offer: Offer) =
             <p className="text-sm font-medium">Vérifier une nouvelle offre</p>
             <div className="flex gap-2">
               <Input placeholder="Colle un lien, une adresse mail ou dépose un PDF" value={link} onChange={(e) => setLink(e.target.value)} />
-              <Button onClick={check} disabled={checking}>{checking ? 'Analyse…' : 'Vérifier'}</Button>
+              <Button onClick={check} disabled={checking || !link.trim()}>{checking ? 'Analyse…' : 'Vérifier'}</Button>
             </div>
-            <p className="text-xs text-muted-foreground">Usage privé : ces offres ne rejoignent jamais le catalogue de l'école.</p>
+            <p className="text-xs text-muted-foreground">Usage privé : ces offres ne rejoignent jamais le catalogue de l'école. Une fois vérifiée, l'offre s'ajoute à ta liste et s'ouvre directement, comme une offre école.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {EXTERNAL_OFFERS.map((o) => <OfferCard key={o.id} offer={o} onOpen={() => onOpenOffer(o)} />)}
+            {externalOffers.map((o) => <OfferCard key={o.id} offer={o} onOpen={() => onOpenOffer(o)} />)}
           </div>
         </TabsContent>
       </Tabs>

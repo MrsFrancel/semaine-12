@@ -236,7 +236,18 @@ export const RDVS: Rdv[] = [
   { id: 1, coachId: 2, studentId: 4, eventTypeId: 2, day: 'Jeudi 13 mars', time: '14:00' },
   { id: 2, coachId: 2, studentId: 8, eventTypeId: 1, day: 'Vendredi 14 mars', time: '10:00' },
   { id: 3, coachId: 2, studentId: 12, eventTypeId: 3, day: 'Lundi 10 mars', time: '09:00' },
+  { id: 4, coachId: 1, studentId: 1, eventTypeId: 1, day: 'Mardi 11 mars', time: '11:00' },
+  { id: 5, coachId: 1, studentId: 3, eventTypeId: 3, day: 'Jeudi 13 mars', time: '10:00' },
 ];
+
+export const WEEK_DAYS = [
+  { key: 'lun', label: 'Lundi 10 mars' },
+  { key: 'mar', label: 'Mardi 11 mars' },
+  { key: 'mer', label: 'Mercredi 12 mars' },
+  { key: 'jeu', label: 'Jeudi 13 mars' },
+  { key: 'ven', label: 'Vendredi 14 mars' },
+];
+export const WEEK_TIMES = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
 
 export interface Message {
   from: 'coach' | 'student';
@@ -279,4 +290,19 @@ export const CONVERSATIONS: Conversation[] = [
       { from: 'student', text: 'Oui pas de souci, désolé pour le retard.', time: '3 mars' },
     ],
   },
+  {
+    studentId: 1,
+    messages: [
+      { from: 'coach', text: 'Salut Léa, comment se passent tes candidatures cette semaine ?', time: 'Hier 15:00' },
+      { from: 'student', text: "Ça avance, j'ai postulé chez Publicis et Ubisoft, en attente de retour.", time: 'Hier 15:20' },
+      { from: 'coach', text: 'Top, tiens-moi au courant si tu as un entretien, on préparera ça ensemble.', time: 'Hier 15:22' },
+    ],
+  },
 ];
+
+export interface CvHistoryEntry {
+  id: number;
+  date: string;
+  label: string;
+  cv: CvData;
+}

@@ -4,19 +4,13 @@ import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Switch } from '../../../components/ui/switch';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../components/ui/tabs';
-import { STUDENTS, RDVS, EVENT_TYPES, CONVERSATIONS, CURRENT_COACH_ID, type Conversation } from '../../../lib/mock-data';
+import { STUDENTS, RDVS, EVENT_TYPES, CONVERSATIONS, CURRENT_COACH_ID, WEEK_DAYS, WEEK_TIMES, type Conversation } from '../../../lib/mock-data';
 
 const mine = STUDENTS.filter((s) => s.coachId === CURRENT_COACH_ID);
 const myRdvs = RDVS.filter((r) => r.coachId === CURRENT_COACH_ID);
 
-const DAYS = [
-  { key: 'lun', label: 'Lundi 10 mars' },
-  { key: 'mar', label: 'Mardi 11 mars' },
-  { key: 'mer', label: 'Mercredi 12 mars' },
-  { key: 'jeu', label: 'Jeudi 13 mars' },
-  { key: 'ven', label: 'Vendredi 14 mars' },
-];
-const TIMES = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+const DAYS = WEEK_DAYS;
+const TIMES = WEEK_TIMES;
 
 type SlotStatus = 'free' | 'blocked' | 'booked';
 interface Slot { status: SlotStatus; studentId?: number; eventTypeId?: number; }
