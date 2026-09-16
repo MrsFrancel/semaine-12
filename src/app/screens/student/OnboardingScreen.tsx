@@ -15,7 +15,9 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
 
   const [formation, setFormation] = useState('');
   const [experience, setExperience] = useState('');
-  const [skills, setSkills] = useState('');
+  const [hardSkills, setHardSkills] = useState('');
+  const [softSkills, setSoftSkills] = useState('');
+  const [languages, setLanguages] = useState('');
 
   const emailValid = /@hetic\.fr$/i.test(email.trim());
 
@@ -28,8 +30,10 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
         setStep('secours');
       } else {
         setFormation('Bachelor Marketing Digital, HETIC');
-        setExperience('Stage 6 mois, chargé de communication digitale dans une agence.');
-        setSkills('Marketing digital, SEO/SEA, Google Analytics, Canva');
+        setExperience('Stage 6 mois, chargé de communication digitale dans une agence. Gestion des réseaux sociaux et création de contenus.');
+        setHardSkills('Marketing digital, SEO/SEA, Google Analytics, Canva');
+        setSoftSkills("Autonomie, Curiosité, Esprit d'équipe");
+        setLanguages('Français (natif), Anglais (professionnel)');
         setStep('verification');
       }
     }, 1400);
@@ -37,7 +41,7 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <Card className="w-full max-w-md p-2">
+      <Card className={`w-full p-2 ${step === 'verification' ? 'max-w-xl' : 'max-w-md'}`}>
         <CardContent className="pt-4 flex flex-col gap-5">
           <div>
             <p className="text-[11px] uppercase tracking-widest text-primary">Match&amp;Go · Étudiant</p>
@@ -90,7 +94,7 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
                 <p className="text-sm font-medium">Mode secours manuel</p>
                 <p className="text-xs text-muted-foreground mt-1">La mise en page de ton CV n'a pas pu être analysée automatiquement. Renseigne tes compétences clés à la main, ça n'empêche pas de continuer.</p>
               </div>
-              <Input placeholder="Ex. Marketing digital, SEO/SEA, Canva…" value={skills} onChange={(e) => setSkills(e.target.value)} />
+              <Input placeholder="Ex. Marketing digital, SEO/SEA, Canva…" value={hardSkills} onChange={(e) => setHardSkills(e.target.value)} />
               <Button onClick={() => setStep('verification')}>Continuer</Button>
             </div>
           )}
@@ -104,11 +108,21 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-muted-foreground">Expérience</label>
-                <Textarea placeholder="Ex. Stage 6 mois, chargé de communication digitale." value={experience} onChange={(e) => setExperience(e.target.value)} className="min-h-20" />
+                <Textarea placeholder="Ex. Stage 6 mois, chargé de communication digitale. Missions principales." value={experience} onChange={(e) => setExperience(e.target.value)} className="min-h-24" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs text-muted-foreground">Compétences techniques (séparées par une virgule)</label>
+                  <Input placeholder="Ex. Marketing digital, SEO/SEA, Canva…" value={hardSkills} onChange={(e) => setHardSkills(e.target.value)} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs text-muted-foreground">Savoir-être (séparés par une virgule)</label>
+                  <Input placeholder="Ex. Autonomie, Curiosité, Esprit d'équipe…" value={softSkills} onChange={(e) => setSoftSkills(e.target.value)} />
+                </div>
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-muted-foreground">Compétences (séparées par une virgule)</label>
-                <Input placeholder="Ex. Marketing digital, SEO/SEA, Canva…" value={skills} onChange={(e) => setSkills(e.target.value)} />
+                <label className="text-xs text-muted-foreground">Langues</label>
+                <Input placeholder="Ex. Français (natif), Anglais (professionnel)" value={languages} onChange={(e) => setLanguages(e.target.value)} />
               </div>
               <Button disabled={!formation.trim()} onClick={() => setStep('pret')}>Confirmer mon profil</Button>
             </div>
