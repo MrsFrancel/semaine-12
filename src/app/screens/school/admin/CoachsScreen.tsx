@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
-import { COACHES as INITIAL_COACHES, type Coach } from '../../../lib/mock-data';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../components/ui/dialog';
+import { COACHES as INITIAL_COACHES, STUDENTS, type Coach } from '../../../lib/mock-data';
 
 interface PendingInvite {
   id: number;
@@ -39,6 +40,9 @@ export function CoachsScreen() {
   };
 
   const remove = (id: number) => setCoaches((c) => c.filter((x) => x.id !== id));
+
+  const [openCoach, setOpenCoach] = useState<Coach | null>(null);
+  const assignedStudents = openCoach ? STUDENTS.filter((s) => s.coachId === openCoach.id) : [];
 
   return (
     <div className="flex flex-col gap-6 max-w-2xl">
@@ -104,12 +108,40 @@ export function CoachsScreen() {
                     </>
                   )}
                 </div>
+                <Button variant="ghost" size="sm" onClick={() => setOpenCoach(c)}>Voir les étudiants</Button>
                 <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => remove(c.id)}>Retirer</Button>
               </div>
             </div>
           ))}
         </CardContent>
       </Card>
+
+      <Dialog open={!!openCoach} onOpenChange={(open) => !open && setOpenCoach(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Étudiants de {openCoach?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 text-sm">
+            {assignedStudents.length === 0 && (
+              <p className="text-muted-foreground">Aucun étudiant assigné pour l'instant.</p>
+            )}
+            {assignedStudents.map((s) => (
+              <div key={s.id} className="flex items-center justify-between border-b border-border last:border-0 pb-2 last:pb-0">
+                <div>
+                  <p className="font-medium">{s.name}</p>
+                  <p className="text-xs text-muted-foreground">{s.candidatures} candidatures · {s.entretiens} entretiens</p>
+                </div>
+                <span className="text-xs text-muted-foreground">{s.inactiveDays === 0 ? 'Actif' : `${s.inactiveDays}j inactif`}</span>
+              </div>
+            ))}
+            {openCoach && openCoach.studentsCount > assignedStudents.length && (
+              <p className="text-xs text-muted-foreground pt-1">
+                {openCoach.studentsCount} étudiants au total pour ce coach — {assignedStudents.length} affichés ici (échantillon de démonstration).
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
