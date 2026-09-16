@@ -12,7 +12,7 @@ import { CalendrierMessagerieScreen } from './coach/CalendrierMessagerieScreen';
 
 const ADMIN_NAV: NavItem[] = [
   { id: 'dashboard', label: 'Tableau de bord' },
-  { id: 'offres', label: 'Offres', sub: 'Agrégateur + catalogue' },
+  { id: 'offres', label: 'Agrégateur', sub: 'Offres & catalogue' },
   { id: 'cvbook', label: 'CV Book' },
   { id: 'coachs', label: 'Coachs' },
   { id: 'etudiants', label: 'Étudiants' },
@@ -22,7 +22,7 @@ const ADMIN_NAV: NavItem[] = [
 const COACH_NAV: NavItem[] = [
   { id: 'dashboard', label: 'Tableau de bord' },
   { id: 'etudiants', label: 'Mes étudiants' },
-  { id: 'offres', label: 'Offres' },
+  { id: 'offres', label: 'Agrégateur' },
   { id: 'cvbook', label: 'CV Book' },
   { id: 'calendrier', label: 'Calendrier & messagerie' },
 ];

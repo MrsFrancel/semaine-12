@@ -116,24 +116,24 @@ export interface Student {
   inactiveDays: number;
   candidatures: number;
   entretiens: number;
-  cv: { formation: string; skills: string[]; experience: string };
+  cv: { formation: string; hardSkills: string[]; experience: string };
 }
 
 export const STUDENTS: Student[] = [
-  { id: 1, name: 'Léa Bernard', promo: 'Marketing Digital — Promo 2026', lastActivity: '9 jours', inactiveDays: 9, candidatures: 3, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['Marketing digital', 'SEO/SEA', 'Google Analytics', 'Canva'], experience: 'Stage 6 mois — Chargée de communication digitale, agence Nova.' } },
-  { id: 2, name: 'Hugo Martin', promo: 'Marketing Digital — Promo 2026', lastActivity: 'Aujourd\'hui', inactiveDays: 0, candidatures: 11, entretiens: 2, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['Gestion de projet', 'Notion', 'Trello', 'Copywriting'], experience: 'Stage 6 mois — Assistant chef de projet, Havas.' } },
-  { id: 3, name: 'Ahn Nguyen', promo: 'Marketing Digital — Promo 2026', lastActivity: '2 jours', inactiveDays: 2, candidatures: 6, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['Copywriting', 'Réseaux sociaux', 'Canva'], experience: 'Alternance 1 an — Community manager, studio indépendant.' } },
-  { id: 4, name: 'Jefté Moïse', promo: 'Marketing Digital — Promo 2026', lastActivity: '14 jours', inactiveDays: 14, candidatures: 4, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['SEO/SEA', 'Google Analytics', 'Excel'], experience: 'Stage 4 mois — Chargé de trafic, régie média.' } },
-  { id: 5, name: 'Camille Roussel', promo: 'Marketing Digital — Promo 2026', lastActivity: '1 jour', inactiveDays: 1, candidatures: 8, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['Marketing digital', 'Copywriting', 'Notion'], experience: 'Stage 6 mois — Assistante marketing, start-up e-commerce.' } },
-  { id: 6, name: 'Younes Belkacem', promo: 'Marketing Digital — Promo 2026', lastActivity: '5 jours', inactiveDays: 5, candidatures: 5, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['SEO/SEA', 'Canva', 'Google Analytics'], experience: 'Stage 3 mois — Assistant SEO, agence indépendante.' } },
-  { id: 7, name: 'Manon Girard', promo: 'Marketing Digital — Promo 2025', lastActivity: '3 jours', inactiveDays: 3, candidatures: 9, entretiens: 2, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['Marketing digital', 'Google Analytics', 'Copywriting', 'Notion'], experience: 'Alternance 1 an — Chargée de projet digital, Decathlon.' } },
-  { id: 8, name: 'Ibrahim Kane', promo: 'Marketing Digital — Promo 2025', lastActivity: '11 jours', inactiveDays: 11, candidatures: 2, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['Notion', 'Trello', 'Excel'], experience: 'Stage 2 mois — Assistant administratif marketing.' } },
-  { id: 9, name: 'Zoé Lambert', promo: 'Marketing Digital — Promo 2025', lastActivity: 'Aujourd\'hui', inactiveDays: 0, candidatures: 14, entretiens: 3, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['Marketing digital', 'SEO/SEA', 'Google Analytics', 'Copywriting'], experience: 'Alternance 1 an — Traffic manager, LVMH Digital.' } },
-  { id: 10, name: 'Thibault Perrin', promo: 'Marketing Digital — Promo 2025', lastActivity: '6 jours', inactiveDays: 6, candidatures: 4, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['Canva', 'Copywriting', 'Réseaux sociaux'], experience: 'Stage 6 mois — Community manager, marque DNVB.' } },
-  { id: 11, name: 'Nour Aït Ali', promo: 'Marketing Digital — Promo 2025', lastActivity: '2 jours', inactiveDays: 2, candidatures: 7, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['Marketing digital', 'Notion', 'Canva'], experience: 'Stage 6 mois — Assistante chef de projet, agence de com.' } },
-  { id: 12, name: 'Paul Fontaine', promo: 'Marketing Digital — Promo 2025', lastActivity: '20 jours', inactiveDays: 20, candidatures: 1, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['Excel', 'Notion'], experience: 'Aucune expérience professionnelle renseignée.' } },
-  { id: 13, name: 'Salomé Weber', promo: 'Marketing Digital — Promo 2026', lastActivity: '4 jours', inactiveDays: 4, candidatures: 6, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['Copywriting', 'Google Analytics', 'SEO/SEA'], experience: 'Stage 6 mois — Chargée de contenu, media digital.' } },
-  { id: 14, name: 'Adam Chevalier', promo: 'Marketing Digital — Promo 2026', lastActivity: '8 jours', inactiveDays: 8, candidatures: 3, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', skills: ['Notion', 'Canva', 'Marketing digital'], experience: 'Stage 4 mois — Assistant marketing, PME locale.' } },
+  { id: 1, name: 'Léa Bernard', promo: 'Marketing Digital — Promo 2026', lastActivity: '9 jours', inactiveDays: 9, candidatures: 3, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'SEO/SEA', 'Google Analytics', 'Canva'], experience: 'Stage 6 mois — Chargée de communication digitale, agence Nova.' } },
+  { id: 2, name: 'Hugo Martin', promo: 'Marketing Digital — Promo 2026', lastActivity: 'Aujourd\'hui', inactiveDays: 0, candidatures: 11, entretiens: 2, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Gestion de projet', 'Notion', 'Trello', 'Copywriting'], experience: 'Stage 6 mois — Assistant chef de projet, Havas.' } },
+  { id: 3, name: 'Ahn Nguyen', promo: 'Marketing Digital — Promo 2026', lastActivity: '2 jours', inactiveDays: 2, candidatures: 6, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Copywriting', 'Réseaux sociaux', 'Canva'], experience: 'Alternance 1 an — Community manager, studio indépendant.' } },
+  { id: 4, name: 'Jefté Moïse', promo: 'Marketing Digital — Promo 2026', lastActivity: '14 jours', inactiveDays: 14, candidatures: 4, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['SEO/SEA', 'Google Analytics', 'Excel'], experience: 'Stage 4 mois — Chargé de trafic, régie média.' } },
+  { id: 5, name: 'Camille Roussel', promo: 'Marketing Digital — Promo 2026', lastActivity: '1 jour', inactiveDays: 1, candidatures: 8, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'Copywriting', 'Notion'], experience: 'Stage 6 mois — Assistante marketing, start-up e-commerce.' } },
+  { id: 6, name: 'Younes Belkacem', promo: 'Marketing Digital — Promo 2026', lastActivity: '5 jours', inactiveDays: 5, candidatures: 5, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['SEO/SEA', 'Canva', 'Google Analytics'], experience: 'Stage 3 mois — Assistant SEO, agence indépendante.' } },
+  { id: 7, name: 'Manon Girard', promo: 'Marketing Digital — Promo 2025', lastActivity: '3 jours', inactiveDays: 3, candidatures: 9, entretiens: 2, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'Google Analytics', 'Copywriting', 'Notion'], experience: 'Alternance 1 an — Chargée de projet digital, Decathlon.' } },
+  { id: 8, name: 'Ibrahim Kane', promo: 'Marketing Digital — Promo 2025', lastActivity: '11 jours', inactiveDays: 11, candidatures: 2, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Notion', 'Trello', 'Excel'], experience: 'Stage 2 mois — Assistant administratif marketing.' } },
+  { id: 9, name: 'Zoé Lambert', promo: 'Marketing Digital — Promo 2025', lastActivity: 'Aujourd\'hui', inactiveDays: 0, candidatures: 14, entretiens: 3, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'SEO/SEA', 'Google Analytics', 'Copywriting'], experience: 'Alternance 1 an — Traffic manager, LVMH Digital.' } },
+  { id: 10, name: 'Thibault Perrin', promo: 'Marketing Digital — Promo 2025', lastActivity: '6 jours', inactiveDays: 6, candidatures: 4, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Canva', 'Copywriting', 'Réseaux sociaux'], experience: 'Stage 6 mois — Community manager, marque DNVB.' } },
+  { id: 11, name: 'Nour Aït Ali', promo: 'Marketing Digital — Promo 2025', lastActivity: '2 jours', inactiveDays: 2, candidatures: 7, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Marketing digital', 'Notion', 'Canva'], experience: 'Stage 6 mois — Assistante chef de projet, agence de com.' } },
+  { id: 12, name: 'Paul Fontaine', promo: 'Marketing Digital — Promo 2025', lastActivity: '20 jours', inactiveDays: 20, candidatures: 1, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Excel', 'Notion'], experience: 'Aucune expérience professionnelle renseignée.' } },
+  { id: 13, name: 'Salomé Weber', promo: 'Marketing Digital — Promo 2026', lastActivity: '4 jours', inactiveDays: 4, candidatures: 6, entretiens: 1, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Copywriting', 'Google Analytics', 'SEO/SEA'], experience: 'Stage 6 mois — Chargée de contenu, media digital.' } },
+  { id: 14, name: 'Adam Chevalier', promo: 'Marketing Digital — Promo 2026', lastActivity: '8 jours', inactiveDays: 8, candidatures: 3, entretiens: 0, cv: { formation: 'Bachelor Marketing Digital, HETIC', hardSkills: ['Notion', 'Canva', 'Marketing digital'], experience: 'Stage 4 mois — Assistant marketing, PME locale.' } },
 ];
 
 export interface Coach {
@@ -148,6 +148,27 @@ export const COACHES: Coach[] = [
   { id: 1, name: 'Camille Dubois', email: 'c.dubois@hetic.fr', studentsCount: 42, avgInactive: 4.2 },
   { id: 2, name: 'Karim Haddad', email: 'k.haddad@hetic.fr', studentsCount: 38, avgInactive: 6.8 },
 ];
+
+const SOFT_SKILLS_POOL = ['Autonomie', 'Rigueur', 'Curiosité', "Esprit d'équipe", 'Créativité', "Sens de l'organisation", 'Adaptabilité', "Prise d'initiative"];
+
+export function softSkillsFor(student: Student): string[] {
+  const start = student.id % SOFT_SKILLS_POOL.length;
+  return [0, 1, 2].map((i) => SOFT_SKILLS_POOL[(start + i) % SOFT_SKILLS_POOL.length]);
+}
+
+export function studentEmail(student: Student): string {
+  return student.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z]+/g, '.') + '@hetic.fr';
+}
+
+export function studentPhone(student: Student): string {
+  const n = String(1000 + student.id * 37).padStart(4, '0');
+  return `06 ${n.slice(0, 2)} ${n.slice(2, 4)} 00 00`;
+}
+
+export function promoYear(student: Student): string {
+  const match = student.promo.match(/\d{4}/);
+  return match ? match[0] : '2026';
+}
 
 export const STATUS_LABEL: Record<CandidatureStatus, string> = {
   'a-preparer': 'À préparer',
