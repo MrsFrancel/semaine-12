@@ -4,11 +4,14 @@ import { Input } from '../../../components/ui/input';
 import { Textarea } from '../../../components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../components/ui/tabs';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
-import { OFFERS } from '../../../lib/mock-data';
+import { OFFERS as INITIAL_OFFERS, type Offer } from '../../../lib/mock-data';
 
 type Step = 'reception' | 'traitement' | 'verification' | 'publiee';
 
+let nextId = 1000;
+
 export function OffresScreen() {
+  const [offers, setOffers] = useState<Offer[]>(INITIAL_OFFERS);
   const [step, setStep] = useState<Step>('reception');
   const [text, setText] = useState('');
   const [fileName, setFileName] = useState('');
@@ -16,9 +19,13 @@ export function OffresScreen() {
   const fileInput = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState('');
+  const [company, setCompany] = useState('');
+  const [location, setLocation] = useState('');
+  const [contractType, setContractType] = useState('');
   const [description, setDescription] = useState('');
   const [skills, setSkills] = useState('');
   const [profile, setProfile] = useState('');
+  const [missions, setMissions] = useState('');
 
   const canImport = text.trim().length > 0 || fileName.length > 0;
 
@@ -29,17 +36,45 @@ export function OffresScreen() {
       setProcessingLabel('Extraction par l\'IA…');
       setTimeout(() => {
         setTitle('Alternance Chargé de Communication Digitale');
+        setCompany('Entreprise partenaire');
+        setLocation('Paris');
+        setContractType('Alternance · 12 mois');
         setDescription("Rejoins l'équipe communication pour piloter les campagnes digitales et le contenu éditorial de l'entreprise partenaire.");
         setSkills('Copywriting, Canva, Marketing digital');
         setProfile('Bac+3/4, appétence pour la rédaction et les réseaux sociaux.');
+        setMissions("Créer les contenus pour les réseaux sociaux\nCoordonner les campagnes de lancement\nAnalyser les performances éditoriales");
         setStep('verification');
       }, 1100);
     }, 700);
   };
 
+  const publish = () => {
+    const newOffer: Offer = {
+      id: nextId++,
+      title,
+      company,
+      location,
+      type: contractType,
+      score: 70,
+      criteria: [
+        { name: 'Compétences techniques', level: 'mid', fill: 60, note: `Basé sur : ${skills || 'compétences non précisées'}.` },
+        { name: 'Expérience', level: 'mid', fill: 55, note: 'Pas encore évalué pour un profil précis.' },
+        { name: 'Mots-clés du secteur', level: 'mid', fill: 50, note: profile || 'Profil recherché non précisé.' },
+      ],
+      description,
+      missions: missions.split('\n').map((m) => m.trim()).filter(Boolean),
+      exclusive: true,
+    };
+    setOffers((o) => [newOffer, ...o]);
+    setStep('publiee');
+  };
+
+  const removeOffer = (id: number) => setOffers((o) => o.filter((x) => x.id !== id));
+
   const reset = () => {
     setStep('reception'); setText(''); setFileName('');
-    setTitle(''); setDescription(''); setSkills(''); setProfile('');
+    setTitle(''); setCompany(''); setLocation(''); setContractType('');
+    setDescription(''); setSkills(''); setProfile(''); setMissions('');
   };
 
   return (
@@ -89,13 +124,31 @@ export function OffresScreen() {
 
           {step === 'verification' && (
             <>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-muted-foreground">Titre du poste</label>
-                <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5 col-span-2">
+                  <label className="text-xs text-muted-foreground">Titre du poste</label>
+                  <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs text-muted-foreground">Entreprise</label>
+                  <Input value={company} onChange={(e) => setCompany(e.target.value)} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs text-muted-foreground">Lieu</label>
+                  <Input value={location} onChange={(e) => setLocation(e.target.value)} />
+                </div>
+                <div className="flex flex-col gap-1.5 col-span-2">
+                  <label className="text-xs text-muted-foreground">Type de contrat</label>
+                  <Input value={contractType} onChange={(e) => setContractType(e.target.value)} placeholder="Ex. Alternance · 12 mois" />
+                </div>
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-muted-foreground">Description</label>
                 <Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="min-h-20" />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-muted-foreground">Missions (une par ligne)</label>
+                <Textarea value={missions} onChange={(e) => setMissions(e.target.value)} className="min-h-20" />
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-muted-foreground">Compétences attendues</label>
@@ -106,7 +159,7 @@ export function OffresScreen() {
                 <Input value={profile} onChange={(e) => setProfile(e.target.value)} />
               </div>
               <p className="text-xs text-muted-foreground">Vérifie et corrige avant publication — rien n'est visible des étudiants tant que ce n'est pas validé.</p>
-              <Button onClick={() => setStep('publiee')} className="w-fit">Publier au catalogue</Button>
+              <Button onClick={publish} disabled={!title || !company} className="w-fit">Publier au catalogue</Button>
             </>
           )}
 
@@ -123,15 +176,18 @@ export function OffresScreen() {
       </Card>
 
       <Card>
-        <CardHeader><h3 className="text-base">Catalogue publié ({OFFERS.length})</h3></CardHeader>
+        <CardHeader><h3 className="text-base">Catalogue publié ({offers.length})</h3></CardHeader>
         <CardContent className="flex flex-col gap-3">
-          {OFFERS.map((o) => (
+          {offers.map((o) => (
             <div key={o.id} className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0 text-sm">
               <div>
                 <p className="font-medium">{o.title}</p>
                 <p className="text-xs text-muted-foreground">{o.company}</p>
               </div>
-              <span className="text-xs text-muted-foreground">{o.type}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-muted-foreground">{o.type}</span>
+                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => removeOffer(o.id)}>Retirer</Button>
+              </div>
             </div>
           ))}
         </CardContent>
