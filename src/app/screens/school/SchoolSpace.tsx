@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Shell, type NavItem } from '../../components/product/Shell';
 import { AdminDashboardScreen } from './admin/AdminDashboardScreen';
 import { OffresScreen } from './admin/OffresScreen';
+import { OffresScreenWizard } from './admin/OffresScreenWizard';
 import { CvBookScreen } from './admin/CvBookScreen';
 import { CoachsScreen } from './admin/CoachsScreen';
 import { EtudiantsScreen } from './admin/EtudiantsScreen';
@@ -27,7 +28,7 @@ const COACH_NAV: NavItem[] = [
   { id: 'calendrier', label: 'Calendrier & messagerie' },
 ];
 
-export function SchoolSpace({ role, onExit }: { role: 'admin' | 'coach'; onExit: () => void }) {
+export function SchoolSpace({ role, onExit, abVersion }: { role: 'admin' | 'coach'; onExit: () => void; abVersion: 'A' | 'B' }) {
   const [active, setActive] = useState('dashboard');
   const [coachMessageTarget, setCoachMessageTarget] = useState<number | null>(null);
   const [coachCalendarTab, setCoachCalendarTab] = useState<'calendrier' | 'messagerie'>('calendrier');
@@ -45,7 +46,7 @@ export function SchoolSpace({ role, onExit }: { role: 'admin' | 'coach'; onExit:
 
   const renderAdmin = () => {
     switch (active) {
-      case 'offres': return <OffresScreen />;
+      case 'offres': return abVersion === 'B' ? <OffresScreenWizard /> : <OffresScreen />;
       case 'cvbook': return <CvBookScreen />;
       case 'coachs': return <CoachsScreen />;
       case 'etudiants': return <EtudiantsScreen />;
@@ -57,7 +58,7 @@ export function SchoolSpace({ role, onExit }: { role: 'admin' | 'coach'; onExit:
   const renderCoach = () => {
     switch (active) {
       case 'etudiants': return <MesEtudiantsScreen onMessageStudent={openMessagerie} onProposeRdv={openCalendrier} />;
-      case 'offres': return <OffresScreen />;
+      case 'offres': return abVersion === 'B' ? <OffresScreenWizard /> : <OffresScreen />;
       case 'cvbook': return <CvBookScreen />;
       case 'calendrier': return (
         <CalendrierMessagerieScreen

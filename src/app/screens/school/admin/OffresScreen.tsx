@@ -5,6 +5,7 @@ import { Textarea } from '../../../components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../components/ui/tabs';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
 import { OFFERS as INITIAL_OFFERS, type Offer } from '../../../lib/mock-data';
+import { findAbTestOffer } from '../../../lib/ab-test-offers';
 
 type Step = 'reception' | 'traitement' | 'verification' | 'publiee';
 
@@ -35,14 +36,26 @@ export function OffresScreen() {
     setTimeout(() => {
       setProcessingLabel('Extraction par l\'IA…');
       setTimeout(() => {
-        setTitle('Alternance Chargé de Communication Digitale');
-        setCompany('Entreprise partenaire');
-        setLocation('Paris');
-        setContractType('Alternance · 12 mois');
-        setDescription("Rejoins l'équipe communication pour piloter les campagnes digitales et le contenu éditorial de l'entreprise partenaire.");
-        setSkills('Copywriting, Canva, Marketing digital');
-        setProfile('Bac+3/4, appétence pour la rédaction et les réseaux sociaux.');
-        setMissions("Créer les contenus pour les réseaux sociaux\nCoordonner les campagnes de lancement\nAnalyser les performances éditoriales");
+        const match = findAbTestOffer({ text: text || undefined, fileName: fileName || undefined });
+        if (match) {
+          setTitle(match.title);
+          setCompany(match.company);
+          setLocation(match.location);
+          setContractType(match.contractType);
+          setDescription(match.description);
+          setSkills(match.skills);
+          setProfile(match.profile);
+          setMissions(match.missions.join('\n'));
+        } else {
+          setTitle('Alternance Chargé de Communication Digitale');
+          setCompany('Entreprise partenaire');
+          setLocation('Paris');
+          setContractType('Alternance · 12 mois');
+          setDescription("Rejoins l'équipe communication pour piloter les campagnes digitales et le contenu éditorial de l'entreprise partenaire.");
+          setSkills('Copywriting, Canva, Marketing digital');
+          setProfile('Bac+3/4, appétence pour la rédaction et les réseaux sociaux.');
+          setMissions("Créer les contenus pour les réseaux sociaux\nCoordonner les campagnes de lancement\nAnalyser les performances éditoriales");
+        }
         setStep('verification');
       }, 1100);
     }, 700);

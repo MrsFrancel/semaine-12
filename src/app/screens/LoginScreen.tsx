@@ -1,6 +1,14 @@
 import { Card, CardContent } from '../components/ui/card';
 
-export function LoginScreen({ onPick }: { onPick: (space: 'student-onboarding' | 'student' | 'admin' | 'coach') => void }) {
+export function LoginScreen({
+  onPick,
+  abVersion,
+  onPickAbVersion,
+}: {
+  onPick: (space: 'student-onboarding' | 'student' | 'admin' | 'coach') => void;
+  abVersion: 'A' | 'B';
+  onPickAbVersion: (version: 'A' | 'B') => void;
+}) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-lg flex flex-col gap-6">
@@ -22,6 +30,34 @@ export function LoginScreen({ onPick }: { onPick: (space: 'student-onboarding' |
             <p className="text-xs text-muted-foreground">Terrain : suivi étudiants, messagerie, RDV.</p>
           </Card>
         </div>
+
+        <div className="rounded-xl border border-border bg-secondary p-4 flex items-center justify-between gap-4">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">Test AB — Agrégateur</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Choisis la version avant d'entrer dans l'espace École.</p>
+          </div>
+          <div className="flex gap-1.5 flex-none">
+            <button
+              type="button"
+              onClick={() => onPickAbVersion('A')}
+              className={`font-mono text-xs px-3 py-1.5 rounded-md border transition-colors ${
+                abVersion === 'A' ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Version A
+            </button>
+            <button
+              type="button"
+              onClick={() => onPickAbVersion('B')}
+              className={`font-mono text-xs px-3 py-1.5 rounded-md border transition-colors ${
+                abVersion === 'B' ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Version B
+            </button>
+          </div>
+        </div>
+
         <CardContent className="text-center text-xs text-muted-foreground pt-0">
           Prototype de démonstration, sans authentification réelle.
         </CardContent>
