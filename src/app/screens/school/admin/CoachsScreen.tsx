@@ -2,17 +2,40 @@ import { useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
-import { COACHES as INITIAL_COACHES } from '../../../lib/mock-data';
+import { COACHES as INITIAL_COACHES, type Coach } from '../../../lib/mock-data';
+
+interface PendingInvite {
+  id: number;
+  email: string;
+  sentAt: string;
+}
+
+let nextCoachId = 900;
+let nextInviteId = 1;
+
+function nameFromEmail(email: string): string {
+  const local = email.split('@')[0] || email;
+  return local.split('.').filter(Boolean).map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(' ') || email;
+}
 
 export function CoachsScreen() {
-  const [coaches, setCoaches] = useState(INITIAL_COACHES);
+  const [coaches, setCoaches] = useState<Coach[]>(INITIAL_COACHES);
+  const [pending, setPending] = useState<PendingInvite[]>([]);
   const [invite, setInvite] = useState('');
-  const [invited, setInvited] = useState<string[]>([]);
 
   const send = () => {
     if (!invite.trim()) return;
-    setInvited((l) => [...l, invite.trim()]);
+    setPending((p) => [...p, { id: nextInviteId++, email: invite.trim(), sentAt: "à l'instant" }]);
     setInvite('');
+  };
+
+  const resend = (id: number) => setPending((p) => p.map((x) => x.id === id ? { ...x, sentAt: "à l'instant (renvoyée)" } : x));
+  const cancel = (id: number) => setPending((p) => p.filter((x) => x.id !== id));
+
+  const accept = (invite: PendingInvite) => {
+    const newCoach: Coach = { id: nextCoachId++, name: nameFromEmail(invite.email), email: invite.email, studentsCount: 0, avgInactive: 0 };
+    setCoaches((c) => [...c, newCoach]);
+    setPending((p) => p.filter((x) => x.id !== invite.id));
   };
 
   const remove = (id: number) => setCoaches((c) => c.filter((x) => x.id !== id));
@@ -31,9 +54,29 @@ export function CoachsScreen() {
             <Input placeholder="prenom.nom@hetic.fr" value={invite} onChange={(e) => setInvite(e.target.value)} />
             <Button onClick={send}>Inviter</Button>
           </div>
-          {invited.length > 0 && <p className="text-xs text-muted-foreground">Invitation{invited.length > 1 ? 's' : ''} envoyée{invited.length > 1 ? 's' : ''} : {invited.join(', ')}</p>}
         </CardContent>
       </Card>
+
+      {pending.length > 0 && (
+        <Card>
+          <CardHeader><h3 className="text-base">Invitations en attente ({pending.length})</h3></CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            {pending.map((p) => (
+              <div key={p.id} className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0">
+                <div>
+                  <p className="text-sm font-medium">{p.email}</p>
+                  <p className="text-xs text-muted-foreground">Envoyée {p.sentAt}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => resend(p.id)}>Renvoyer</Button>
+                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => cancel(p.id)}>Annuler</Button>
+                  <Button variant="outline" size="sm" onClick={() => accept(p)}>Simuler l'acceptation</Button>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader><h3 className="text-base">Coachs actifs ({coaches.length})</h3></CardHeader>
@@ -41,14 +84,25 @@ export function CoachsScreen() {
           {coaches.length === 0 && <p className="text-sm text-muted-foreground">Aucun coach actif — invite quelqu'un ci-dessus.</p>}
           {coaches.map((c) => (
             <div key={c.id} className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0">
-              <div>
-                <p className="text-sm font-medium">{c.name}</p>
-                <p className="text-xs text-muted-foreground">{c.email}</p>
+              <div className="flex items-center gap-2">
+                <div>
+                  <p className="text-sm font-medium">{c.name}</p>
+                  <p className="text-xs text-muted-foreground">{c.email}</p>
+                </div>
+                {c.studentsCount === 0 && (
+                  <span className="font-mono text-[10px] uppercase tracking-wide bg-accent text-accent-foreground px-2 py-0.5 rounded">Nouveau</span>
+                )}
               </div>
               <div className="flex items-center gap-4">
                 <div className="text-right text-xs text-muted-foreground">
-                  <p>{c.studentsCount} étudiants</p>
-                  <p>{c.avgInactive}j inactivité moy.</p>
+                  {c.studentsCount === 0 ? (
+                    <p>Aucun étudiant assigné pour l'instant</p>
+                  ) : (
+                    <>
+                      <p>{c.studentsCount} étudiants</p>
+                      <p>{c.avgInactive}j inactivité moy.</p>
+                    </>
+                  )}
                 </div>
                 <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => remove(c.id)}>Retirer</Button>
               </div>
