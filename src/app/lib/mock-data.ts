@@ -177,3 +177,78 @@ export const STATUS_LABEL: Record<CandidatureStatus, string> = {
   'entretien': 'Entretien obtenu',
   'reponse': 'Réponse reçue',
 };
+
+export const CURRENT_COACH_ID = 2;
+
+export interface EventType {
+  id: number;
+  label: string;
+  duration: number;
+  description: string;
+  active: boolean;
+}
+
+export const EVENT_TYPES: EventType[] = [
+  { id: 1, label: 'Point de suivi', duration: 30, description: 'Rapide tour de la recherche en cours.', active: true },
+  { id: 2, label: "Préparation d'entretien", duration: 45, description: "Simulation d'entretien et retours.", active: true },
+  { id: 3, label: 'Relecture de CV', duration: 20, description: 'Retour rapide sur une version du CV.', active: true },
+  { id: 4, label: 'Bilan de mi-parcours', duration: 60, description: 'Point complet sur les objectifs.', active: false },
+];
+
+export interface Rdv {
+  id: number;
+  coachId: number;
+  studentId: number;
+  eventTypeId: number;
+  day: string;
+  time: string;
+}
+
+export const RDVS: Rdv[] = [
+  { id: 1, coachId: 2, studentId: 4, eventTypeId: 2, day: 'Jeudi 13 mars', time: '14:00' },
+  { id: 2, coachId: 2, studentId: 8, eventTypeId: 1, day: 'Vendredi 14 mars', time: '10:00' },
+  { id: 3, coachId: 2, studentId: 12, eventTypeId: 3, day: 'Lundi 10 mars', time: '09:00' },
+];
+
+export interface Message {
+  from: 'coach' | 'student';
+  text: string;
+  time: string;
+}
+
+export interface Conversation {
+  studentId: number;
+  messages: Message[];
+}
+
+export const CONVERSATIONS: Conversation[] = [
+  {
+    studentId: 2,
+    messages: [
+      { from: 'student', text: "Salut Karim, je viens d'envoyer 3 nouvelles candidatures ce matin.", time: '09:12' },
+      { from: 'coach', text: 'Nickel, tu peux me dire lesquelles ? Je regarde les fiches avec toi.', time: '09:20' },
+      { from: 'student', text: 'LVMH, Ubisoft et une offre externe chez Alan.', time: '09:24' },
+    ],
+  },
+  {
+    studentId: 4,
+    messages: [
+      { from: 'coach', text: 'Jefté, ça fait deux semaines sans candidature. Un souci de ton côté ?', time: 'Hier 16:40' },
+      { from: 'student', text: "Oui, je bloque sur la lettre de motivation, tu peux m'aider jeudi ?", time: 'Hier 17:02' },
+      { from: 'coach', text: 'Ok, je te cale un créneau jeudi 14h.', time: 'Hier 17:05' },
+    ],
+  },
+  {
+    studentId: 8,
+    messages: [
+      { from: 'student', text: 'Je peux avoir un créneau cette semaine pour revoir mon CV ?', time: 'Lun 11:03' },
+    ],
+  },
+  {
+    studentId: 12,
+    messages: [
+      { from: 'coach', text: 'Paul, je vois que ton profil est toujours à 1 candidature ce mois-ci, on en parle lundi ?', time: '3 mars' },
+      { from: 'student', text: 'Oui pas de souci, désolé pour le retard.', time: '3 mars' },
+    ],
+  },
+];

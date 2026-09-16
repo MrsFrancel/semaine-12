@@ -29,7 +29,19 @@ const COACH_NAV: NavItem[] = [
 
 export function SchoolSpace({ role, onExit }: { role: 'admin' | 'coach'; onExit: () => void }) {
   const [active, setActive] = useState('dashboard');
+  const [coachMessageTarget, setCoachMessageTarget] = useState<number | null>(null);
+  const [coachCalendarTab, setCoachCalendarTab] = useState<'calendrier' | 'messagerie'>('calendrier');
   const nav = role === 'admin' ? ADMIN_NAV : COACH_NAV;
+
+  const openMessagerie = (studentId: number) => {
+    setCoachMessageTarget(studentId);
+    setCoachCalendarTab('messagerie');
+    setActive('calendrier');
+  };
+  const openCalendrier = () => {
+    setCoachCalendarTab('calendrier');
+    setActive('calendrier');
+  };
 
   const renderAdmin = () => {
     switch (active) {
@@ -44,10 +56,16 @@ export function SchoolSpace({ role, onExit }: { role: 'admin' | 'coach'; onExit:
 
   const renderCoach = () => {
     switch (active) {
-      case 'etudiants': return <MesEtudiantsScreen />;
+      case 'etudiants': return <MesEtudiantsScreen onMessageStudent={openMessagerie} onProposeRdv={openCalendrier} />;
       case 'offres': return <OffresScreen />;
       case 'cvbook': return <CvBookScreen />;
-      case 'calendrier': return <CalendrierMessagerieScreen />;
+      case 'calendrier': return (
+        <CalendrierMessagerieScreen
+          initialTab={coachCalendarTab}
+          openStudentId={coachMessageTarget}
+          onConsumeOpenStudentId={() => setCoachMessageTarget(null)}
+        />
+      );
       default: return <CoachDashboardScreen />;
     }
   };
