@@ -124,7 +124,7 @@ export function OffresScreen() {
 
           {step === 'verification' && (
             <>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5 col-span-2">
                   <label className="text-xs text-muted-foreground">Titre du poste</label>
                   <Input value={title} onChange={(e) => setTitle(e.target.value)} />

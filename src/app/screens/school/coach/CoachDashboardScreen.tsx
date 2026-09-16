@@ -10,7 +10,7 @@ export function CoachDashboardScreen() {
         <h2 className="text-2xl">Tableau de bord</h2>
         <p className="text-muted-foreground text-sm mt-1">Tes étudiants, en un coup d'œil — sans saisie de ta part.</p>
       </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{STUDENTS.length}</p><p className="text-xs text-muted-foreground mt-1">Étudiants suivis</p></CardContent></Card>
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{inactive.length}</p><p className="text-xs text-muted-foreground mt-1">Signaux d'inactivité</p></CardContent></Card>
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">3</p><p className="text-xs text-muted-foreground mt-1">RDV cette semaine</p></CardContent></Card>

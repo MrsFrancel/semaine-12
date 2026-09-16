@@ -37,14 +37,14 @@ export function AdminDashboardScreen() {
         <p className="text-muted-foreground text-sm mt-1">Vue d'ensemble de l'école — consultation passive, aucune saisie requise.</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{STUDENTS.length}</p><p className="text-xs text-muted-foreground mt-1">Étudiants actifs</p></CardContent></Card>
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{COACHES.length}</p><p className="text-xs text-muted-foreground mt-1">Coachs</p></CardContent></Card>
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{OFFERS.length}</p><p className="text-xs text-muted-foreground mt-1">Offres exclusives publiées</p></CardContent></Card>
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{avgInactive}j</p><p className="text-xs text-muted-foreground mt-1">Inactivité moyenne</p></CardContent></Card>
       </div>
 
-      <div className="grid grid-cols-[1.4fr_1fr] gap-4 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4 items-start">
         <Card>
           <CardHeader className="flex-row items-baseline justify-between">
             <h3 className="text-base">Candidatures &amp; entretiens par coach</h3>

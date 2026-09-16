@@ -25,22 +25,21 @@ export function Shell({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex bg-background">
-      <aside className="w-56 flex-none bg-brand text-brand-foreground flex flex-col">
-        <div className="px-5 py-5 border-b border-white/10">
-          <div className="flex items-center gap-2 text-brand-foreground/70">
-            <Logomark className="size-4" />
-            <p className="font-mono text-[11px] uppercase tracking-widest">Match&amp;Go</p>
+    <div className="min-h-screen flex flex-col md:flex-row bg-background">
+      <aside className="w-full md:w-56 flex-none bg-brand text-brand-foreground flex flex-col">
+        <div className="px-4 md:px-5 py-4 border-b border-white/10 flex items-center gap-3">
+          <Logomark className="size-8 flex-none text-brand-foreground" />
+          <div className="min-w-0">
+            <h1 className="text-base leading-tight truncate">{spaceLabel}</h1>
+            <p className="font-mono text-[11px] text-brand-foreground/60 truncate">{roleLabel}</p>
           </div>
-          <h1 className="text-base mt-1">{spaceLabel}</h1>
-          <p className="font-mono text-[11px] text-brand-foreground/60 mt-0.5">{roleLabel}</p>
         </div>
-        <nav className="flex-1 px-2 py-3 flex flex-col gap-0.5">
+        <nav className="flex flex-row md:flex-col gap-0.5 px-2 py-2 md:py-3 overflow-x-auto md:overflow-visible">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => onSelect(item.id)}
-              className={`text-left px-3 py-2 rounded text-sm transition-colors ${
+              className={`flex-none whitespace-nowrap text-left px-3 py-2 rounded text-sm transition-colors ${
                 activeId === item.id ? 'bg-primary text-primary-foreground font-medium' : 'text-brand-foreground/75 hover:bg-white/8'
               }`}
             >
@@ -49,13 +48,13 @@ export function Shell({
             </button>
           ))}
         </nav>
-        <div className="px-2 py-3 border-t border-white/10">
+        <div className="md:mt-auto px-2 py-3 border-t border-white/10">
           <button onClick={onExit} className="font-mono text-[11px] text-brand-foreground/60 hover:text-brand-foreground px-3">
             ← CHANGER D'ESPACE
           </button>
         </div>
       </aside>
-      <main className="flex-1 min-w-0 px-8 py-8 max-w-5xl">{children}</main>
+      <main className="flex-1 min-w-0 px-4 sm:px-6 md:px-8 py-6 md:py-8 max-w-5xl w-full">{children}</main>
     </div>
   );
 }
