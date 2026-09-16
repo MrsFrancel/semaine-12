@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Logomark } from './Logomark';
 
 export interface NavItem {
   id: string;
@@ -27,7 +28,10 @@ export function Shell({
     <div className="min-h-screen flex bg-background">
       <aside className="w-56 flex-none bg-brand text-brand-foreground flex flex-col">
         <div className="px-5 py-5 border-b border-white/10">
-          <p className="font-mono text-[11px] uppercase tracking-widest text-brand-foreground/60">Match&amp;Go</p>
+          <div className="flex items-center gap-2 text-brand-foreground/70">
+            <Logomark className="size-4" />
+            <p className="font-mono text-[11px] uppercase tracking-widest">Match&amp;Go</p>
+          </div>
           <h1 className="text-base mt-1">{spaceLabel}</h1>
           <p className="font-mono text-[11px] text-brand-foreground/60 mt-0.5">{roleLabel}</p>
         </div>

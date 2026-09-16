@@ -22,7 +22,7 @@
   --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
   --border: #E5E5E5;
-  --input: #FFFFFF;
+  --input: #C7C7CC;
   --input-background: #FFFFFF;
   --switch-background: #E5E5E5;
   --font-weight-medium: 500;
@@ -78,7 +78,7 @@
   --destructive: #F87171;
   --destructive-foreground: #0F0F10;
   --border: #2A2A2E;
-  --input: #26262A;
+  --input: #3F3F46;
   --ring: #818CF8;
 
   --brand: #050505;

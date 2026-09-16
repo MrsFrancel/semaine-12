@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
-import { COACHES } from '../../../lib/mock-data';
+import { COACHES as INITIAL_COACHES } from '../../../lib/mock-data';
 
 export function CoachsScreen() {
+  const [coaches, setCoaches] = useState(INITIAL_COACHES);
   const [invite, setInvite] = useState('');
   const [invited, setInvited] = useState<string[]>([]);
 
@@ -13,6 +14,8 @@ export function CoachsScreen() {
     setInvited((l) => [...l, invite.trim()]);
     setInvite('');
   };
+
+  const remove = (id: number) => setCoaches((c) => c.filter((x) => x.id !== id));
 
   return (
     <div className="flex flex-col gap-6 max-w-2xl">
@@ -33,17 +36,21 @@ export function CoachsScreen() {
       </Card>
 
       <Card>
-        <CardHeader><h3 className="text-base">Coachs actifs</h3></CardHeader>
+        <CardHeader><h3 className="text-base">Coachs actifs ({coaches.length})</h3></CardHeader>
         <CardContent className="flex flex-col gap-3">
-          {COACHES.map((c) => (
+          {coaches.length === 0 && <p className="text-sm text-muted-foreground">Aucun coach actif — invite quelqu'un ci-dessus.</p>}
+          {coaches.map((c) => (
             <div key={c.id} className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0">
               <div>
                 <p className="text-sm font-medium">{c.name}</p>
                 <p className="text-xs text-muted-foreground">{c.email}</p>
               </div>
-              <div className="text-right text-xs text-muted-foreground">
-                <p>{c.studentsCount} étudiants</p>
-                <p>{c.avgInactive}j inactivité moy.</p>
+              <div className="flex items-center gap-4">
+                <div className="text-right text-xs text-muted-foreground">
+                  <p>{c.studentsCount} étudiants</p>
+                  <p>{c.avgInactive}j inactivité moy.</p>
+                </div>
+                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => remove(c.id)}>Retirer</Button>
               </div>
             </div>
           ))}
