@@ -11,7 +11,7 @@ export function LoginScreen({ onPick }: { onPick: (space: 'student-onboarding' |
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card className="p-5 gap-3 cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onPick('student-onboarding')}>
             <h3 className="text-base">Étudiant</h3>
-            <p className="text-xs text-muted-foreground">Nouvelle inscription — parcours d'onboarding complet.</p>
+            <p className="text-xs text-muted-foreground">Nouvelle inscription, avec le parcours d'onboarding complet.</p>
           </Card>
           <Card className="p-5 gap-3 cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onPick('admin')}>
             <h3 className="text-base">École — Admin</h3>
@@ -23,7 +23,7 @@ export function LoginScreen({ onPick }: { onPick: (space: 'student-onboarding' |
           </Card>
         </div>
         <CardContent className="text-center text-xs text-muted-foreground pt-0">
-          Prototype de démonstration — aucune authentification réelle.
+          Prototype de démonstration, sans authentification réelle.
         </CardContent>
       </div>
     </div>

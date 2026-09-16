@@ -30,7 +30,7 @@ export function Shell({
         <div className="px-4 md:px-5 py-4 border-b border-white/10 flex items-center gap-3">
           <Logomark className="size-8 flex-none text-brand-foreground" />
           <div className="min-w-0">
-            <h1 className="text-base leading-tight truncate">{spaceLabel}</h1>
+            <h1 className="text-base leading-tight">{spaceLabel}</h1>
             <p className="font-mono text-[11px] text-brand-foreground/60 truncate">{roleLabel}</p>
           </div>
         </div>

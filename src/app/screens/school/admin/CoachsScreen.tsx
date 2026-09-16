@@ -48,7 +48,7 @@ export function CoachsScreen() {
     <div className="flex flex-col gap-6 max-w-2xl">
       <div>
         <h2 className="text-2xl">Coachs</h2>
-        <p className="text-muted-foreground text-sm mt-1">Stats agrégées et gestion des accès — l'admin décide qui devient coach.</p>
+        <p className="text-muted-foreground text-sm mt-1">Stats agrégées et gestion des accès. C'est l'admin qui décide qui devient coach.</p>
       </div>
 
       <Card>
@@ -85,7 +85,7 @@ export function CoachsScreen() {
       <Card>
         <CardHeader><h3 className="text-base">Coachs actifs ({coaches.length})</h3></CardHeader>
         <CardContent className="flex flex-col gap-3">
-          {coaches.length === 0 && <p className="text-sm text-muted-foreground">Aucun coach actif — invite quelqu'un ci-dessus.</p>}
+          {coaches.length === 0 && <p className="text-sm text-muted-foreground">Aucun coach actif pour l'instant. Invite quelqu'un ci-dessus.</p>}
           {coaches.map((c) => (
             <div key={c.id} className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0">
               <div className="flex items-center gap-2">
@@ -136,7 +136,7 @@ export function CoachsScreen() {
             ))}
             {openCoach && openCoach.studentsCount > assignedStudents.length && (
               <p className="text-xs text-muted-foreground pt-1">
-                {openCoach.studentsCount} étudiants au total pour ce coach — {assignedStudents.length} affichés ici (échantillon de démonstration).
+                {openCoach.studentsCount} étudiants au total pour ce coach, dont {assignedStudents.length} affichés ici (échantillon de démonstration).
               </p>
             )}
           </div>

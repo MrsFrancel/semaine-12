@@ -8,7 +8,7 @@ export function CoachDashboardScreen() {
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-2xl">Tableau de bord</h2>
-        <p className="text-muted-foreground text-sm mt-1">Tes étudiants, en un coup d'œil — sans saisie de ta part.</p>
+        <p className="text-muted-foreground text-sm mt-1">Tes étudiants, en un coup d'œil. Rien à saisir de ton côté.</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{STUDENTS.length}</p><p className="text-xs text-muted-foreground mt-1">Étudiants suivis</p></CardContent></Card>
@@ -19,7 +19,7 @@ export function CoachDashboardScreen() {
         <CardHeader><h3 className="text-base">Signaux d'inactivité</h3></CardHeader>
         <CardContent className="flex flex-col gap-3">
           {inactive.length ? inactive.map((s) => <InactivityAlert key={s.id} name={s.name} days={s.inactiveDays} />) : (
-            <p className="text-sm text-muted-foreground">Aucun signal — tous tes étudiants sont actifs.</p>
+            <p className="text-sm text-muted-foreground">Tous tes étudiants sont actifs, aucun signal à afficher.</p>
           )}
         </CardContent>
       </Card>

@@ -35,14 +35,14 @@ export function CandidatureScreen({ offer, onBack }: { offer: Offer; onBack: () 
           <div className="flex items-center justify-between rounded-lg border border-border p-3">
             <div>
               <p className="text-sm font-medium">CV adapté à cette offre</p>
-              <p className="text-xs text-muted-foreground">Édition manuelle ou assistée par IA — chaque suggestion reste à valider.</p>
+              <p className="text-xs text-muted-foreground">Édition manuelle ou assistée par IA, chaque suggestion reste à valider.</p>
             </div>
             <Button variant="outline" size="sm">Adapter mon CV</Button>
           </div>
           <div className="flex items-center justify-between rounded-lg border border-border p-3">
             <div>
               <p className="text-sm font-medium">Lettre de motivation</p>
-              <p className="text-xs text-muted-foreground">{letterGenerated ? 'Générée — à relire avant envoi.' : 'Pas encore générée.'}</p>
+              <p className="text-xs text-muted-foreground">{letterGenerated ? 'Générée, à relire avant envoi.' : 'Pas encore générée.'}</p>
             </div>
             <Button variant="outline" size="sm" onClick={generateLetter} disabled={generating}>
               {generating ? 'Génération…' : letterGenerated ? 'Régénérer' : 'Générer'}
@@ -62,7 +62,7 @@ export function CandidatureScreen({ offer, onBack }: { offer: Offer; onBack: () 
               {status === 'a-preparer' ? 'Marquer comme postulée' : status === 'postulee' ? "J'ai un entretien" : 'Marquer la réponse reçue'}
             </Button>
           ) : (
-            <p className="text-sm text-muted-foreground">Candidature clôturée — {STATUS_LABEL[status]}.</p>
+            <p className="text-sm text-muted-foreground">Candidature clôturée : {STATUS_LABEL[status]}.</p>
           )}
         </CardContent>
       </Card>

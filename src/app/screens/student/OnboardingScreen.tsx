@@ -11,7 +11,6 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
   const [email, setEmail] = useState('');
   const [consent, setConsent] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
-  const [parseFailed, setParseFailed] = useState(false);
 
   const emailValid = /@hetic\.fr$/i.test(email.trim());
 
@@ -20,7 +19,7 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
     setAnalyzing(true);
     setTimeout(() => {
       setAnalyzing(false);
-      if (fail) { setParseFailed(true); setStep('secours'); }
+      if (fail) setStep('secours');
       else setStep('pret');
     }, 1400);
   };
@@ -51,7 +50,7 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
                 <Switch checked={consent} onCheckedChange={setConsent} className="mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">J'autorise l'IA à me proposer des ajustements de CV</p>
-                  <p className="text-xs text-muted-foreground mt-1">Chaque suggestion te sera présentée pour validation — rien n'est jamais modifié automatiquement.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Chaque suggestion te sera présentée pour validation, rien n'est modifié automatiquement.</p>
                 </div>
               </div>
               <Button disabled={!consent} onClick={() => setStep('upload')}>Continuer</Button>
@@ -78,7 +77,7 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
             <div className="flex flex-col gap-4">
               <div className="rounded-xl border border-border bg-secondary p-4">
                 <p className="text-sm font-medium">Mode secours manuel</p>
-                <p className="text-xs text-muted-foreground mt-1">La mise en page de ton CV n'a pas pu être analysée automatiquement. Renseigne tes compétences clés à la main — {parseFailed ? 'ça n\'empêche pas de continuer.' : ''}</p>
+                <p className="text-xs text-muted-foreground mt-1">La mise en page de ton CV n'a pas pu être analysée automatiquement. Renseigne tes compétences clés à la main, ça n'empêche pas de continuer.</p>
               </div>
               <Input placeholder="Ex. Marketing digital, SEO/SEA, Canva…" />
               <Button onClick={() => setStep('pret')}>Continuer</Button>

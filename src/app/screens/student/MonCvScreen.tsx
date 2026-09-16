@@ -16,14 +16,14 @@ export function MonCvScreen() {
     <div className="flex flex-col gap-6 max-w-2xl">
       <div>
         <h2 className="text-2xl">Mon CV</h2>
-        <p className="text-muted-foreground text-sm mt-1">Ta mise en page d'origine est toujours préservée — l'IA ne touche jamais à la structure.</p>
+        <p className="text-muted-foreground text-sm mt-1">Ta mise en page d'origine reste intacte, l'IA ne touche jamais à la structure.</p>
       </div>
 
       <Card>
         <CardContent className="pt-6 flex items-start justify-between gap-4">
           <div>
             <p className="text-sm font-medium">Consentement IA</p>
-            <p className="text-xs text-muted-foreground mt-1">Accordé à l'onboarding — modifiable à tout moment.</p>
+            <p className="text-xs text-muted-foreground mt-1">Accordé pendant l'onboarding, modifiable à tout moment.</p>
           </div>
           <Switch checked={consent} onCheckedChange={setConsent} />
         </CardContent>

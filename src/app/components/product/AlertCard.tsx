@@ -5,7 +5,7 @@ export function InactivityAlert({ name, days }: { name: string; days: number }) 
       <div>
         <p className="text-sm font-medium">{name}</p>
         <p className="text-xs text-muted-foreground mt-0.5">
-          Aucune candidature envoyée depuis {days} jours. Aucun score de profil associé à ce signal.
+          Aucune candidature depuis {days} jours. Un signal à suivre, rien de plus.
         </p>
       </div>
     </div>

@@ -81,7 +81,7 @@ export function OffresScreen() {
     <div className="flex flex-col gap-6 max-w-2xl">
       <div>
         <h2 className="text-2xl">Offres</h2>
-        <p className="text-muted-foreground text-sm mt-1">L'IA pré-remplit la fiche à partir de ce que l'entreprise a envoyé, un humain vérifie avant publication — jamais l'inverse.</p>
+        <p className="text-muted-foreground text-sm mt-1">L'IA pré-remplit la fiche à partir de ce que l'entreprise a envoyé. Un humain vérifie toujours avant publication.</p>
       </div>
 
       <Card>
@@ -158,7 +158,7 @@ export function OffresScreen() {
                 <label className="text-xs text-muted-foreground">Profil recherché</label>
                 <Input value={profile} onChange={(e) => setProfile(e.target.value)} />
               </div>
-              <p className="text-xs text-muted-foreground">Vérifie et corrige avant publication — rien n'est visible des étudiants tant que ce n'est pas validé.</p>
+              <p className="text-xs text-muted-foreground">Vérifie et corrige avant de publier : les étudiants ne verront rien tant que ce n'est pas validé.</p>
               <Button onClick={publish} disabled={!title || !company} className="w-fit">Publier au catalogue</Button>
             </>
           )}
@@ -167,7 +167,7 @@ export function OffresScreen() {
             <div className="flex flex-col gap-3">
               <div className="rounded-lg border border-border bg-accent p-4">
                 <p className="text-sm font-medium text-accent-foreground">Offre publiée au catalogue</p>
-                <p className="text-xs text-muted-foreground mt-1">Les étudiants concernés sont notifiés par email — le suivi d'ouverture sera disponible sous 24h.</p>
+                <p className="text-xs text-muted-foreground mt-1">Les étudiants concernés reçoivent un email. Le suivi d'ouverture sera disponible sous 24h.</p>
               </div>
               <Button variant="outline" size="sm" className="w-fit" onClick={reset}>Importer une nouvelle offre</Button>
             </div>

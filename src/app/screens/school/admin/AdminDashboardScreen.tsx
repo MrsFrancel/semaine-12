@@ -20,10 +20,10 @@ const mostInactive = [...STUDENTS].filter((s) => s.inactiveDays > 0).sort((a, b)
 const topByEntretiens = [...STUDENTS].sort((a, b) => b.entretiens - a.entretiens)[0];
 
 const ACTIVITY = [
-  { text: `Offre publiée — ${OFFERS[0].title}, ${OFFERS[0].company}`, when: 'il y a 2h' },
+  { text: `Nouvelle offre publiée : ${OFFERS[0].title} chez ${OFFERS[0].company}`, when: 'il y a 2h' },
   { text: `${topByEntretiens.name} a obtenu un entretien`, when: 'il y a 6h' },
-  { text: `${mostInactive[0]?.name ?? 'Un étudiant'} — ${mostInactive[0]?.inactiveDays ?? 0}j sans candidature, signalé`, when: 'hier' },
-  { text: `Offre publiée — ${OFFERS[1].title}, ${OFFERS[1].company}`, when: 'il y a 2 jours' },
+  { text: `${mostInactive[0]?.name ?? 'Un étudiant'} signalé pour inactivité (${mostInactive[0]?.inactiveDays ?? 0}j sans candidature)`, when: 'hier' },
+  { text: `Nouvelle offre publiée : ${OFFERS[1].title} chez ${OFFERS[1].company}`, when: 'il y a 2 jours' },
   { text: `Bilan mensuel généré pour ${COACHES.length} coachs`, when: 'il y a 3 jours' },
 ];
 
@@ -34,7 +34,7 @@ export function AdminDashboardScreen() {
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-2xl">Tableau de bord</h2>
-        <p className="text-muted-foreground text-sm mt-1">Vue d'ensemble de l'école — consultation passive, aucune saisie requise.</p>
+        <p className="text-muted-foreground text-sm mt-1">Vue d'ensemble de l'école : tout est déjà calculé, il n'y a rien à saisir.</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -72,7 +72,7 @@ export function AdminDashboardScreen() {
         <Card>
           <CardHeader><h3 className="text-base">Signaux d'inactivité</h3></CardHeader>
           <CardContent className="flex flex-col gap-3">
-            {mostInactive.length === 0 && <p className="text-sm text-muted-foreground">Aucun signal — tous les étudiants sont actifs.</p>}
+            {mostInactive.length === 0 && <p className="text-sm text-muted-foreground">Tous les étudiants sont actifs, aucun signal à afficher.</p>}
             {mostInactive.map((s) => <InactivityAlert key={s.id} name={s.name} days={s.inactiveDays} />)}
           </CardContent>
         </Card>
