@@ -16,9 +16,9 @@ export function MonSuiviScreen() {
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        <Card><CardContent className="pt-6"><p className="text-3xl font-semibold">{CANDIDATURES.length}</p><p className="text-xs text-muted-foreground mt-1">Candidatures ce mois-ci</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><p className="text-3xl font-semibold">{CANDIDATURES.filter(c => c.status === 'entretien' || c.status === 'reponse').length}</p><p className="text-xs text-muted-foreground mt-1">Entretiens obtenus</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><p className="text-3xl font-semibold">{OFFERS.filter(o => o.score >= 75).length}</p><p className="text-xs text-muted-foreground mt-1">Bons matchs au catalogue</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{CANDIDATURES.length}</p><p className="text-xs text-muted-foreground mt-1">Candidatures ce mois-ci</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{CANDIDATURES.filter(c => c.status === 'entretien' || c.status === 'reponse').length}</p><p className="text-xs text-muted-foreground mt-1">Entretiens obtenus</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{OFFERS.filter(o => o.score >= 75).length}</p><p className="text-xs text-muted-foreground mt-1">Bons matchs au catalogue</p></CardContent></Card>
       </div>
 
       <Card>

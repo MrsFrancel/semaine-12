@@ -21,8 +21,8 @@ export function ScoreCard({ offer }: { offer: Offer }) {
           <h3 className="text-lg">{offer.title}</h3>
           <p className="text-muted-foreground text-sm mt-0.5">{offer.company} · {offer.location} · {offer.type}</p>
         </div>
-        <div className="text-3xl font-semibold text-primary tabular-nums">
-          {offer.score}<span className="text-sm text-muted-foreground font-normal">% de match</span>
+        <div className="font-mono text-3xl font-semibold text-primary tabular-nums">
+          {offer.score}<span className="text-sm text-muted-foreground font-sans font-normal">% de match</span>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -30,7 +30,7 @@ export function ScoreCard({ offer }: { offer: Offer }) {
           <div key={c.name} className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm font-medium">{c.name}</span>
-              <span className={`text-[11px] px-2 py-0.5 rounded-full ${LEVEL_CLASS[c.level]}`}>{LEVEL_LABEL[c.level]}</span>
+              <span className={`font-mono text-[11px] px-2 py-0.5 rounded-full ${LEVEL_CLASS[c.level]}`}>{LEVEL_LABEL[c.level]}</span>
             </div>
             <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
               <div className={`h-full rounded-full ${LEVEL_BAR[c.level]}`} style={{ width: `${c.fill}%` }} />

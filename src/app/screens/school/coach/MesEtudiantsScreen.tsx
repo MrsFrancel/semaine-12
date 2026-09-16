@@ -15,9 +15,9 @@ export function MesEtudiantsScreen() {
           <p className="text-muted-foreground text-sm mt-1">{open.promo}</p>
         </div>
         <div className="grid grid-cols-3 gap-4">
-          <Card><CardContent className="pt-6"><p className="text-2xl font-semibold">{open.candidatures}</p><p className="text-xs text-muted-foreground mt-1">Candidatures</p></CardContent></Card>
-          <Card><CardContent className="pt-6"><p className="text-2xl font-semibold">{open.entretiens}</p><p className="text-xs text-muted-foreground mt-1">Entretiens</p></CardContent></Card>
-          <Card><CardContent className="pt-6"><p className="text-2xl font-semibold">{open.lastActivity}</p><p className="text-xs text-muted-foreground mt-1">Dernière activité</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="font-mono text-2xl font-semibold">{open.candidatures}</p><p className="text-xs text-muted-foreground mt-1">Candidatures</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="font-mono text-2xl font-semibold">{open.entretiens}</p><p className="text-xs text-muted-foreground mt-1">Entretiens</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="font-mono text-2xl font-semibold">{open.lastActivity}</p><p className="text-xs text-muted-foreground mt-1">Dernière activité</p></CardContent></Card>
         </div>
         <Card>
           <CardHeader><h3 className="text-base">Messagerie</h3></CardHeader>
