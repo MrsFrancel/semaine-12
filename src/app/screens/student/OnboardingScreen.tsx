@@ -1,16 +1,21 @@
 import { useState } from 'react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
+import { Textarea } from '../../components/ui/textarea';
 import { Switch } from '../../components/ui/switch';
 import { Card, CardContent } from '../../components/ui/card';
 
-type Step = 'inscription' | 'consentement' | 'upload' | 'secours' | 'pret';
+type Step = 'inscription' | 'consentement' | 'upload' | 'secours' | 'verification' | 'pret';
 
 export function OnboardingScreen({ onDone }: { onDone: () => void }) {
   const [step, setStep] = useState<Step>('inscription');
   const [email, setEmail] = useState('');
   const [consent, setConsent] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
+
+  const [formation, setFormation] = useState('');
+  const [experience, setExperience] = useState('');
+  const [skills, setSkills] = useState('');
 
   const emailValid = /@hetic\.fr$/i.test(email.trim());
 
@@ -19,8 +24,14 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
     setAnalyzing(true);
     setTimeout(() => {
       setAnalyzing(false);
-      if (fail) setStep('secours');
-      else setStep('pret');
+      if (fail) {
+        setStep('secours');
+      } else {
+        setFormation('Bachelor Marketing Digital, HETIC');
+        setExperience('Stage 6 mois, chargé de communication digitale dans une agence.');
+        setSkills('Marketing digital, SEO/SEA, Google Analytics, Canva');
+        setStep('verification');
+      }
     }, 1400);
   };
 
@@ -79,8 +90,27 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
                 <p className="text-sm font-medium">Mode secours manuel</p>
                 <p className="text-xs text-muted-foreground mt-1">La mise en page de ton CV n'a pas pu être analysée automatiquement. Renseigne tes compétences clés à la main, ça n'empêche pas de continuer.</p>
               </div>
-              <Input placeholder="Ex. Marketing digital, SEO/SEA, Canva…" />
-              <Button onClick={() => setStep('pret')}>Continuer</Button>
+              <Input placeholder="Ex. Marketing digital, SEO/SEA, Canva…" value={skills} onChange={(e) => setSkills(e.target.value)} />
+              <Button onClick={() => setStep('verification')}>Continuer</Button>
+            </div>
+          )}
+
+          {step === 'verification' && (
+            <div className="flex flex-col gap-4">
+              <p className="text-xs text-muted-foreground">Voici ce qu'on a retenu de ton CV. Corrige ce qui doit l'être, rien n'est figé.</p>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-muted-foreground">Formation</label>
+                <Input placeholder="Ex. Bachelor Marketing Digital, HETIC" value={formation} onChange={(e) => setFormation(e.target.value)} />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-muted-foreground">Expérience</label>
+                <Textarea placeholder="Ex. Stage 6 mois, chargé de communication digitale." value={experience} onChange={(e) => setExperience(e.target.value)} className="min-h-20" />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-muted-foreground">Compétences (séparées par une virgule)</label>
+                <Input placeholder="Ex. Marketing digital, SEO/SEA, Canva…" value={skills} onChange={(e) => setSkills(e.target.value)} />
+              </div>
+              <Button disabled={!formation.trim()} onClick={() => setStep('pret')}>Confirmer mon profil</Button>
             </div>
           )}
 
