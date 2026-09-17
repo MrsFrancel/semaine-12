@@ -39,6 +39,7 @@ export function OffresScreen({
   const [skills, setSkills] = useState('');
   const [profile, setProfile] = useState('');
   const [missions, setMissions] = useState('');
+  const [rawText, setRawText] = useState('');
 
   const canImport = text.trim().length > 0 || fileName.length > 0;
 
@@ -58,6 +59,7 @@ export function OffresScreen({
       setSkills(match.skills);
       setProfile(match.profile);
       setMissions(match.missions.join('\n'));
+      setRawText(match.rawText);
     } else {
       const content = file ? await extractPdfText(file) : text;
       const analysis = analyzeOfferText(content, vocabulary);
@@ -69,6 +71,7 @@ export function OffresScreen({
       setSkills(analysis.skills.join(', '));
       setProfile(analysis.profile);
       setMissions('');
+      setRawText(content);
     }
     setStep('verification');
   };
@@ -89,6 +92,7 @@ export function OffresScreen({
       description,
       missions: missions.split('\n').map((m) => m.trim()).filter(Boolean),
       exclusive: true,
+      rawText: rawText || undefined,
     });
     setStep('publiee');
   };
@@ -96,7 +100,7 @@ export function OffresScreen({
   const reset = () => {
     setStep('reception'); setText(''); setFileName(''); setFile(null);
     setTitle(''); setCompany(''); setLocation(''); setContractType('');
-    setDescription(''); setSkills(''); setProfile(''); setMissions('');
+    setDescription(''); setSkills(''); setProfile(''); setMissions(''); setRawText('');
   };
 
   return (

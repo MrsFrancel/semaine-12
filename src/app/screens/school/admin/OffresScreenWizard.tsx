@@ -51,6 +51,7 @@ export function OffresScreenWizard({
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState('');
   const [profile, setProfile] = useState('');
+  const [rawText, setRawText] = useState('');
 
   const canImport = text.trim().length > 0 || fileName.length > 0;
 
@@ -70,6 +71,7 @@ export function OffresScreenWizard({
       setSkills(match.skills.split(',').map((s) => s.trim()).filter(Boolean));
       setProfile(match.profile);
       setMissions(match.missions.join('\n'));
+      setRawText(match.rawText);
     } else {
       const content = file ? await extractPdfText(file) : text;
       const analysis = analyzeOfferText(content, vocabulary);
@@ -81,6 +83,7 @@ export function OffresScreenWizard({
       setSkills(analysis.skills);
       setProfile(analysis.profile);
       setMissions('');
+      setRawText(content);
     }
     setStep('infos');
   };
@@ -113,6 +116,7 @@ export function OffresScreenWizard({
       description,
       missions: missions.split('\n').map((m) => m.trim()).filter(Boolean),
       exclusive: true,
+      rawText: rawText || undefined,
     });
     setStep('publiee');
   };
@@ -120,7 +124,7 @@ export function OffresScreenWizard({
   const reset = () => {
     setStep('reception'); setText(''); setFileName(''); setFile(null);
     setTitle(''); setCompany(''); setLocation(''); setContractType('');
-    setDescription(''); setSkills([]); setSkillInput(''); setProfile(''); setMissions('');
+    setDescription(''); setSkills([]); setSkillInput(''); setProfile(''); setMissions(''); setRawText('');
   };
 
   const wizardIndex = STEP_ORDER.indexOf(step as (typeof STEP_ORDER)[number]);

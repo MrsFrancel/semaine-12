@@ -21,12 +21,22 @@ const CURRENT_STUDENT = STUDENTS.find((s) => s.id === CURRENT_STUDENT_ID)!;
 
 let nextHistoryId = 2;
 
-export function StudentSpace({ onExit }: { onExit: () => void }) {
+export function StudentSpace({
+  onExit,
+  initialCv,
+  initialCvRawText,
+}: {
+  onExit: () => void;
+  initialCv: CvData | null;
+  initialCvRawText: string;
+}) {
   const [active, setActive] = useState('dashboard');
+  const [offresTab, setOffresTab] = useState<'ecole' | 'externes'>('ecole');
   const [openOffer, setOpenOffer] = useState<Offer | null>(null);
-  const [profileCv, setProfileCv] = useState<CvData>(() => defaultCvFor(CURRENT_STUDENT));
+  const [profileCv, setProfileCv] = useState<CvData>(() => initialCv ?? defaultCvFor(CURRENT_STUDENT));
+  const [cvRawText] = useState(initialCvRawText);
   const [cvHistory, setCvHistory] = useState<CvHistoryEntry[]>(() => [
-    { id: 1, date: "Aujourd'hui", label: "CV initial (onboarding)", cv: defaultCvFor(CURRENT_STUDENT) },
+    { id: 1, date: "Aujourd'hui", label: "CV initial (onboarding)", cv: initialCv ?? defaultCvFor(CURRENT_STUDENT) },
   ]);
   const [externalOffers, setExternalOffers] = useState<Offer[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>(INITIAL_CONVERSATIONS);
@@ -40,6 +50,8 @@ export function StudentSpace({ onExit }: { onExit: () => void }) {
 
   const addExternalOffer = (offer: Offer) => {
     setExternalOffers((o) => [offer, ...o]);
+    setActive('offres');
+    setOffresTab('externes');
     setOpenOffer(offer);
   };
 
@@ -48,11 +60,11 @@ export function StudentSpace({ onExit }: { onExit: () => void }) {
   return (
     <Shell spaceLabel="Espace Étudiant" roleLabel="Léa Bernard" navItems={NAV} activeId={active} onSelect={select} onExit={onExit}>
       {openOffer ? (
-        <CandidatureScreen offer={openOffer} profileCv={profileCv} onPushProfileCv={updateProfileCv} onBack={() => setOpenOffer(null)} />
+        <CandidatureScreen offer={openOffer} profileCv={profileCv} cvRawText={cvRawText} onPushProfileCv={updateProfileCv} onBack={() => setOpenOffer(null)} />
       ) : active === 'dashboard' ? (
         <StudentDashboardScreen onAddExternalOffer={addExternalOffer} conversations={conversations} onOpenMessagerie={openMessagerie} />
       ) : active === 'offres' ? (
-        <CatalogueScreen externalOffers={externalOffers} onAddExternalOffer={addExternalOffer} onOpenOffer={setOpenOffer} />
+        <CatalogueScreen externalOffers={externalOffers} onAddExternalOffer={addExternalOffer} onOpenOffer={setOpenOffer} tab={offresTab} onTabChange={setOffresTab} />
       ) : active === 'cv' ? (
         <MonCvScreen cv={profileCv} history={cvHistory} onUpdateCv={updateProfileCv} />
       ) : (

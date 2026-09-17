@@ -61,6 +61,7 @@ export function AdminDashboardScreen({
   const [description, setDescription] = useState('');
   const [skills, setSkills] = useState('');
   const [profile, setProfile] = useState('');
+  const [rawText, setRawText] = useState('');
 
   const canImport = text.trim().length > 0 || fileName.length > 0;
 
@@ -75,6 +76,7 @@ export function AdminDashboardScreen({
       setDescription(match.description);
       setSkills(match.skills);
       setProfile(match.profile);
+      setRawText(match.rawText);
     } else {
       const content = file ? await extractPdfText(file) : text;
       const analysis = analyzeOfferText(content, vocabulary);
@@ -85,6 +87,7 @@ export function AdminDashboardScreen({
       setDescription(analysis.description);
       setSkills(analysis.skills.join(', '));
       setProfile(analysis.profile);
+      setRawText(content);
     }
     setDepositStep('verification');
   };
@@ -105,13 +108,14 @@ export function AdminDashboardScreen({
       description,
       missions: [],
       exclusive: true,
+      rawText: rawText || undefined,
     });
     setDepositStep('publiee');
   };
 
   const resetDeposit = () => {
     setDepositStep('reception'); setText(''); setFileName(''); setFile(null);
-    setTitle(''); setCompany(''); setLocation(''); setContractType(''); setDescription(''); setSkills(''); setProfile('');
+    setTitle(''); setCompany(''); setLocation(''); setContractType(''); setDescription(''); setSkills(''); setProfile(''); setRawText('');
   };
 
   return (

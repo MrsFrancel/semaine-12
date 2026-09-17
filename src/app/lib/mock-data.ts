@@ -17,6 +17,7 @@ export interface Offer {
   description: string;
   missions: string[];
   exclusive: boolean;
+  rawText?: string;
 }
 
 export type CandidatureStatus = 'a-preparer' | 'postulee' | 'entretien' | 'reponse';

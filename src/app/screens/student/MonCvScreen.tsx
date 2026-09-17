@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/ta
 import { Card, CardContent, CardHeader } from '../../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { CvFieldsEditor } from '../../components/product/CvFieldsEditor';
+import { CvSummary } from '../../components/product/CvSummary';
 import type { CvData, CvHistoryEntry } from '../../lib/mock-data';
 import { exportTextAsPdf, exportTextAsWord } from '../../lib/export';
 import { buildSuggestions } from '../../lib/ai-suggestions';
@@ -28,91 +29,6 @@ function formatCvForExport(cv: CvData): string {
     cv.attentionNote && `Note d'attention\n${cv.attentionNote}`,
   ];
   return sections.filter(Boolean).join('\n\n');
-}
-
-function CvSummary({ cv }: { cv: CvData }) {
-  return (
-    <div className="flex flex-col gap-4">
-      {(cv.photoUrl || cv.title) && (
-        <div className="flex items-center gap-3">
-          {cv.photoUrl && <img src={cv.photoUrl} alt="Photo de profil" className="size-12 rounded-full object-cover border border-border" />}
-          {cv.title && <p className="text-sm font-medium">{cv.title}</p>}
-        </div>
-      )}
-      {cv.bio && <p className="text-sm text-muted-foreground">{cv.bio}</p>}
-      {(cv.phone || cv.contactEmail) && (
-        <p className="font-mono text-xs text-muted-foreground">{[cv.phone, cv.contactEmail].filter(Boolean).join(' · ')}</p>
-      )}
-      <div>
-        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Formation</p>
-        <p className="text-sm">{cv.formation}</p>
-      </div>
-      <div>
-        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Expérience</p>
-        <p className="text-sm">{cv.experience}</p>
-      </div>
-      {cv.personalProjects && (
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Projets personnels ou associatifs</p>
-          <p className="text-sm">{cv.personalProjects}</p>
-        </div>
-      )}
-      <div>
-        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Compétences techniques</p>
-        <div className="flex flex-wrap gap-1.5">
-          {cv.hardSkills.map((s) => <span key={s} className="font-mono text-[11px] bg-secondary px-2 py-0.5 rounded">{s}</span>)}
-        </div>
-      </div>
-      {cv.certifications.length > 0 && (
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Certifications</p>
-          <div className="flex flex-wrap gap-1.5">
-            {cv.certifications.map((c) => <span key={c} className="font-mono text-[11px] border border-border px-2 py-0.5 rounded">{c}</span>)}
-          </div>
-        </div>
-      )}
-      <div>
-        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Savoir-être</p>
-        <div className="flex flex-wrap gap-1.5">
-          {cv.softSkills.map((s) => <span key={s} className="font-mono text-[11px] border border-border px-2 py-0.5 rounded">{s}</span>)}
-        </div>
-      </div>
-      <div>
-        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Langues</p>
-        <p className="text-sm">{cv.languages}</p>
-      </div>
-      {cv.portfolioLinks && (
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Portfolio / liens</p>
-          <p className="text-sm whitespace-pre-wrap">{cv.portfolioLinks}</p>
-        </div>
-      )}
-      {cv.interests && (
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Centres d'intérêt</p>
-          <p className="text-sm">{cv.interests}</p>
-        </div>
-      )}
-      {cv.drivingLicense && (
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Permis de conduire</p>
-          <p className="text-sm">Oui</p>
-        </div>
-      )}
-      {cv.availability && (
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Disponibilité / mobilité géographique</p>
-          <p className="text-sm">{cv.availability}</p>
-        </div>
-      )}
-      {cv.attentionNote && (
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Note d'attention</p>
-          <p className="text-sm">{cv.attentionNote}</p>
-        </div>
-      )}
-    </div>
-  );
 }
 
 export function MonCvScreen({

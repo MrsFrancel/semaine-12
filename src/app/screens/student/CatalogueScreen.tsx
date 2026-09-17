@@ -10,7 +10,7 @@ import { extractPdfText } from '../../lib/pdf-extract';
 
 let nextExternalId = 200;
 
-export function buildExternalOffer(analysis: OfferAnalysis): Offer {
+export function buildExternalOffer(analysis: OfferAnalysis, rawText?: string): Offer {
   return {
     id: nextExternalId++,
     title: analysis.title || 'Offre externe',
@@ -33,6 +33,7 @@ export function buildExternalOffer(analysis: OfferAnalysis): Offer {
     description: analysis.description,
     missions: [],
     exclusive: false,
+    rawText,
   };
 }
 
@@ -40,10 +41,14 @@ export function CatalogueScreen({
   externalOffers,
   onAddExternalOffer,
   onOpenOffer,
+  tab,
+  onTabChange,
 }: {
   externalOffers: Offer[];
   onAddExternalOffer: (offer: Offer) => void;
   onOpenOffer: (offer: Offer) => void;
+  tab: 'ecole' | 'externes';
+  onTabChange: (tab: 'ecole' | 'externes') => void;
 }) {
   const [text, setText] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -61,7 +66,7 @@ export function CatalogueScreen({
       setChecking(false);
       setText('');
       setFile(null);
-      onAddExternalOffer(buildExternalOffer(analysis));
+      onAddExternalOffer(buildExternalOffer(analysis, content));
     } catch {
       setChecking(false);
     }
@@ -74,7 +79,7 @@ export function CatalogueScreen({
         <p className="text-muted-foreground text-sm mt-1">Le catalogue école reste séparé de tes propres offres : les deux ne se mélangent jamais.</p>
       </div>
 
-      <Tabs defaultValue="ecole">
+      <Tabs value={tab} onValueChange={(v) => onTabChange(v as 'ecole' | 'externes')}>
         <TabsList>
           <TabsTrigger value="ecole">Offres école ({OFFERS.length})</TabsTrigger>
           <TabsTrigger value="externes">Offres externes ({externalOffers.length})</TabsTrigger>

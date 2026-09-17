@@ -9,6 +9,7 @@ import {
 import { ScoreCard } from '../../components/product/ScoreCard';
 import { StatusPill } from '../../components/product/StatusPill';
 import { CvFieldsEditor } from '../../components/product/CvFieldsEditor';
+import { CvSummary } from '../../components/product/CvSummary';
 import type { Offer, CandidatureStatus, CvData } from '../../lib/mock-data';
 import { STATUS_LABEL } from '../../lib/mock-data';
 import { computeMatch } from '../../lib/scoring';
@@ -55,11 +56,13 @@ function formatCvForExport(cv: CvData): string {
 export function CandidatureScreen({
   offer,
   profileCv,
+  cvRawText,
   onPushProfileCv,
   onBack,
 }: {
   offer: Offer;
   profileCv: CvData;
+  cvRawText: string;
   onPushProfileCv: (cv: CvData, label: string) => void;
   onBack: () => void;
 }) {
@@ -117,10 +120,103 @@ export function CandidatureScreen({
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-2xl">
+    <div className="flex flex-col gap-6 max-w-5xl">
       <button onClick={onBack} className="text-sm text-muted-foreground hover:text-foreground w-fit">← Retour au catalogue</button>
 
-      <ScoreCard offer={offer} score={match.score} criteria={match.criteria} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <div className="flex flex-col gap-6">
+          <ScoreCard offer={offer} score={match.score} criteria={match.criteria} />
+
+          <Card>
+            <CardHeader><h3 className="text-base">Offre complète</h3></CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              {offer.rawText?.trim() ? (
+                <p className="text-sm whitespace-pre-wrap">{offer.rawText}</p>
+              ) : (
+                <>
+                  {offer.description && <p className="text-sm">{offer.description}</p>}
+                  {offer.missions.length > 0 && (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Missions</p>
+                      <ul className="list-disc list-inside text-sm text-muted-foreground flex flex-col gap-1">
+                        {offer.missions.map((m) => <li key={m}>{m}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><h3 className="text-base">Correspondance avec ton profil</h3></CardHeader>
+            <CardContent>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Compétences attendues</p>
+              {offer.expectedSkills.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {offer.expectedSkills.map((s) => (
+                    <span
+                      key={s}
+                      className={`font-mono text-[11px] px-2 py-0.5 rounded-full ${
+                        match.matchedSkills.some((m) => m.toLowerCase() === s.toLowerCase())
+                          ? 'bg-match-strong text-match-strong-foreground'
+                          : 'bg-match-low text-match-low-foreground'
+                      }`}
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Non précisées.</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          <Card>
+            <CardHeader><h3 className="text-base">CV complet</h3></CardHeader>
+            <CardContent>
+              {cvRawText.trim() ? (
+                <p className="text-sm whitespace-pre-wrap">{cvRawText}</p>
+              ) : (
+                <CvSummary cv={cv} />
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><h3 className="text-base">Correspondance avec cette offre</h3></CardHeader>
+            <CardContent>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Tes compétences</p>
+              {cv.hardSkills.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {cv.hardSkills.map((s) => (
+                    <span
+                      key={s}
+                      className={`font-mono text-[11px] px-2 py-0.5 rounded-full ${
+                        match.matchedSkills.some((m) => m.toLowerCase() === s.toLowerCase())
+                          ? 'bg-match-strong text-match-strong-foreground'
+                          : 'bg-secondary'
+                      }`}
+                    >
+                      {s}
+                    </span>
+                  ))}
+                  {match.missingSkills.map((s) => (
+                    <span key={`missing-${s}`} className="font-mono text-[11px] px-2 py-0.5 rounded-full border border-dashed border-border text-muted-foreground">
+                      {s} (manquant)
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Aucune compétence renseignée dans ton CV.</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       <Card>
         <CardHeader><h3 className="text-base">CV &amp; lettre de motivation</h3></CardHeader>

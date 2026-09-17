@@ -52,7 +52,7 @@ export function StudentDashboardScreen({
       setChecking(false);
       setText('');
       setFile(null);
-      onAddExternalOffer(buildExternalOffer(analysis));
+      onAddExternalOffer(buildExternalOffer(analysis, content));
     } catch {
       setChecking(false);
     }
