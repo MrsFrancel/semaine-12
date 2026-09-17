@@ -13,20 +13,35 @@ import { CvSummary } from '../../components/product/CvSummary';
 import { FormattedText } from '../../components/product/FormattedText';
 import type { Offer, CandidatureStatus, CvData } from '../../lib/mock-data';
 import { STATUS_LABEL } from '../../lib/mock-data';
-import { computeMatch } from '../../lib/scoring';
+import { computeMatch, type MatchResult } from '../../lib/scoring';
+import { buildOfferSuggestions } from '../../lib/offer-suggestions';
 import { exportTextAsPdf, exportTextAsWord } from '../../lib/export';
 
 const ORDER: CandidatureStatus[] = ['a-preparer', 'postulee', 'entretien', 'reponse'];
 const STUDENT_NAME = 'Léa Bernard';
 
-function buildLetter(offer: Offer, cv: CvData): string {
+function excerpt(text: string, maxLen = 220): string {
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxLen) return clean;
+  const cut = clean.slice(0, maxLen);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trim()}…`;
+}
+
+function buildLetter(offer: Offer, cv: CvData, match: MatchResult): string {
+  const skillsList = match.matchedSkills.length > 0 ? match.matchedSkills.slice(0, 3) : cv.hardSkills.slice(0, 3);
+  const mission = offer.missions[0];
+  const missionLine = mission ? `, notamment pour ${mission.charAt(0).toLowerCase()}${mission.slice(1)}` : '';
+  const hasRealCompany = offer.company.trim().length > 0 && !/^entreprise\s*\(offre externe\)$/i.test(offer.company.trim());
+  const companyClause = hasRealCompany ? ` au sein de ${offer.company}` : '';
+
   return `Madame, Monsieur,
 
-Actuellement en ${cv.formation}, je vous adresse ma candidature pour le poste de ${offer.title} au sein de ${offer.company}.
+Actuellement en ${cv.formation || 'formation'}, je vous adresse ma candidature pour le poste de ${offer.title}${companyClause}.
 
-${cv.experience}
+${excerpt(cv.experience)}
 
-Je maîtrise notamment ${cv.hardSkills.slice(0, 3).join(', ')}, des compétences qui correspondent aux besoins du poste. Je suis convaincu(e) que mon profil et ma motivation seront un atout pour votre équipe.
+Je maîtrise notamment ${skillsList.join(', ') || 'les compétences requises pour ce poste'}, des compétences qui correspondent directement aux besoins exprimés dans votre offre${missionLine}. Je suis convaincu(e) que mon profil et ma motivation seront un atout pour votre équipe.
 
 Je reste à votre disposition pour un entretien et vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.
 
@@ -57,13 +72,11 @@ function formatCvForExport(cv: CvData): string {
 export function CandidatureScreen({
   offer,
   profileCv,
-  cvRawText,
   onPushProfileCv,
   onBack,
 }: {
   offer: Offer;
   profileCv: CvData;
-  cvRawText: string;
   onPushProfileCv: (cv: CvData, label: string) => void;
   onBack: () => void;
 }) {
@@ -78,10 +91,21 @@ export function CandidatureScreen({
   const [letterGenerated, setLetterGenerated] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [letterText, setLetterText] = useState('');
+  const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set());
 
   const match = useMemo(
     () => computeMatch(offer, cv, baseExperience, letterGenerated),
     [offer, cv, baseExperience, letterGenerated]
+  );
+
+  const draftMatch = useMemo(
+    () => computeMatch(offer, draftCv, baseExperience, letterGenerated),
+    [offer, draftCv, baseExperience, letterGenerated]
+  );
+
+  const suggestions = useMemo(
+    () => buildOfferSuggestions(draftCv, offer, draftMatch).filter((s) => !dismissedSuggestions.has(s.id)),
+    [draftCv, offer, draftMatch, dismissedSuggestions]
   );
 
   const advance = () => {
@@ -94,7 +118,7 @@ export function CandidatureScreen({
     setTimeout(() => {
       setGenerating(false);
       setLetterGenerated(true);
-      setLetterText(buildLetter(offer, cv));
+      setLetterText(buildLetter(offer, cv, match));
     }, 1100);
   };
 
@@ -103,15 +127,13 @@ export function CandidatureScreen({
     setCvEditorOpen(true);
   };
 
-  const addSkill = (skill: string) => {
-    const trimmed = skill.trim();
-    if (!trimmed || draftCv.hardSkills.some((s) => s.toLowerCase() === trimmed.toLowerCase())) return;
-    setDraftCv((d) => ({ ...d, hardSkills: [...d.hardSkills, trimmed] }));
+  const acceptSuggestion = (apply: (c: CvData) => CvData) => {
+    setDraftCv((d) => apply(d));
   };
 
-  const draftMissingSkills = offer.expectedSkills.filter(
-    (e) => !draftCv.hardSkills.some((s) => s.toLowerCase() === e.toLowerCase())
-  );
+  const dismissSuggestion = (id: string) => {
+    setDismissedSuggestions((d) => new Set(d).add(id));
+  };
 
   const commitSave = (scope: 'offer' | 'profile') => {
     setCv(draftCv);
@@ -182,7 +204,7 @@ export function CandidatureScreen({
             <CardHeader><h3 className="text-base">CV complet</h3></CardHeader>
             <CardContent>
               <div className="h-80 overflow-y-auto pr-2 -mr-2 border border-border rounded-lg p-3">
-                {cvRawText.trim() ? <FormattedText text={cvRawText} /> : <CvSummary cv={cv} />}
+                <CvSummary cv={cv} />
               </div>
             </CardContent>
           </Card>
@@ -235,22 +257,24 @@ export function CandidatureScreen({
 
             {cvEditorOpen && (
               <div className="flex flex-col gap-4 pt-3 border-t border-border">
-                {draftMissingSkills.length > 0 && (
-                  <div className="flex flex-col gap-1.5">
-                    <p className="text-xs text-muted-foreground">Compétences attendues pour cette offre, absentes de ton CV :</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {draftMissingSkills.map((s) => (
-                        <button
-                          key={s}
-                          onClick={() => addSkill(s)}
-                          className="font-mono text-[11px] border border-dashed border-border text-muted-foreground px-2 py-0.5 rounded hover:border-primary/50 hover:text-primary transition-colors"
-                        >
-                          + {s}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-medium">Suggestions pour cette offre</p>
+                  {suggestions.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">Aucune suggestion pour l'instant, ton CV couvre bien cette offre.</p>
+                  ) : (
+                    suggestions.map((s) => (
+                      <div key={s.id} className="rounded-lg border border-border p-3 flex flex-col gap-2">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground font-mono">{s.fieldLabel}</p>
+                        <p className="text-sm text-muted-foreground line-through">{s.before}</p>
+                        <p className="text-sm">{s.after}</p>
+                        <div className="flex gap-2 pt-1">
+                          <Button size="sm" onClick={() => acceptSuggestion(s.apply)}>Accepter</Button>
+                          <Button size="sm" variant="ghost" onClick={() => dismissSuggestion(s.id)}>Ignorer</Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
                 <div className="max-h-[60vh] overflow-y-auto pr-2 -mr-2 border border-border rounded-lg p-3">
                   <CvFieldsEditor cv={draftCv} onChange={setDraftCv} />
                 </div>

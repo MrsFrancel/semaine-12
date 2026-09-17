@@ -24,17 +24,14 @@ let nextHistoryId = 2;
 export function StudentSpace({
   onExit,
   initialCv,
-  initialCvRawText,
 }: {
   onExit: () => void;
   initialCv: CvData | null;
-  initialCvRawText: string;
 }) {
   const [active, setActive] = useState('dashboard');
   const [offresTab, setOffresTab] = useState<'ecole' | 'externes'>('ecole');
   const [openOffer, setOpenOffer] = useState<Offer | null>(null);
   const [profileCv, setProfileCv] = useState<CvData>(() => initialCv ?? defaultCvFor(CURRENT_STUDENT));
-  const [cvRawText] = useState(initialCvRawText);
   const [cvHistory, setCvHistory] = useState<CvHistoryEntry[]>(() => [
     { id: 1, date: "Aujourd'hui", label: "CV initial (onboarding)", cv: initialCv ?? defaultCvFor(CURRENT_STUDENT) },
   ]);
@@ -60,7 +57,7 @@ export function StudentSpace({
   return (
     <Shell spaceLabel="Espace Étudiant" roleLabel="Léa Bernard" navItems={NAV} activeId={active} onSelect={select} onExit={onExit}>
       {openOffer ? (
-        <CandidatureScreen offer={openOffer} profileCv={profileCv} cvRawText={cvRawText} onPushProfileCv={updateProfileCv} onBack={() => setOpenOffer(null)} />
+        <CandidatureScreen offer={openOffer} profileCv={profileCv} onPushProfileCv={updateProfileCv} onBack={() => setOpenOffer(null)} />
       ) : active === 'dashboard' ? (
         <StudentDashboardScreen onAddExternalOffer={addExternalOffer} conversations={conversations} onOpenMessagerie={openMessagerie} />
       ) : active === 'offres' ? (

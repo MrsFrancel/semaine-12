@@ -12,16 +12,15 @@ export default function App() {
   const [space, setSpace] = useState<Space>('login');
   const [abVersion, setAbVersion] = useState<'A' | 'B'>('A');
   const [onboardingCv, setOnboardingCv] = useState<CvData | null>(null);
-  const [onboardingCvRawText, setOnboardingCvRawText] = useState('');
 
   return (
     <SkillVocabularyProvider>
       {space === 'login' ? (
         <LoginScreen onPick={setSpace} abVersion={abVersion} onPickAbVersion={setAbVersion} />
       ) : space === 'student-onboarding' ? (
-        <OnboardingScreen onDone={(cv, rawText) => { setOnboardingCv(cv); setOnboardingCvRawText(rawText); setSpace('student'); }} />
+        <OnboardingScreen onDone={(cv) => { setOnboardingCv(cv); setSpace('student'); }} />
       ) : space === 'student' ? (
-        <StudentSpace onExit={() => setSpace('login')} initialCv={onboardingCv} initialCvRawText={onboardingCvRawText} />
+        <StudentSpace onExit={() => setSpace('login')} initialCv={onboardingCv} />
       ) : (
         <SchoolSpace role={space} onExit={() => setSpace('login')} abVersion={abVersion} />
       )}

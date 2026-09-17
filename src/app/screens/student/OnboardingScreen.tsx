@@ -20,14 +20,13 @@ const EMPTY_CV: CvData = {
   interests: '', drivingLicense: false, availability: '', attentionNote: '',
 };
 
-export function OnboardingScreen({ onDone }: { onDone: (cv: CvData, rawText: string) => void }) {
+export function OnboardingScreen({ onDone }: { onDone: (cv: CvData) => void }) {
   const [step, setStep] = useState<Step>('inscription');
   const [email, setEmail] = useState('');
   const [consent, setConsent] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
 
   const [cv, setCv] = useState<CvData>(EMPTY_CV);
-  const [rawText, setRawText] = useState('');
   const { vocabulary } = useSkillVocabulary();
 
   const [cvText, setCvText] = useState('');
@@ -60,7 +59,6 @@ export function OnboardingScreen({ onDone }: { onDone: (cv: CvData, rawText: str
     setAnalyzing(true);
     try {
       const text = cvFile ? await extractPdfText(cvFile) : cvText;
-      setRawText(text);
       const result = analyzeCvText(text, vocabulary);
       setAnalyzing(false);
       applyResult(result);
@@ -186,7 +184,7 @@ export function OnboardingScreen({ onDone }: { onDone: (cv: CvData, rawText: str
                 <p className="text-sm font-medium text-accent-foreground">Profil prêt</p>
                 <p className="text-xs text-muted-foreground mt-1">Ton catalogue est maintenant scoré et prêt à consulter.</p>
               </div>
-              <Button onClick={() => onDone(cv, rawText)}>Accéder à mon espace</Button>
+              <Button onClick={() => onDone(cv)}>Accéder à mon espace</Button>
             </div>
           )}
         </CardContent>

@@ -13,27 +13,34 @@ function looksLikeHeader(line: string): boolean {
 
 interface Section {
   header: string | null;
-  paragraphs: string[];
+  body: string;
 }
 
+// Scans every line independently (not just the first line of blank-line-separated
+// blocks) — real pasted/PDF-extracted text rarely has blank lines between sections,
+// so section headers are usually buried mid-stream.
 function splitIntoSections(text: string): Section[] {
-  const blocks = text.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
+  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
   const sections: Section[] = [];
-  let current: Section = { header: null, paragraphs: [] };
+  let current: Section = { header: null, body: '' };
+  let bodyLines: string[] = [];
 
-  for (const block of blocks) {
-    const lines = block.split('\n');
-    const firstLine = lines[0].trim();
+  const flush = () => {
+    current.body = bodyLines.join('\n').trim();
+    bodyLines = [];
+  };
 
-    if (looksLikeHeader(firstLine)) {
-      if (current.header !== null || current.paragraphs.length > 0) sections.push(current);
-      const rest = lines.slice(1).join('\n').trim();
-      current = { header: firstLine.replace(/:\s*$/, ''), paragraphs: rest ? [rest] : [] };
+  for (const line of lines) {
+    if (looksLikeHeader(line)) {
+      flush();
+      if (current.header !== null || current.body) sections.push(current);
+      current = { header: line.replace(/:\s*$/, ''), body: '' };
     } else {
-      current.paragraphs.push(block);
+      bodyLines.push(line);
     }
   }
-  if (current.header !== null || current.paragraphs.length > 0) sections.push(current);
+  flush();
+  if (current.header !== null || current.body) sections.push(current);
   return sections;
 }
 
@@ -43,13 +50,11 @@ export function FormattedText({ text }: { text: string }) {
   return (
     <div className="flex flex-col gap-5">
       {sections.map((section, i) => (
-        <div key={i} className="flex flex-col gap-2">
+        <div key={i} className="flex flex-col gap-1.5">
           {section.header && (
             <p className="text-sm font-semibold border-b border-border pb-1">{section.header}</p>
           )}
-          {section.paragraphs.map((p, j) => (
-            <p key={j} className="text-sm text-muted-foreground whitespace-pre-line">{p}</p>
-          ))}
+          {section.body && <p className="text-sm text-muted-foreground whitespace-pre-line">{section.body}</p>}
         </div>
       ))}
     </div>
