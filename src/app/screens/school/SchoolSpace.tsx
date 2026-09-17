@@ -23,8 +23,6 @@ const ADMIN_NAV: NavItem[] = [
 const COACH_NAV: NavItem[] = [
   { id: 'dashboard', label: 'Tableau de bord' },
   { id: 'etudiants', label: 'Mes étudiants' },
-  { id: 'offres', label: 'Agrégateur' },
-  { id: 'cvbook', label: 'CV Book' },
   { id: 'calendrier', label: 'Calendrier & messagerie' },
 ];
 
@@ -58,8 +56,6 @@ export function SchoolSpace({ role, onExit, abVersion }: { role: 'admin' | 'coac
   const renderCoach = () => {
     switch (active) {
       case 'etudiants': return <MesEtudiantsScreen onMessageStudent={openMessagerie} onProposeRdv={openCalendrier} />;
-      case 'offres': return abVersion === 'B' ? <OffresScreenWizard /> : <OffresScreen />;
-      case 'cvbook': return <CvBookScreen />;
       case 'calendrier': return (
         <CalendrierMessagerieScreen
           initialTab={coachCalendarTab}
@@ -67,7 +63,7 @@ export function SchoolSpace({ role, onExit, abVersion }: { role: 'admin' | 'coac
           onConsumeOpenStudentId={() => setCoachMessageTarget(null)}
         />
       );
-      default: return <CoachDashboardScreen />;
+      default: return <CoachDashboardScreen onMessageStudent={openMessagerie} />;
     }
   };
 

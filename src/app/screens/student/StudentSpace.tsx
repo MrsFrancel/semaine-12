@@ -4,7 +4,7 @@ import { CatalogueScreen } from './CatalogueScreen';
 import { CandidatureScreen } from './CandidatureScreen';
 import { MonCvScreen } from './MonCvScreen';
 import { MonSuiviScreen } from './MonSuiviScreen';
-import { STUDENTS, CURRENT_STUDENT_ID, defaultCvFor, EXTERNAL_OFFERS, type Offer, type CvData, type CvHistoryEntry } from '../../lib/mock-data';
+import { STUDENTS, CURRENT_STUDENT_ID, defaultCvFor, type Offer, type CvData, type CvHistoryEntry } from '../../lib/mock-data';
 
 const NAV: NavItem[] = [
   { id: 'offres', label: 'Offres', sub: 'École + externes' },
@@ -23,7 +23,7 @@ export function StudentSpace({ onExit }: { onExit: () => void }) {
   const [cvHistory, setCvHistory] = useState<CvHistoryEntry[]>(() => [
     { id: 1, date: "Aujourd'hui", label: "CV initial (onboarding)", cv: defaultCvFor(CURRENT_STUDENT) },
   ]);
-  const [externalOffers, setExternalOffers] = useState<Offer[]>(EXTERNAL_OFFERS);
+  const [externalOffers, setExternalOffers] = useState<Offer[]>([]);
 
   const select = (id: string) => { setOpenOffer(null); setActive(id); };
 

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
+import { StatusPill } from '../../../components/product/StatusPill';
 import { useCvPreview, CvPreviewDialogs } from '../../../components/product/CvPreview';
-import { STUDENTS, CURRENT_COACH_ID, type Student } from '../../../lib/mock-data';
+import { STUDENTS, CURRENT_COACH_ID, CANDIDATURES, OFFERS, EXTERNAL_OFFERS, type Student } from '../../../lib/mock-data';
 
 const mine = STUDENTS.filter((s) => s.coachId === CURRENT_COACH_ID);
+const ALL_OFFERS = [...OFFERS, ...EXTERNAL_OFFERS];
 
 export function MesEtudiantsScreen({
   onMessageStudent,
@@ -17,6 +19,11 @@ export function MesEtudiantsScreen({
   const cvPreview = useCvPreview();
 
   if (open) {
+    const candidatures = CANDIDATURES
+      .filter((c) => c.studentId === open.id)
+      .map((c) => ({ c, offer: ALL_OFFERS.find((o) => o.id === c.offerId)! }))
+      .filter((r) => r.offer);
+
     return (
       <div className="flex flex-col gap-6 max-w-2xl">
         <button onClick={() => setOpen(null)} className="text-sm text-muted-foreground hover:text-foreground w-fit">← Retour à mes étudiants</button>
@@ -29,6 +36,21 @@ export function MesEtudiantsScreen({
           <Card><CardContent className="pt-6"><p className="font-mono text-2xl font-semibold">{open.entretiens}</p><p className="text-xs text-muted-foreground mt-1">Entretiens</p></CardContent></Card>
           <Card><CardContent className="pt-6"><p className="font-mono text-2xl font-semibold">{open.lastActivity}</p><p className="text-xs text-muted-foreground mt-1">Dernière activité</p></CardContent></Card>
         </div>
+        <Card>
+          <CardHeader><h3 className="text-base">Candidatures</h3></CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            {candidatures.length === 0 && <p className="text-sm text-muted-foreground">Aucune candidature enregistrée pour l'instant.</p>}
+            {candidatures.map(({ c, offer }) => (
+              <div key={offer.id} className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0">
+                <div>
+                  <p className="text-sm font-medium">{offer.title}</p>
+                  <p className="text-xs text-muted-foreground">{offer.company} · mise à jour le {c.updatedAt}</p>
+                </div>
+                <StatusPill status={c.status} />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader><h3 className="text-base">Messagerie</h3></CardHeader>
           <CardContent className="flex gap-3">

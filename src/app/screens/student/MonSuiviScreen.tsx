@@ -21,7 +21,8 @@ function initials(name: string): string {
 let nextRdvId = 1000;
 
 export function MonSuiviScreen() {
-  const rows = CANDIDATURES.map((c) => ({ c, offer: ALL_OFFERS.find((o) => o.id === c.offerId)! })).filter((r) => r.offer);
+  const myCandidatures = CANDIDATURES.filter((c) => c.studentId === CURRENT_STUDENT_ID);
+  const rows = myCandidatures.map((c) => ({ c, offer: ALL_OFFERS.find((o) => o.id === c.offerId)! })).filter((r) => r.offer);
 
   const [rdvs, setRdvs] = useState<Rdv[]>(INITIAL_RDVS);
   const myRdvs = rdvs.filter((r) => r.studentId === CURRENT_STUDENT_ID);
@@ -57,8 +58,8 @@ export function MonSuiviScreen() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{CANDIDATURES.length}</p><p className="text-xs text-muted-foreground mt-1">Candidatures ce mois-ci</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{CANDIDATURES.filter(c => c.status === 'entretien' || c.status === 'reponse').length}</p><p className="text-xs text-muted-foreground mt-1">Entretiens obtenus</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{myCandidatures.length}</p><p className="text-xs text-muted-foreground mt-1">Candidatures ce mois-ci</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{myCandidatures.filter(c => c.status === 'entretien' || c.status === 'reponse').length}</p><p className="text-xs text-muted-foreground mt-1">Entretiens obtenus</p></CardContent></Card>
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{OFFERS.filter(o => o.score >= 75).length}</p><p className="text-xs text-muted-foreground mt-1">Bons matchs au catalogue</p></CardContent></Card>
       </div>
 

@@ -6,6 +6,23 @@ function levelFor(fill: number): Criterion['level'] {
   return 'low';
 }
 
+export interface SkillsOverlap {
+  score: number;
+  matchedSkills: string[];
+  missingSkills: string[];
+}
+
+export function skillsOverlapScore(expectedSkills: string[], ownedSkills: string[]): SkillsOverlap {
+  const matchedSkills = expectedSkills.filter((expected) =>
+    ownedSkills.some((s) => s.toLowerCase() === expected.toLowerCase())
+  );
+  const missingSkills = expectedSkills.filter((expected) => !matchedSkills.includes(expected));
+  const score = expectedSkills.length
+    ? Math.round((matchedSkills.length / expectedSkills.length) * 100)
+    : 50;
+  return { score, matchedSkills, missingSkills };
+}
+
 export interface MatchResult {
   score: number;
   criteria: Criterion[];
@@ -15,13 +32,7 @@ export interface MatchResult {
 
 export function computeMatch(offer: Offer, cv: CvData, baseExperience: string, hasLetter: boolean): MatchResult {
   const ownedSkills = [...cv.hardSkills, ...cv.certifications];
-  const matchedSkills = offer.expectedSkills.filter((expected) =>
-    ownedSkills.some((s) => s.toLowerCase() === expected.toLowerCase())
-  );
-  const missingSkills = offer.expectedSkills.filter((expected) => !matchedSkills.includes(expected));
-  const skillsFill = offer.expectedSkills.length
-    ? Math.round((matchedSkills.length / offer.expectedSkills.length) * 100)
-    : 50;
+  const { score: skillsFill, matchedSkills, missingSkills } = skillsOverlapScore(offer.expectedSkills, ownedSkills);
 
   const experienceEdited = cv.experience.trim() !== baseExperience.trim();
   const hasPersonalProjects = cv.personalProjects.trim().length > 0;

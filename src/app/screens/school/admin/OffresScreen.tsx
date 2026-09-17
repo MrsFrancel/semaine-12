@@ -6,6 +6,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../components/ui
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
 import { OFFERS as INITIAL_OFFERS, type Offer } from '../../../lib/mock-data';
 import { findAbTestOffer } from '../../../lib/ab-test-offers';
+import { useSkillVocabulary } from '../../../lib/skill-vocabulary';
+import { analyzeOfferText } from '../../../lib/text-analysis';
+import { extractPdfText } from '../../../lib/pdf-extract';
+import { useOfferPreview, OfferPreviewDialog } from '../../../components/product/OfferPreviewDialog';
 
 type Step = 'reception' | 'traitement' | 'verification' | 'publiee';
 
@@ -16,8 +20,11 @@ export function OffresScreen() {
   const [step, setStep] = useState<Step>('reception');
   const [text, setText] = useState('');
   const [fileName, setFileName] = useState('');
+  const [file, setFile] = useState<File | null>(null);
   const [processingLabel, setProcessingLabel] = useState('');
   const fileInput = useRef<HTMLInputElement>(null);
+  const { vocabulary } = useSkillVocabulary();
+  const offerPreview = useOfferPreview();
 
   const [title, setTitle] = useState('');
   const [company, setCompany] = useState('');
@@ -30,35 +37,35 @@ export function OffresScreen() {
 
   const canImport = text.trim().length > 0 || fileName.length > 0;
 
-  const startImport = () => {
+  const startImport = async () => {
     setStep('traitement');
     setProcessingLabel('Import du document…');
-    setTimeout(() => {
-      setProcessingLabel('Extraction par l\'IA…');
-      setTimeout(() => {
-        const match = findAbTestOffer({ text: text || undefined, fileName: fileName || undefined });
-        if (match) {
-          setTitle(match.title);
-          setCompany(match.company);
-          setLocation(match.location);
-          setContractType(match.contractType);
-          setDescription(match.description);
-          setSkills(match.skills);
-          setProfile(match.profile);
-          setMissions(match.missions.join('\n'));
-        } else {
-          setTitle('Alternance Chargé de Communication Digitale');
-          setCompany('Entreprise partenaire');
-          setLocation('Paris');
-          setContractType('Alternance · 12 mois');
-          setDescription("Rejoins l'équipe communication pour piloter les campagnes digitales et le contenu éditorial de l'entreprise partenaire.");
-          setSkills('Copywriting, Canva, Marketing digital');
-          setProfile('Bac+3/4, appétence pour la rédaction et les réseaux sociaux.');
-          setMissions("Créer les contenus pour les réseaux sociaux\nCoordonner les campagnes de lancement\nAnalyser les performances éditoriales");
-        }
-        setStep('verification');
-      }, 1100);
-    }, 700);
+    await new Promise((r) => setTimeout(r, 500));
+    setProcessingLabel("Extraction par l'IA…");
+    const match = findAbTestOffer({ text: text || undefined, fileName: fileName || undefined });
+    if (match) {
+      await new Promise((r) => setTimeout(r, 600));
+      setTitle(match.title);
+      setCompany(match.company);
+      setLocation(match.location);
+      setContractType(match.contractType);
+      setDescription(match.description);
+      setSkills(match.skills);
+      setProfile(match.profile);
+      setMissions(match.missions.join('\n'));
+    } else {
+      const content = file ? await extractPdfText(file) : text;
+      const analysis = analyzeOfferText(content, vocabulary);
+      setTitle(analysis.title);
+      setCompany('Entreprise partenaire');
+      setLocation(analysis.location);
+      setContractType(analysis.contractType);
+      setDescription(analysis.description);
+      setSkills(analysis.skills.join(', '));
+      setProfile(analysis.profile);
+      setMissions('');
+    }
+    setStep('verification');
   };
 
   const publish = () => {
@@ -86,7 +93,7 @@ export function OffresScreen() {
   const removeOffer = (id: number) => setOffers((o) => o.filter((x) => x.id !== id));
 
   const reset = () => {
-    setStep('reception'); setText(''); setFileName('');
+    setStep('reception'); setText(''); setFileName(''); setFile(null);
     setTitle(''); setCompany(''); setLocation(''); setContractType('');
     setDescription(''); setSkills(''); setProfile(''); setMissions('');
   };
@@ -112,7 +119,7 @@ export function OffresScreen() {
                   <Textarea
                     placeholder="Colle le lien de l'offre ou le texte du mail reçu de l'entreprise partenaire"
                     value={text}
-                    onChange={(e) => { setText(e.target.value); setFileName(''); }}
+                    onChange={(e) => { setText(e.target.value); setFileName(''); setFile(null); }}
                   />
                 </TabsContent>
                 <TabsContent value="pdf" className="mt-3">
@@ -123,7 +130,7 @@ export function OffresScreen() {
                       accept="application/pdf"
                       className="hidden"
                       id="offer-pdf"
-                      onChange={(e) => { const f = e.target.files?.[0]; if (f) { setFileName(f.name); setText(''); } }}
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) { setFileName(f.name); setFile(f); setText(''); } }}
                     />
                     <Button type="button" variant="outline" onClick={() => fileInput.current?.click()}>Choisir un PDF</Button>
                     <span className="text-sm text-muted-foreground">{fileName || 'Aucun fichier sélectionné'}</span>
@@ -200,12 +207,15 @@ export function OffresScreen() {
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-muted-foreground">{o.type}</span>
+                <Button variant="ghost" size="sm" onClick={() => offerPreview.setPreviewOffer(o)}>Voir</Button>
                 <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => removeOffer(o.id)}>Retirer</Button>
               </div>
             </div>
           ))}
         </CardContent>
       </Card>
+
+      <OfferPreviewDialog {...offerPreview} />
     </div>
   );
 }

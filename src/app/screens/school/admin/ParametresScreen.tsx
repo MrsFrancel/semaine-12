@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
+import { TagList, TagAdder } from '../../../components/ui/tag-editor';
+import { useSkillVocabulary } from '../../../lib/skill-vocabulary';
 
 export function ParametresScreen() {
   const [threshold, setThreshold] = useState(7);
   const [domain, setDomain] = useState('hetic.fr');
+  const { vocabulary, addSkill, removeSkill } = useSkillVocabulary();
 
   return (
     <div className="flex flex-col gap-6 max-w-md">
@@ -27,6 +30,17 @@ export function ParametresScreen() {
         <CardContent className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">@</span>
           <Input value={domain} onChange={(e) => setDomain(e.target.value)} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <h3 className="text-base">Vocabulaire de compétences ({vocabulary.length})</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Utilisé pour reconnaître les compétences dans les CV et les offres déposées (texte ou PDF). Ajoute les mots-clés propres à votre école.</p>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <TagList values={vocabulary} onRemove={removeSkill} tone="primary" />
+          <TagAdder placeholder="Ajouter un mot-clé…" onAdd={addSkill} />
         </CardContent>
       </Card>
 

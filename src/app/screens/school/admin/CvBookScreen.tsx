@@ -4,32 +4,40 @@ import { Textarea } from '../../../components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../components/ui/tabs';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
 import { useCvPreview, CvPreviewDialogs } from '../../../components/product/CvPreview';
-import { STUDENTS, type Student } from '../../../lib/mock-data';
+import { STUDENTS } from '../../../lib/mock-data';
+import { useSkillVocabulary } from '../../../lib/skill-vocabulary';
+import { analyzeOfferText, type OfferAnalysis } from '../../../lib/text-analysis';
+import { extractPdfText } from '../../../lib/pdf-extract';
+import { skillsOverlapScore } from '../../../lib/scoring';
 
 type Step = 'reception' | 'traitement' | 'apercu' | 'classement';
-
-function scoreFor(student: Student): number {
-  // pseudo-score déterministe basé sur l'id, pour une démo stable
-  const base = (student.id * 37) % 43;
-  return Math.max(38, 96 - base);
-}
 
 export function CvBookScreen() {
   const [step, setStep] = useState<Step>('reception');
   const [text, setText] = useState('');
   const [fileName, setFileName] = useState('');
+  const [file, setFile] = useState<File | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const [selected, setSelected] = useState<number[]>([]);
+  const [analysis, setAnalysis] = useState<OfferAnalysis | null>(null);
   const cvPreview = useCvPreview();
+  const { vocabulary } = useSkillVocabulary();
 
   const canImport = text.trim().length > 0 || fileName.length > 0;
 
-  const startImport = () => {
+  const startImport = async () => {
     setStep('traitement');
-    setTimeout(() => setStep('apercu'), 900);
+    const content = file ? await extractPdfText(file) : text;
+    const result = analyzeOfferText(content, vocabulary);
+    setAnalysis(result);
+    setStep('apercu');
   };
 
-  const ranked = [...STUDENTS].map((s) => ({ student: s, score: scoreFor(s) })).sort((a, b) => b.score - a.score);
+  const ranked = analysis
+    ? [...STUDENTS]
+        .map((s) => ({ student: s, ...skillsOverlapScore(analysis.skills, [...s.cv.hardSkills, ...s.cv.certifications]) }))
+        .sort((a, b) => b.score - a.score)
+    : [];
   const toggle = (id: number) => setSelected((s) => s.includes(id) ? s.filter((x) => x !== id) : [...s, id]);
 
   return (
@@ -47,16 +55,16 @@ export function CvBookScreen() {
               <>
                 <Tabs defaultValue="texte">
                   <TabsList>
-                    <TabsTrigger value="texte">Lien ou texte</TabsTrigger>
+                    <TabsTrigger value="texte">Texte</TabsTrigger>
                     <TabsTrigger value="pdf">Fichier PDF</TabsTrigger>
                   </TabsList>
                   <TabsContent value="texte" className="mt-3">
-                    <Textarea placeholder="Colle le lien, le mail ou le texte transmis par l'entreprise" value={text} onChange={(e) => { setText(e.target.value); setFileName(''); }} />
+                    <Textarea placeholder="Colle le mail ou le texte transmis par l'entreprise" value={text} onChange={(e) => { setText(e.target.value); setFileName(''); setFile(null); }} />
                   </TabsContent>
                   <TabsContent value="pdf" className="mt-3">
                     <div className="flex items-center gap-3">
                       <input ref={fileInput} type="file" accept="application/pdf" className="hidden" id="cvbook-pdf"
-                        onChange={(e) => { const f = e.target.files?.[0]; if (f) { setFileName(f.name); setText(''); } }} />
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) { setFileName(f.name); setFile(f); setText(''); } }} />
                       <Button type="button" variant="outline" onClick={() => fileInput.current?.click()}>Choisir un PDF</Button>
                       <span className="text-sm text-muted-foreground">{fileName || 'Aucun fichier sélectionné'}</span>
                     </div>
@@ -66,12 +74,14 @@ export function CvBookScreen() {
               </>
             )}
             {step === 'traitement' && <p className="text-sm text-muted-foreground py-4">Extraction de l'offre en cours…</p>}
-            {step === 'apercu' && (
+            {step === 'apercu' && analysis && (
               <>
                 <div className="rounded-lg border border-border p-4">
-                  <p className="text-sm font-medium">Chargé(e) de Communication Digitale</p>
-                  <p className="text-xs text-muted-foreground mt-1">Entreprise partenaire · Contrat non précisé</p>
-                  <p className="text-xs text-muted-foreground mt-2">Compétences recherchées : Copywriting, Canva, Marketing digital, Réseaux sociaux</p>
+                  <p className="text-sm font-medium">{analysis.title || 'Offre reçue'}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{analysis.location || 'Lieu non précisé'} · {analysis.contractType || 'Contrat non précisé'}</p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {analysis.skills.length ? `Compétences recherchées : ${analysis.skills.join(', ')}` : 'Aucune compétence connue repérée dans le texte.'}
+                  </p>
                 </div>
                 <Button onClick={() => setStep('classement')} className="w-fit">Classer les profils sur cette offre</Button>
               </>
@@ -84,7 +94,7 @@ export function CvBookScreen() {
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <h3 className="text-base">Profils classés par pertinence ({ranked.length})</h3>
-            <Button variant="ghost" size="sm" onClick={() => { setStep('reception'); setText(''); setFileName(''); setSelected([]); }}>Nouvelle offre</Button>
+            <Button variant="ghost" size="sm" onClick={() => { setStep('reception'); setText(''); setFileName(''); setFile(null); setAnalysis(null); setSelected([]); }}>Nouvelle offre</Button>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             {ranked.map(({ student, score }) => (

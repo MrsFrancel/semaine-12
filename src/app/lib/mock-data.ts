@@ -22,6 +22,7 @@ export interface Offer {
 export type CandidatureStatus = 'a-preparer' | 'postulee' | 'entretien' | 'reponse';
 
 export interface Candidature {
+  studentId: number;
   offerId: number;
   status: CandidatureStatus;
   updatedAt: string;
@@ -111,9 +112,29 @@ export const EXTERNAL_OFFERS: Offer[] = [
 ];
 
 export const CANDIDATURES: Candidature[] = [
-  { offerId: 1, status: 'entretien', updatedAt: '2 mars' },
-  { offerId: 3, status: 'postulee', updatedAt: '28 févr.' },
-  { offerId: 101, status: 'reponse', updatedAt: '20 févr.' },
+  { studentId: 1, offerId: 1, status: 'entretien', updatedAt: '2 mars' },
+  { studentId: 1, offerId: 3, status: 'postulee', updatedAt: '28 févr.' },
+  { studentId: 1, offerId: 101, status: 'reponse', updatedAt: '20 févr.' },
+  { studentId: 2, offerId: 2, status: 'entretien', updatedAt: '5 mars' },
+  { studentId: 2, offerId: 4, status: 'postulee', updatedAt: '1 mars' },
+  { studentId: 3, offerId: 3, status: 'postulee', updatedAt: '3 mars' },
+  { studentId: 3, offerId: 2, status: 'a-preparer', updatedAt: '28 févr.' },
+  { studentId: 4, offerId: 1, status: 'entretien', updatedAt: '6 mars' },
+  { studentId: 4, offerId: 5, status: 'postulee', updatedAt: '2 mars' },
+  { studentId: 5, offerId: 4, status: 'entretien', updatedAt: '4 mars' },
+  { studentId: 5, offerId: 3, status: 'postulee', updatedAt: '27 févr.' },
+  { studentId: 6, offerId: 2, status: 'postulee', updatedAt: '5 mars' },
+  { studentId: 7, offerId: 1, status: 'entretien', updatedAt: '3 mars' },
+  { studentId: 7, offerId: 4, status: 'reponse', updatedAt: '25 févr.' },
+  { studentId: 8, offerId: 5, status: 'a-preparer', updatedAt: '1 mars' },
+  { studentId: 9, offerId: 2, status: 'entretien', updatedAt: '7 mars' },
+  { studentId: 9, offerId: 1, status: 'reponse', updatedAt: '2 mars' },
+  { studentId: 10, offerId: 4, status: 'entretien', updatedAt: '6 mars' },
+  { studentId: 11, offerId: 3, status: 'entretien', updatedAt: '4 mars' },
+  { studentId: 11, offerId: 1, status: 'postulee', updatedAt: '26 févr.' },
+  { studentId: 12, offerId: 5, status: 'a-preparer', updatedAt: '20 févr.' },
+  { studentId: 13, offerId: 3, status: 'entretien', updatedAt: '4 mars' },
+  { studentId: 14, offerId: 4, status: 'postulee', updatedAt: '8 mars' },
 ];
 
 type StudentCv = Omit<CvData, 'softSkills' | 'phone' | 'contactEmail' | 'languages'>;

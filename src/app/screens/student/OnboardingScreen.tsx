@@ -1,10 +1,15 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
+import { Textarea } from '../../components/ui/textarea';
 import { Switch } from '../../components/ui/switch';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
 import { Card, CardContent } from '../../components/ui/card';
 import { CvFieldsEditor } from '../../components/product/CvFieldsEditor';
 import type { CvData } from '../../lib/mock-data';
+import { useSkillVocabulary } from '../../lib/skill-vocabulary';
+import { analyzeCvText } from '../../lib/text-analysis';
+import { extractPdfText } from '../../lib/pdf-extract';
 
 type Step = 'inscription' | 'consentement' | 'upload' | 'secours' | 'verification' | 'pret';
 
@@ -22,29 +27,54 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
   const [analyzing, setAnalyzing] = useState(false);
 
   const [cv, setCv] = useState<CvData>(EMPTY_CV);
+  const { vocabulary } = useSkillVocabulary();
+
+  const [cvText, setCvText] = useState('');
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const canAnalyze = cvText.trim().length > 0 || !!cvFile;
 
   const emailValid = /@hetic\.fr$/i.test(email.trim());
 
-  const startUpload = (fail: boolean) => {
+  const applyResult = (result: ReturnType<typeof analyzeCvText>) => {
+    const hasSignal = result.formation.trim().length > 0 || result.hardSkills.length > 0;
+    if (!hasSignal) {
+      setStep('secours');
+      return;
+    }
+    setCv((d) => ({
+      ...d,
+      formation: result.formation || d.formation,
+      experience: result.experience || d.experience,
+      hardSkills: result.hardSkills.length ? result.hardSkills : d.hardSkills,
+      softSkills: ['Autonomie', 'Curiosité', "Esprit d'équipe"],
+      languages: result.languages,
+      contactEmail: email,
+    }));
+    setStep('verification');
+  };
+
+  const startUpload = async () => {
+    setStep('upload');
+    setAnalyzing(true);
+    try {
+      const text = cvFile ? await extractPdfText(cvFile) : cvText;
+      const result = analyzeCvText(text, vocabulary);
+      setAnalyzing(false);
+      applyResult(result);
+    } catch {
+      setAnalyzing(false);
+      setStep('secours');
+    }
+  };
+
+  const simulateFailure = () => {
     setStep('upload');
     setAnalyzing(true);
     setTimeout(() => {
       setAnalyzing(false);
-      if (fail) {
-        setStep('secours');
-      } else {
-        setCv((d) => ({
-          ...d,
-          formation: 'Bachelor Marketing Digital, HETIC',
-          experience: 'Stage 6 mois, chargé de communication digitale dans une agence. Gestion des réseaux sociaux et création de contenus.',
-          hardSkills: ['Marketing digital', 'SEO/SEA', 'Google Analytics', 'Canva'],
-          softSkills: ['Autonomie', 'Curiosité', "Esprit d'équipe"],
-          languages: 'Français (natif), Anglais (professionnel)',
-          contactEmail: email,
-        }));
-        setStep('verification');
-      }
-    }, 1400);
+      setStep('secours');
+    }, 900);
   };
 
   return (
@@ -87,9 +117,36 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
               ) : (
                 <>
                   <p className="text-sm text-muted-foreground">Dépose ton CV pour débloquer le catalogue scoré.</p>
+                  <Tabs defaultValue="pdf">
+                    <TabsList>
+                      <TabsTrigger value="pdf">Fichier PDF</TabsTrigger>
+                      <TabsTrigger value="texte">Coller le texte</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="pdf" className="mt-3">
+                      <div className="flex items-center gap-3">
+                        <input
+                          ref={fileInput}
+                          type="file"
+                          accept="application/pdf"
+                          className="hidden"
+                          id="cv-pdf"
+                          onChange={(e) => { const f = e.target.files?.[0]; if (f) { setCvFile(f); setCvText(''); } }}
+                        />
+                        <Button type="button" variant="outline" onClick={() => fileInput.current?.click()}>Choisir mon CV (PDF)</Button>
+                        <span className="text-sm text-muted-foreground truncate">{cvFile?.name || 'Aucun fichier sélectionné'}</span>
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="texte" className="mt-3">
+                      <Textarea
+                        placeholder="Colle le texte de ton CV"
+                        value={cvText}
+                        onChange={(e) => { setCvText(e.target.value); setCvFile(null); }}
+                      />
+                    </TabsContent>
+                  </Tabs>
                   <div className="flex gap-2">
-                    <Button className="flex-1" onClick={() => startUpload(false)}>Déposer mon CV</Button>
-                    <Button variant="outline" onClick={() => startUpload(true)}>Simuler un échec</Button>
+                    <Button className="flex-1" disabled={!canAnalyze} onClick={startUpload}>Analyser mon CV</Button>
+                    <Button variant="outline" onClick={simulateFailure}>Simuler un échec</Button>
                   </div>
                 </>
               )}

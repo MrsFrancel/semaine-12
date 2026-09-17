@@ -1,7 +1,12 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
 import { InactivityAlert } from '../../../components/product/AlertCard';
-import { STUDENTS, RDVS, EVENT_TYPES, CURRENT_COACH_ID } from '../../../lib/mock-data';
+import { STUDENTS, RDVS, EVENT_TYPES, CONVERSATIONS, CURRENT_COACH_ID } from '../../../lib/mock-data';
+
+function initials(name: string): string {
+  return name.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+}
 
 const mine = STUDENTS.filter((s) => s.coachId === CURRENT_COACH_ID);
 const myRdvs = RDVS.filter((r) => r.coachId === CURRENT_COACH_ID);
@@ -19,6 +24,12 @@ const inactive = [...mine].filter((s) => s.inactiveDays >= 7).sort((a, b) => b.i
 const topByEntretiens = [...mine].sort((a, b) => b.entretiens - a.entretiens)[0];
 const mostActive = [...mine].sort((a, b) => b.candidatures - a.candidatures)[0];
 
+const recentMessages = CONVERSATIONS
+  .filter((c) => mine.some((s) => s.id === c.studentId))
+  .map((c) => ({ conversation: c, student: mine.find((s) => s.id === c.studentId)!, last: c.messages[c.messages.length - 1] }))
+  .filter((m) => m.last)
+  .slice(0, 4);
+
 const nextRdv = myRdvs[0];
 const nextRdvStudent = nextRdv ? mine.find((s) => s.id === nextRdv.studentId) : undefined;
 const nextRdvType = nextRdv ? EVENT_TYPES.find((e) => e.id === nextRdv.eventTypeId) : undefined;
@@ -30,7 +41,7 @@ const ACTIVITY = [
   ...(mostActive ? [{ text: `${mostActive.name} a envoyé ${mostActive.candidatures} candidatures ce mois-ci`, when: 'il y a 2 jours' }] : []),
 ];
 
-export function CoachDashboardScreen() {
+export function CoachDashboardScreen({ onMessageStudent }: { onMessageStudent: (studentId: number) => void }) {
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -78,6 +89,35 @@ export function CoachDashboardScreen() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader className="flex-row items-center justify-between">
+          <h3 className="text-base">Messages récents</h3>
+          <Button variant="ghost" size="sm" onClick={() => onMessageStudent(recentMessages[0]?.student.id ?? mine[0]?.id)}>Ouvrir la messagerie</Button>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-1">
+          {recentMessages.length === 0 && <p className="text-sm text-muted-foreground">Aucun message pour l'instant.</p>}
+          {recentMessages.map(({ conversation, student, last }) => (
+            <button
+              key={conversation.studentId}
+              onClick={() => onMessageStudent(student.id)}
+              className="flex items-center gap-3 border-b border-border last:border-0 py-3 text-left hover:opacity-80"
+            >
+              <div className="size-8 flex-none rounded-full bg-secondary text-[11px] font-medium flex items-center justify-center">
+                {initials(student.name)}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium truncate">{student.name}</p>
+                <p className="text-xs text-muted-foreground truncate">{last.text}</p>
+              </div>
+              <div className="flex-none flex items-center gap-2">
+                {last.from === 'student' && <span className="size-2 rounded-full bg-primary" />}
+                <span className="text-xs text-muted-foreground">{last.time}</span>
+              </div>
+            </button>
+          ))}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader><h3 className="text-base">Activité récente</h3></CardHeader>
