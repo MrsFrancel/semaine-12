@@ -60,7 +60,7 @@ export function SchoolSpace({ role, onExit, abVersion }: { role: 'admin' | 'coac
       case 'coachs': return <CoachsScreen />;
       case 'etudiants': return <EtudiantsScreen />;
       case 'parametres': return <ParametresScreen />;
-      default: return <AdminDashboardScreen {...offresProps} />;
+      default: return <AdminDashboardScreen {...offresProps} abVersion={abVersion} />;
     }
   };
 

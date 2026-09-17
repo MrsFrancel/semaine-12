@@ -28,14 +28,22 @@ const chartData = COACHES.map((c) => {
 const mostInactive = [...STUDENTS].filter((s) => s.inactiveDays > 0).sort((a, b) => b.inactiveDays - a.inactiveDays).slice(0, 5);
 const topByEntretiens = [...STUDENTS].sort((a, b) => b.entretiens - a.entretiens)[0];
 
-type DepositStep = 'reception' | 'traitement' | 'verification' | 'publiee';
+type DepositStep = 'reception' | 'traitement' | 'verification' | 'infos' | 'competences' | 'publiee';
+
+const WIZARD_STEP_ORDER: DepositStep[] = ['infos', 'competences'];
+const WIZARD_STEP_LABEL: Partial<Record<DepositStep, string>> = {
+  infos: 'Informations générales',
+  competences: 'Compétences & prérequis',
+};
 
 export function AdminDashboardScreen({
   offers,
   onPublish,
+  abVersion,
 }: {
   offers: Offer[];
   onPublish: (draft: Omit<Offer, 'id'>) => void;
+  abVersion: 'A' | 'B';
 }) {
   const avgInactive = (STUDENTS.reduce((s, x) => s + x.inactiveDays, 0) / STUDENTS.length).toFixed(1);
 
@@ -59,7 +67,8 @@ export function AdminDashboardScreen({
   const [location, setLocation] = useState('');
   const [contractType, setContractType] = useState('');
   const [description, setDescription] = useState('');
-  const [skills, setSkills] = useState('');
+  const [skills, setSkills] = useState<string[]>([]);
+  const [skillInput, setSkillInput] = useState('');
   const [profile, setProfile] = useState('');
   const [rawText, setRawText] = useState('');
 
@@ -74,7 +83,7 @@ export function AdminDashboardScreen({
       setLocation(match.location);
       setContractType(match.contractType);
       setDescription(match.description);
-      setSkills(match.skills);
+      setSkills(match.skills.split(',').map((s) => s.trim()).filter(Boolean));
       setProfile(match.profile);
       setRawText(match.rawText);
     } else {
@@ -85,11 +94,23 @@ export function AdminDashboardScreen({
       setLocation(analysis.location);
       setContractType(analysis.contractType);
       setDescription(analysis.description);
-      setSkills(analysis.skills.join(', '));
+      setSkills(analysis.skills);
       setProfile(analysis.profile);
       setRawText(content);
     }
-    setDepositStep('verification');
+    setDepositStep(abVersion === 'B' ? 'infos' : 'verification');
+  };
+
+  const addSkill = () => {
+    const value = skillInput.trim();
+    if (value && !skills.includes(value)) setSkills((s) => [...s, value]);
+    setSkillInput('');
+  };
+  const removeSkill = (value: string) => setSkills((s) => s.filter((x) => x !== value));
+
+  const goNextWizardStep = () => {
+    const i = WIZARD_STEP_ORDER.indexOf(depositStep);
+    if (i >= 0 && i < WIZARD_STEP_ORDER.length - 1) setDepositStep(WIZARD_STEP_ORDER[i + 1]);
   };
 
   const publishDraft = () => {
@@ -100,11 +121,11 @@ export function AdminDashboardScreen({
       type: contractType,
       score: 70,
       criteria: [
-        { name: 'Compétences techniques', level: 'mid', fill: 60, note: `Basé sur : ${skills || 'compétences non précisées'}.` },
+        { name: 'Compétences techniques', level: 'mid', fill: 60, note: `Basé sur : ${skills.join(', ') || 'compétences non précisées'}.` },
         { name: 'Expérience', level: 'mid', fill: 55, note: 'Pas encore évalué pour un profil précis.' },
         { name: 'Mots-clés du secteur', level: 'mid', fill: 50, note: profile || 'Profil recherché non précisé.' },
       ],
-      expectedSkills: skills.split(',').map((s) => s.trim()).filter(Boolean),
+      expectedSkills: skills,
       description,
       missions: [],
       exclusive: true,
@@ -115,8 +136,10 @@ export function AdminDashboardScreen({
 
   const resetDeposit = () => {
     setDepositStep('reception'); setText(''); setFileName(''); setFile(null);
-    setTitle(''); setCompany(''); setLocation(''); setContractType(''); setDescription(''); setSkills(''); setProfile(''); setRawText('');
+    setTitle(''); setCompany(''); setLocation(''); setContractType(''); setDescription(''); setSkills([]); setSkillInput(''); setProfile(''); setRawText('');
   };
+
+  const wizardIndex = WIZARD_STEP_ORDER.indexOf(depositStep);
 
   return (
     <div className="flex flex-col gap-6">
@@ -194,11 +217,81 @@ export function AdminDashboardScreen({
                 </div>
                 <div className="flex flex-col gap-1.5 sm:col-span-2">
                   <label className="text-xs text-muted-foreground">Compétences attendues</label>
-                  <Input value={skills} onChange={(e) => setSkills(e.target.value)} />
+                  <Input
+                    value={skills.join(', ')}
+                    onChange={(e) => setSkills(e.target.value.split(',').map((s) => s.trim()).filter(Boolean))}
+                  />
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">Vérifie et corrige avant de publier. Pour ajouter missions et description détaillée, utilise "Dépôt d'offres" dans la navigation.</p>
               <Button onClick={publishDraft} disabled={!title || !company} className="w-fit">Publier au catalogue</Button>
+            </>
+          )}
+
+          {wizardIndex >= 0 && (
+            <>
+              <div className="flex flex-col gap-1.5">
+                <span className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
+                  Étape {wizardIndex + 1}/{WIZARD_STEP_ORDER.length} — {WIZARD_STEP_LABEL[depositStep]}
+                </span>
+                <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all"
+                    style={{ width: `${((wizardIndex + 1) / WIZARD_STEP_ORDER.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              {depositStep === 'infos' && (
+                <>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs text-muted-foreground">Titre du poste</label>
+                    <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs text-muted-foreground">Entreprise</label>
+                      <Input value={company} onChange={(e) => setCompany(e.target.value)} />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs text-muted-foreground">Lieu</label>
+                      <Input value={location} onChange={(e) => setLocation(e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs text-muted-foreground">Type de contrat</label>
+                    <Input value={contractType} onChange={(e) => setContractType(e.target.value)} placeholder="Ex. Alternance · 12 mois" />
+                  </div>
+                  <Button onClick={goNextWizardStep} disabled={!title || !company} className="w-fit">Valider et continuer</Button>
+                </>
+              )}
+
+              {depositStep === 'competences' && (
+                <>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs text-muted-foreground">Compétences attendues</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {skills.map((s) => (
+                        <span key={s} className="font-mono text-[11px] bg-accent text-accent-foreground px-2 py-1 rounded-full flex items-center gap-1.5">
+                          {s}
+                          <button type="button" onClick={() => removeSkill(s)} className="opacity-60 hover:opacity-100" aria-label={`Retirer ${s}`}>×</button>
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 mt-1">
+                      <Input
+                        placeholder="Ajouter une compétence"
+                        value={skillInput}
+                        onChange={(e) => setSkillInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } }}
+                      />
+                      <Button type="button" variant="outline" onClick={addSkill}>Ajouter</Button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Vérifie et corrige avant de publier. Pour ajouter missions et description détaillée, utilise "Dépôt d'offres" dans la navigation.</p>
+                  <Button onClick={publishDraft} disabled={!title || !company} className="w-fit">Publier au catalogue</Button>
+                </>
+              )}
             </>
           )}
 
