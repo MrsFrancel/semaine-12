@@ -10,6 +10,7 @@ import { ScoreCard } from '../../components/product/ScoreCard';
 import { StatusPill } from '../../components/product/StatusPill';
 import { CvFieldsEditor } from '../../components/product/CvFieldsEditor';
 import { CvSummary } from '../../components/product/CvSummary';
+import { FormattedText } from '../../components/product/FormattedText';
 import type { Offer, CandidatureStatus, CvData } from '../../lib/mock-data';
 import { STATUS_LABEL } from '../../lib/mock-data';
 import { computeMatch } from '../../lib/scoring';
@@ -129,22 +130,24 @@ export function CandidatureScreen({
 
           <Card>
             <CardHeader><h3 className="text-base">Offre complète</h3></CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              {offer.rawText?.trim() ? (
-                <p className="text-sm whitespace-pre-wrap">{offer.rawText}</p>
-              ) : (
-                <>
-                  {offer.description && <p className="text-sm">{offer.description}</p>}
-                  {offer.missions.length > 0 && (
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Missions</p>
-                      <ul className="list-disc list-inside text-sm text-muted-foreground flex flex-col gap-1">
-                        {offer.missions.map((m) => <li key={m}>{m}</li>)}
-                      </ul>
-                    </div>
-                  )}
-                </>
-              )}
+            <CardContent>
+              <div className="h-80 overflow-y-auto pr-2 -mr-2 border border-border rounded-lg p-3">
+                {offer.rawText?.trim() ? (
+                  <FormattedText text={offer.rawText} />
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {offer.description && <p className="text-sm">{offer.description}</p>}
+                    {offer.missions.length > 0 && (
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Missions</p>
+                        <ul className="list-disc list-inside text-sm text-muted-foreground flex flex-col gap-1">
+                          {offer.missions.map((m) => <li key={m}>{m}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -178,11 +181,9 @@ export function CandidatureScreen({
           <Card>
             <CardHeader><h3 className="text-base">CV complet</h3></CardHeader>
             <CardContent>
-              {cvRawText.trim() ? (
-                <p className="text-sm whitespace-pre-wrap">{cvRawText}</p>
-              ) : (
-                <CvSummary cv={cv} />
-              )}
+              <div className="h-80 overflow-y-auto pr-2 -mr-2 border border-border rounded-lg p-3">
+                {cvRawText.trim() ? <FormattedText text={cvRawText} /> : <CvSummary cv={cv} />}
+              </div>
             </CardContent>
           </Card>
 
