@@ -21,6 +21,7 @@ export function CvPreviewDialogs({
           </DialogHeader>
           {previewStudent && (
             <div className="flex flex-col gap-3 text-sm">
+              {previewStudent.cv.title && <p className="font-medium">{previewStudent.cv.title}</p>}
               <p className="text-muted-foreground">{previewStudent.promo}</p>
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Formation</p>
@@ -55,13 +56,21 @@ export function CvPreviewDialogs({
         <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto">
           {fullStudent && (
             <div className="flex flex-col gap-5 text-sm">
-              <div>
-                <DialogHeader className="text-left sm:text-left">
-                  <DialogTitle className="text-xl">{fullStudent.name}</DialogTitle>
-                </DialogHeader>
-                <p className="text-muted-foreground mt-1">{fullStudent.cv.formation} · {fullStudent.promo}</p>
-                <p className="font-mono text-xs text-muted-foreground mt-2">{studentEmail(fullStudent)} · {studentPhone(fullStudent)}</p>
+              <div className="flex items-start gap-3">
+                {fullStudent.cv.photoUrl && (
+                  <img src={fullStudent.cv.photoUrl} alt="" className="size-12 rounded-full object-cover border border-border flex-none" />
+                )}
+                <div>
+                  <DialogHeader className="text-left sm:text-left">
+                    <DialogTitle className="text-xl">{fullStudent.name}</DialogTitle>
+                  </DialogHeader>
+                  {fullStudent.cv.title && <p className="text-sm mt-0.5">{fullStudent.cv.title}</p>}
+                  <p className="text-muted-foreground mt-1">{fullStudent.cv.formation} · {fullStudent.promo}</p>
+                  <p className="font-mono text-xs text-muted-foreground mt-2">{studentEmail(fullStudent)} · {studentPhone(fullStudent)}</p>
+                </div>
               </div>
+
+              {fullStudent.cv.bio && <p className="text-muted-foreground">{fullStudent.cv.bio}</p>}
 
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Formation</p>
@@ -84,6 +93,13 @@ export function CvPreviewDialogs({
                 </div>
               </div>
 
+              {fullStudent.cv.personalProjects && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Projets personnels ou associatifs</p>
+                  <p>{fullStudent.cv.personalProjects}</p>
+                </div>
+              )}
+
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Compétences techniques</p>
                 <div className="flex flex-wrap gap-1.5">
@@ -92,6 +108,17 @@ export function CvPreviewDialogs({
                   ))}
                 </div>
               </div>
+
+              {fullStudent.cv.certifications.length > 0 && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Certifications</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {fullStudent.cv.certifications.map((c) => (
+                      <span key={c} className="font-mono text-[11px] border border-border px-2 py-0.5 rounded">{c}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Savoir-être</p>
@@ -106,6 +133,41 @@ export function CvPreviewDialogs({
                 <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Langues</p>
                 <p>Français (natif) · Anglais (professionnel)</p>
               </div>
+
+              {fullStudent.cv.portfolioLinks && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Portfolio / liens</p>
+                  <p className="whitespace-pre-wrap">{fullStudent.cv.portfolioLinks}</p>
+                </div>
+              )}
+
+              {fullStudent.cv.interests && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Centres d'intérêt</p>
+                  <p>{fullStudent.cv.interests}</p>
+                </div>
+              )}
+
+              {fullStudent.cv.drivingLicense && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Permis de conduire</p>
+                  <p>Oui</p>
+                </div>
+              )}
+
+              {fullStudent.cv.availability && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Disponibilité / mobilité géographique</p>
+                  <p>{fullStudent.cv.availability}</p>
+                </div>
+              )}
+
+              {fullStudent.cv.attentionNote && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Note d'attention</p>
+                  <p>{fullStudent.cv.attentionNote}</p>
+                </div>
+              )}
 
               <Button variant="outline" size="sm" className="w-fit">Télécharger le CV</Button>
             </div>

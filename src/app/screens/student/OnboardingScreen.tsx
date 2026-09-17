@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
-import { Textarea } from '../../components/ui/textarea';
 import { Switch } from '../../components/ui/switch';
 import { Card, CardContent } from '../../components/ui/card';
+import { CvFieldsEditor } from '../../components/product/CvFieldsEditor';
+import type { CvData } from '../../lib/mock-data';
 
 type Step = 'inscription' | 'consentement' | 'upload' | 'secours' | 'verification' | 'pret';
+
+const EMPTY_CV: CvData = {
+  title: '', photoUrl: '', bio: '', phone: '', contactEmail: '',
+  formation: '', experience: '', hardSkills: [], certifications: [],
+  softSkills: [], languages: '', portfolioLinks: '', personalProjects: '',
+  interests: '', drivingLicense: false, availability: '', attentionNote: '',
+};
 
 export function OnboardingScreen({ onDone }: { onDone: () => void }) {
   const [step, setStep] = useState<Step>('inscription');
@@ -13,11 +21,7 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
   const [consent, setConsent] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
 
-  const [formation, setFormation] = useState('');
-  const [experience, setExperience] = useState('');
-  const [hardSkills, setHardSkills] = useState('');
-  const [softSkills, setSoftSkills] = useState('');
-  const [languages, setLanguages] = useState('');
+  const [cv, setCv] = useState<CvData>(EMPTY_CV);
 
   const emailValid = /@hetic\.fr$/i.test(email.trim());
 
@@ -29,11 +33,15 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
       if (fail) {
         setStep('secours');
       } else {
-        setFormation('Bachelor Marketing Digital, HETIC');
-        setExperience('Stage 6 mois, chargé de communication digitale dans une agence. Gestion des réseaux sociaux et création de contenus.');
-        setHardSkills('Marketing digital, SEO/SEA, Google Analytics, Canva');
-        setSoftSkills("Autonomie, Curiosité, Esprit d'équipe");
-        setLanguages('Français (natif), Anglais (professionnel)');
+        setCv((d) => ({
+          ...d,
+          formation: 'Bachelor Marketing Digital, HETIC',
+          experience: 'Stage 6 mois, chargé de communication digitale dans une agence. Gestion des réseaux sociaux et création de contenus.',
+          hardSkills: ['Marketing digital', 'SEO/SEA', 'Google Analytics', 'Canva'],
+          softSkills: ['Autonomie', 'Curiosité', "Esprit d'équipe"],
+          languages: 'Français (natif), Anglais (professionnel)',
+          contactEmail: email,
+        }));
         setStep('verification');
       }
     }, 1400);
@@ -94,37 +102,22 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
                 <p className="text-sm font-medium">Mode secours manuel</p>
                 <p className="text-xs text-muted-foreground mt-1">La mise en page de ton CV n'a pas pu être analysée automatiquement. Renseigne tes compétences clés à la main, ça n'empêche pas de continuer.</p>
               </div>
-              <Input placeholder="Ex. Marketing digital, SEO/SEA, Canva…" value={hardSkills} onChange={(e) => setHardSkills(e.target.value)} />
+              <Input
+                placeholder="Ex. Marketing digital, SEO/SEA, Canva…"
+                value={cv.hardSkills.join(', ')}
+                onChange={(e) => setCv((d) => ({ ...d, hardSkills: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) }))}
+              />
               <Button onClick={() => setStep('verification')}>Continuer</Button>
             </div>
           )}
 
           {step === 'verification' && (
             <div className="flex flex-col gap-4">
-              <p className="text-xs text-muted-foreground">Voici ce qu'on a retenu de ton CV. Corrige ce qui doit l'être, rien n'est figé.</p>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-muted-foreground">Formation</label>
-                <Input placeholder="Ex. Bachelor Marketing Digital, HETIC" value={formation} onChange={(e) => setFormation(e.target.value)} />
+              <p className="text-xs text-muted-foreground">Voici ce qu'on a retenu de ton CV. Corrige ce qui doit l'être, complète ce qui manque, rien n'est figé.</p>
+              <div className="max-h-[60vh] overflow-y-auto pr-2 -mr-2 border border-border rounded-lg p-3">
+                <CvFieldsEditor cv={cv} onChange={(updater) => setCv(updater)} />
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-muted-foreground">Expérience</label>
-                <Textarea placeholder="Ex. Stage 6 mois, chargé de communication digitale. Missions principales." value={experience} onChange={(e) => setExperience(e.target.value)} className="min-h-24" />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-muted-foreground">Compétences techniques (séparées par une virgule)</label>
-                  <Input placeholder="Ex. Marketing digital, SEO/SEA, Canva…" value={hardSkills} onChange={(e) => setHardSkills(e.target.value)} />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-muted-foreground">Savoir-être (séparés par une virgule)</label>
-                  <Input placeholder="Ex. Autonomie, Curiosité, Esprit d'équipe…" value={softSkills} onChange={(e) => setSoftSkills(e.target.value)} />
-                </div>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-muted-foreground">Langues</label>
-                <Input placeholder="Ex. Français (natif), Anglais (professionnel)" value={languages} onChange={(e) => setLanguages(e.target.value)} />
-              </div>
-              <Button disabled={!formation.trim()} onClick={() => setStep('pret')}>Confirmer mon profil</Button>
+              <Button disabled={!cv.formation.trim()} onClick={() => setStep('pret')}>Confirmer mon profil</Button>
             </div>
           )}
 

@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Card, CardContent, CardHeader } from '../../components/ui/card';
 import {
@@ -9,6 +8,7 @@ import {
 } from '../../components/ui/alert-dialog';
 import { ScoreCard } from '../../components/product/ScoreCard';
 import { StatusPill } from '../../components/product/StatusPill';
+import { CvFieldsEditor } from '../../components/product/CvFieldsEditor';
 import type { Offer, CandidatureStatus, CvData } from '../../lib/mock-data';
 import { STATUS_LABEL } from '../../lib/mock-data';
 import { computeMatch } from '../../lib/scoring';
@@ -32,13 +32,24 @@ ${STUDENT_NAME}`;
 }
 
 function formatCvForExport(cv: CvData): string {
-  return [
+  const sections = [
+    cv.title && `Titre\n${cv.title}`,
+    cv.bio && `Présentation\n${cv.bio}`,
+    (cv.phone || cv.contactEmail) && `Contact\n${[cv.phone, cv.contactEmail].filter(Boolean).join(' · ')}`,
     `Formation\n${cv.formation}`,
     `Expérience\n${cv.experience}`,
+    cv.personalProjects && `Projets personnels ou associatifs\n${cv.personalProjects}`,
     `Compétences techniques\n${cv.hardSkills.join(', ')}`,
+    cv.certifications.length > 0 && `Certifications\n${cv.certifications.join(', ')}`,
     `Savoir-être\n${cv.softSkills.join(', ')}`,
     `Langues\n${cv.languages}`,
-  ].join('\n\n');
+    cv.portfolioLinks && `Portfolio / liens\n${cv.portfolioLinks}`,
+    cv.interests && `Centres d'intérêt\n${cv.interests}`,
+    cv.drivingLicense && `Permis de conduire\nOui`,
+    cv.availability && `Disponibilité / mobilité géographique\n${cv.availability}`,
+    cv.attentionNote && `Note d'attention\n${cv.attentionNote}`,
+  ];
+  return sections.filter(Boolean).join('\n\n');
 }
 
 export function CandidatureScreen({
@@ -58,7 +69,6 @@ export function CandidatureScreen({
   const [baseExperience] = useState(profileCv.experience);
   const [cvEditorOpen, setCvEditorOpen] = useState(false);
   const [draftCv, setDraftCv] = useState<CvData>(profileCv);
-  const [newSkill, setNewSkill] = useState('');
   const [saveScopeOpen, setSaveScopeOpen] = useState(false);
 
   const [letterGenerated, setLetterGenerated] = useState(false);
@@ -86,11 +96,9 @@ export function CandidatureScreen({
 
   const openCvEditor = () => {
     setDraftCv(cv);
-    setNewSkill('');
     setCvEditorOpen(true);
   };
 
-  const removeSkill = (skill: string) => setDraftCv((d) => ({ ...d, hardSkills: d.hardSkills.filter((s) => s !== skill) }));
   const addSkill = (skill: string) => {
     const trimmed = skill.trim();
     if (!trimmed || draftCv.hardSkills.some((s) => s.toLowerCase() === trimmed.toLowerCase())) return;
@@ -130,60 +138,24 @@ export function CandidatureScreen({
 
             {cvEditorOpen && (
               <div className="flex flex-col gap-4 pt-3 border-t border-border">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-muted-foreground">Formation</label>
-                  <Input value={draftCv.formation} onChange={(e) => setDraftCv((d) => ({ ...d, formation: e.target.value }))} />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-muted-foreground">Expérience</label>
-                  <Textarea className="min-h-24" value={draftCv.experience} onChange={(e) => setDraftCv((d) => ({ ...d, experience: e.target.value }))} />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-muted-foreground">Compétences techniques</label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {draftCv.hardSkills.map((s) => (
-                      <span key={s} className="inline-flex items-center gap-1 font-mono text-[11px] bg-primary/10 text-primary border border-primary/30 px-2 py-0.5 rounded">
-                        {s}
-                        <button onClick={() => removeSkill(s)} className="hover:opacity-70" aria-label={`Retirer ${s}`}>×</button>
-                      </span>
-                    ))}
-                  </div>
-                  {draftMissingSkills.length > 0 && (
-                    <div className="flex flex-col gap-1.5 mt-1">
-                      <p className="text-xs text-muted-foreground">Attendues pour cette offre, absentes de ton CV :</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {draftMissingSkills.map((s) => (
-                          <button
-                            key={s}
-                            onClick={() => addSkill(s)}
-                            className="font-mono text-[11px] border border-dashed border-border text-muted-foreground px-2 py-0.5 rounded hover:border-primary/50 hover:text-primary transition-colors"
-                          >
-                            + {s}
-                          </button>
-                        ))}
-                      </div>
+                {draftMissingSkills.length > 0 && (
+                  <div className="flex flex-col gap-1.5">
+                    <p className="text-xs text-muted-foreground">Compétences attendues pour cette offre, absentes de ton CV :</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {draftMissingSkills.map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => addSkill(s)}
+                          className="font-mono text-[11px] border border-dashed border-border text-muted-foreground px-2 py-0.5 rounded hover:border-primary/50 hover:text-primary transition-colors"
+                        >
+                          + {s}
+                        </button>
+                      ))}
                     </div>
-                  )}
-                  <div className="flex gap-2 mt-1">
-                    <Input
-                      placeholder="Ajouter une compétence…"
-                      value={newSkill}
-                      onChange={(e) => setNewSkill(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === 'Enter') { addSkill(newSkill); setNewSkill(''); } }}
-                    />
-                    <Button variant="outline" size="sm" onClick={() => { addSkill(newSkill); setNewSkill(''); }}>Ajouter</Button>
                   </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-muted-foreground">Savoir-être (séparés par une virgule)</label>
-                  <Input
-                    value={draftCv.softSkills.join(', ')}
-                    onChange={(e) => setDraftCv((d) => ({ ...d, softSkills: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) }))}
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-muted-foreground">Langues</label>
-                  <Input value={draftCv.languages} onChange={(e) => setDraftCv((d) => ({ ...d, languages: e.target.value }))} />
+                )}
+                <div className="max-h-[60vh] overflow-y-auto pr-2 -mr-2 border border-border rounded-lg p-3">
+                  <CvFieldsEditor cv={draftCv} onChange={setDraftCv} />
                 </div>
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <Button size="sm" onClick={() => setSaveScopeOpen(true)}>Enregistrer les modifications</Button>

@@ -1,28 +1,48 @@
 import { useMemo, useState } from 'react';
 import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Textarea } from '../../components/ui/textarea';
 import { Switch } from '../../components/ui/switch';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
 import { Card, CardContent, CardHeader } from '../../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import { CvFieldsEditor } from '../../components/product/CvFieldsEditor';
 import type { CvData, CvHistoryEntry } from '../../lib/mock-data';
 import { exportTextAsPdf, exportTextAsWord } from '../../lib/export';
 import { buildSuggestions } from '../../lib/ai-suggestions';
 
 function formatCvForExport(cv: CvData): string {
-  return [
+  const sections = [
+    cv.title && `Titre\n${cv.title}`,
+    cv.bio && `Présentation\n${cv.bio}`,
+    (cv.phone || cv.contactEmail) && `Contact\n${[cv.phone, cv.contactEmail].filter(Boolean).join(' · ')}`,
     `Formation\n${cv.formation}`,
     `Expérience\n${cv.experience}`,
+    cv.personalProjects && `Projets personnels ou associatifs\n${cv.personalProjects}`,
     `Compétences techniques\n${cv.hardSkills.join(', ')}`,
+    cv.certifications.length > 0 && `Certifications\n${cv.certifications.join(', ')}`,
     `Savoir-être\n${cv.softSkills.join(', ')}`,
     `Langues\n${cv.languages}`,
-  ].join('\n\n');
+    cv.portfolioLinks && `Portfolio / liens\n${cv.portfolioLinks}`,
+    cv.interests && `Centres d'intérêt\n${cv.interests}`,
+    cv.drivingLicense && `Permis de conduire\nOui`,
+    cv.availability && `Disponibilité / mobilité géographique\n${cv.availability}`,
+    cv.attentionNote && `Note d'attention\n${cv.attentionNote}`,
+  ];
+  return sections.filter(Boolean).join('\n\n');
 }
 
 function CvSummary({ cv }: { cv: CvData }) {
   return (
     <div className="flex flex-col gap-4">
+      {(cv.photoUrl || cv.title) && (
+        <div className="flex items-center gap-3">
+          {cv.photoUrl && <img src={cv.photoUrl} alt="Photo de profil" className="size-12 rounded-full object-cover border border-border" />}
+          {cv.title && <p className="text-sm font-medium">{cv.title}</p>}
+        </div>
+      )}
+      {cv.bio && <p className="text-sm text-muted-foreground">{cv.bio}</p>}
+      {(cv.phone || cv.contactEmail) && (
+        <p className="font-mono text-xs text-muted-foreground">{[cv.phone, cv.contactEmail].filter(Boolean).join(' · ')}</p>
+      )}
       <div>
         <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Formation</p>
         <p className="text-sm">{cv.formation}</p>
@@ -31,12 +51,26 @@ function CvSummary({ cv }: { cv: CvData }) {
         <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Expérience</p>
         <p className="text-sm">{cv.experience}</p>
       </div>
+      {cv.personalProjects && (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Projets personnels ou associatifs</p>
+          <p className="text-sm">{cv.personalProjects}</p>
+        </div>
+      )}
       <div>
         <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Compétences techniques</p>
         <div className="flex flex-wrap gap-1.5">
           {cv.hardSkills.map((s) => <span key={s} className="font-mono text-[11px] bg-secondary px-2 py-0.5 rounded">{s}</span>)}
         </div>
       </div>
+      {cv.certifications.length > 0 && (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Certifications</p>
+          <div className="flex flex-wrap gap-1.5">
+            {cv.certifications.map((c) => <span key={c} className="font-mono text-[11px] border border-border px-2 py-0.5 rounded">{c}</span>)}
+          </div>
+        </div>
+      )}
       <div>
         <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Savoir-être</p>
         <div className="flex flex-wrap gap-1.5">
@@ -47,6 +81,36 @@ function CvSummary({ cv }: { cv: CvData }) {
         <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Langues</p>
         <p className="text-sm">{cv.languages}</p>
       </div>
+      {cv.portfolioLinks && (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Portfolio / liens</p>
+          <p className="text-sm whitespace-pre-wrap">{cv.portfolioLinks}</p>
+        </div>
+      )}
+      {cv.interests && (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Centres d'intérêt</p>
+          <p className="text-sm">{cv.interests}</p>
+        </div>
+      )}
+      {cv.drivingLicense && (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Permis de conduire</p>
+          <p className="text-sm">Oui</p>
+        </div>
+      )}
+      {cv.availability && (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Disponibilité / mobilité géographique</p>
+          <p className="text-sm">{cv.availability}</p>
+        </div>
+      )}
+      {cv.attentionNote && (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Note d'attention</p>
+          <p className="text-sm">{cv.attentionNote}</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -63,14 +127,6 @@ export function MonCvScreen({
   const [consent, setConsent] = useState(true);
 
   const [draftCv, setDraftCv] = useState<CvData>(cv);
-  const [newSkill, setNewSkill] = useState('');
-
-  const removeSkill = (skill: string) => setDraftCv((d) => ({ ...d, hardSkills: d.hardSkills.filter((s) => s !== skill) }));
-  const addSkill = (skill: string) => {
-    const trimmed = skill.trim();
-    if (!trimmed || draftCv.hardSkills.some((s) => s.toLowerCase() === trimmed.toLowerCase())) return;
-    setDraftCv((d) => ({ ...d, hardSkills: [...d.hardSkills, trimmed] }));
-  };
 
   const draftDirty = JSON.stringify(draftCv) !== JSON.stringify(cv);
   const saveManual = () => onUpdateCv(draftCv, 'Modifié manuellement');
@@ -123,44 +179,8 @@ export function MonCvScreen({
           <Card>
             <CardHeader><h3 className="text-base">Modifier ton CV</h3></CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-muted-foreground">Formation</label>
-                <Input value={draftCv.formation} onChange={(e) => setDraftCv((d) => ({ ...d, formation: e.target.value }))} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-muted-foreground">Expérience</label>
-                <Textarea className="min-h-24" value={draftCv.experience} onChange={(e) => setDraftCv((d) => ({ ...d, experience: e.target.value }))} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-muted-foreground">Compétences techniques</label>
-                <div className="flex flex-wrap gap-1.5">
-                  {draftCv.hardSkills.map((s) => (
-                    <span key={s} className="inline-flex items-center gap-1 font-mono text-[11px] bg-primary/10 text-primary border border-primary/30 px-2 py-0.5 rounded">
-                      {s}
-                      <button onClick={() => removeSkill(s)} className="hover:opacity-70" aria-label={`Retirer ${s}`}>×</button>
-                    </span>
-                  ))}
-                </div>
-                <div className="flex gap-2 mt-1">
-                  <Input
-                    placeholder="Ajouter une compétence…"
-                    value={newSkill}
-                    onChange={(e) => setNewSkill(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') { addSkill(newSkill); setNewSkill(''); } }}
-                  />
-                  <Button variant="outline" size="sm" onClick={() => { addSkill(newSkill); setNewSkill(''); }}>Ajouter</Button>
-                </div>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-muted-foreground">Savoir-être (séparés par une virgule)</label>
-                <Input
-                  value={draftCv.softSkills.join(', ')}
-                  onChange={(e) => setDraftCv((d) => ({ ...d, softSkills: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) }))}
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-muted-foreground">Langues</label>
-                <Input value={draftCv.languages} onChange={(e) => setDraftCv((d) => ({ ...d, languages: e.target.value }))} />
+              <div className="max-h-[60vh] overflow-y-auto pr-2 -mr-2 border border-border rounded-lg p-3">
+                <CvFieldsEditor cv={draftCv} onChange={setDraftCv} />
               </div>
               <div className="flex items-center gap-2 pt-1">
                 <Button size="sm" disabled={!draftDirty} onClick={saveManual}>Enregistrer</Button>
