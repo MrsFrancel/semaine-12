@@ -74,13 +74,17 @@ export function CandidatureScreen({
   profileCv,
   onPushProfileCv,
   onBack,
+  initialStatus,
+  onStatusChange,
 }: {
   offer: Offer;
   profileCv: CvData;
   onPushProfileCv: (cv: CvData, label: string) => void;
   onBack: () => void;
+  initialStatus: CandidatureStatus;
+  onStatusChange: (status: CandidatureStatus) => void;
 }) {
-  const [status, setStatus] = useState<CandidatureStatus>('a-preparer');
+  const [status, setStatus] = useState<CandidatureStatus>(initialStatus);
 
   const [cv, setCv] = useState<CvData>(profileCv);
   const [baseExperience] = useState(profileCv.experience);
@@ -110,7 +114,11 @@ export function CandidatureScreen({
 
   const advance = () => {
     const i = ORDER.indexOf(status);
-    if (i < ORDER.length - 1) setStatus(ORDER[i + 1]);
+    if (i < ORDER.length - 1) {
+      const next = ORDER[i + 1];
+      setStatus(next);
+      onStatusChange(next);
+    }
   };
 
   const generateLetter = () => {

@@ -5,15 +5,14 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/ta
 import { Textarea } from '../../components/ui/textarea';
 import { StatusPill } from '../../components/product/StatusPill';
 import {
-  CANDIDATURES, OFFERS, EXTERNAL_OFFERS, STUDENTS, COACHES,
-  CURRENT_STUDENT_ID, type Offer, type Conversation,
+  OFFERS, EXTERNAL_OFFERS, STUDENTS, COACHES,
+  CURRENT_STUDENT_ID, type Offer, type Conversation, type Candidature,
 } from '../../lib/mock-data';
 import { useSkillVocabulary } from '../../lib/skill-vocabulary';
 import { analyzeOfferText } from '../../lib/text-analysis';
 import { extractPdfText } from '../../lib/pdf-extract';
 import { buildExternalOffer } from './CatalogueScreen';
 
-const ALL_OFFERS = [...OFFERS, ...EXTERNAL_OFFERS];
 const CURRENT_STUDENT = STUDENTS.find((s) => s.id === CURRENT_STUDENT_ID)!;
 const MY_COACH = COACHES.find((c) => c.id === CURRENT_STUDENT.coachId)!;
 
@@ -25,13 +24,19 @@ export function StudentDashboardScreen({
   onAddExternalOffer,
   conversations,
   onOpenMessagerie,
+  myCandidatures,
+  externalOffers,
+  onOpenOffer,
 }: {
   onAddExternalOffer: (offer: Offer) => void;
   conversations: Conversation[];
   onOpenMessagerie: () => void;
+  myCandidatures: Candidature[];
+  externalOffers: Offer[];
+  onOpenOffer: (offer: Offer) => void;
 }) {
-  const myCandidatures = CANDIDATURES.filter((c) => c.studentId === CURRENT_STUDENT_ID);
-  const rows = myCandidatures.map((c) => ({ c, offer: ALL_OFFERS.find((o) => o.id === c.offerId)! })).filter((r) => r.offer);
+  const allOffers = [...OFFERS, ...EXTERNAL_OFFERS, ...externalOffers];
+  const rows = myCandidatures.map((c) => ({ c, offer: allOffers.find((o) => o.id === c.offerId)! })).filter((r) => r.offer);
 
   const myConversation = conversations.find((c) => c.studentId === CURRENT_STUDENT_ID);
   const lastMessage = myConversation?.messages[myConversation.messages.length - 1];
@@ -114,13 +119,17 @@ export function StudentDashboardScreen({
         <CardContent className="flex flex-col gap-3">
           {rows.length === 0 && <p className="text-sm text-muted-foreground">Aucune candidature pour l'instant.</p>}
           {rows.map(({ c, offer }) => (
-            <div key={offer.id} className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0">
+            <button
+              key={offer.id}
+              onClick={() => onOpenOffer(offer)}
+              className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0 text-left hover:opacity-80"
+            >
               <div>
                 <p className="text-sm font-medium">{offer.title}</p>
                 <p className="text-xs text-muted-foreground">{offer.company} · mise à jour le {c.updatedAt}</p>
               </div>
               <StatusPill status={c.status} />
-            </div>
+            </button>
           ))}
         </CardContent>
       </Card>

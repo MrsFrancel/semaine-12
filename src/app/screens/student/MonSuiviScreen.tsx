@@ -21,9 +21,13 @@ let nextRdvId = 1000;
 export function MonSuiviScreen({
   conversations,
   onConversationsChange,
+  tab,
+  onTabChange,
 }: {
   conversations: Conversation[];
   onConversationsChange: (cs: Conversation[]) => void;
+  tab: 'rdv' | 'messagerie';
+  onTabChange: (tab: 'rdv' | 'messagerie') => void;
 }) {
   const [rdvs, setRdvs] = useState<Rdv[]>(INITIAL_RDVS);
   const myRdvs = rdvs.filter((r) => r.studentId === CURRENT_STUDENT_ID);
@@ -60,7 +64,7 @@ export function MonSuiviScreen({
       <Card>
         <CardHeader><h3 className="text-base">Messagerie &amp; rendez-vous</h3></CardHeader>
         <CardContent>
-          <Tabs defaultValue="rdv">
+          <Tabs value={tab} onValueChange={(v) => onTabChange(v as 'rdv' | 'messagerie')}>
             <TabsList>
               <TabsTrigger value="rdv">Rendez-vous</TabsTrigger>
               <TabsTrigger value="messagerie">Messagerie</TabsTrigger>
