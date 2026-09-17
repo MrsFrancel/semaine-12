@@ -12,13 +12,12 @@ import { CvFieldsEditor } from '../../components/product/CvFieldsEditor';
 import { CvSummary } from '../../components/product/CvSummary';
 import { FormattedText } from '../../components/product/FormattedText';
 import type { Offer, CandidatureStatus, CvData } from '../../lib/mock-data';
-import { STATUS_LABEL } from '../../lib/mock-data';
+import { STATUS_LABEL, slugify } from '../../lib/mock-data';
 import { computeMatch, type MatchResult } from '../../lib/scoring';
 import { buildOfferSuggestions } from '../../lib/offer-suggestions';
 import { exportTextAsPdf, exportTextAsWord } from '../../lib/export';
 
 const ORDER: CandidatureStatus[] = ['a-preparer', 'postulee', 'entretien', 'reponse'];
-const STUDENT_NAME = 'Léa Bernard';
 
 function excerpt(text: string, maxLen = 220): string {
   const clean = text.replace(/\s+/g, ' ').trim();
@@ -28,7 +27,7 @@ function excerpt(text: string, maxLen = 220): string {
   return `${(lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trim()}…`;
 }
 
-function buildLetter(offer: Offer, cv: CvData, match: MatchResult): string {
+function buildLetter(offer: Offer, cv: CvData, match: MatchResult, studentName: string): string {
   const skillsList = match.matchedSkills.length > 0 ? match.matchedSkills.slice(0, 3) : cv.hardSkills.slice(0, 3);
   const mission = offer.missions[0];
   const missionLine = mission ? `, notamment pour ${mission.charAt(0).toLowerCase()}${mission.slice(1)}` : '';
@@ -45,7 +44,7 @@ Je maîtrise notamment ${skillsList.join(', ') || 'les compétences requises pou
 
 Je reste à votre disposition pour un entretien et vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.
 
-${STUDENT_NAME}`;
+${studentName}`;
 }
 
 function formatCvForExport(cv: CvData): string {
@@ -72,6 +71,7 @@ function formatCvForExport(cv: CvData): string {
 export function CandidatureScreen({
   offer,
   profileCv,
+  studentName,
   onPushProfileCv,
   onBack,
   initialStatus,
@@ -79,6 +79,7 @@ export function CandidatureScreen({
 }: {
   offer: Offer;
   profileCv: CvData;
+  studentName: string;
   onPushProfileCv: (cv: CvData, label: string) => void;
   onBack: () => void;
   initialStatus: CandidatureStatus;
@@ -121,12 +122,14 @@ export function CandidatureScreen({
     }
   };
 
+  const cvFileName = `cv-${slugify(studentName)}`;
+
   const generateLetter = () => {
     setGenerating(true);
     setTimeout(() => {
       setGenerating(false);
       setLetterGenerated(true);
-      setLetterText(buildLetter(offer, cv, match));
+      setLetterText(buildLetter(offer, cv, match, studentName));
     }, 1100);
   };
 
@@ -288,8 +291,8 @@ export function CandidatureScreen({
                 </div>
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <Button size="sm" onClick={() => setSaveScopeOpen(true)}>Enregistrer les modifications</Button>
-                  <Button variant="outline" size="sm" onClick={() => exportTextAsPdf('cv-lea-bernard', 'CV', formatCvForExport(draftCv))}>Exporter en PDF</Button>
-                  <Button variant="outline" size="sm" onClick={() => exportTextAsWord('cv-lea-bernard', 'CV', formatCvForExport(draftCv))}>Exporter en Word</Button>
+                  <Button variant="outline" size="sm" onClick={() => exportTextAsPdf(cvFileName, 'CV', formatCvForExport(draftCv))}>Exporter en PDF</Button>
+                  <Button variant="outline" size="sm" onClick={() => exportTextAsWord(cvFileName, 'CV', formatCvForExport(draftCv))}>Exporter en Word</Button>
                 </div>
               </div>
             )}

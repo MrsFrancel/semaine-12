@@ -20,7 +20,7 @@ const EMPTY_CV: CvData = {
   interests: '', drivingLicense: false, availability: '', attentionNote: '',
 };
 
-export function OnboardingScreen({ onDone }: { onDone: (cv: CvData) => void }) {
+export function OnboardingScreen({ onDone }: { onDone: (cv: CvData, email: string) => void }) {
   const [step, setStep] = useState<Step>('inscription');
   const [email, setEmail] = useState('');
   const [consent, setConsent] = useState(false);
@@ -184,7 +184,7 @@ export function OnboardingScreen({ onDone }: { onDone: (cv: CvData) => void }) {
                 <p className="text-sm font-medium text-accent-foreground">Profil prêt</p>
                 <p className="text-xs text-muted-foreground mt-1">Ton catalogue est maintenant scoré et prêt à consulter.</p>
               </div>
-              <Button onClick={() => onDone(cv)}>Accéder à mon espace</Button>
+              <Button onClick={() => onDone(cv, email)}>Accéder à mon espace</Button>
             </div>
           )}
         </CardContent>

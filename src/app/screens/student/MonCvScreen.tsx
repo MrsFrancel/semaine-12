@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from '../../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { CvFieldsEditor } from '../../components/product/CvFieldsEditor';
 import { CvSummary } from '../../components/product/CvSummary';
-import type { CvData, CvHistoryEntry } from '../../lib/mock-data';
+import { slugify, type CvData, type CvHistoryEntry } from '../../lib/mock-data';
 import { exportTextAsPdf, exportTextAsWord } from '../../lib/export';
 import { buildSuggestions } from '../../lib/ai-suggestions';
 
@@ -35,11 +35,14 @@ export function MonCvScreen({
   cv,
   history,
   onUpdateCv,
+  studentName,
 }: {
   cv: CvData;
   history: CvHistoryEntry[];
   onUpdateCv: (cv: CvData, label: string) => void;
+  studentName: string;
 }) {
+  const cvFileName = `cv-${slugify(studentName)}`;
   const [consent, setConsent] = useState(true);
 
   const [draftCv, setDraftCv] = useState<CvData>(cv);
@@ -69,8 +72,8 @@ export function MonCvScreen({
         <CardContent className="flex flex-col gap-4">
           <CvSummary cv={cv} />
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <Button variant="outline" size="sm" onClick={() => exportTextAsPdf('cv-lea-bernard', 'CV', formatCvForExport(cv))}>Exporter en PDF</Button>
-            <Button variant="outline" size="sm" onClick={() => exportTextAsWord('cv-lea-bernard', 'CV', formatCvForExport(cv))}>Exporter en Word</Button>
+            <Button variant="outline" size="sm" onClick={() => exportTextAsPdf(cvFileName, 'CV', formatCvForExport(cv))}>Exporter en PDF</Button>
+            <Button variant="outline" size="sm" onClick={() => exportTextAsWord(cvFileName, 'CV', formatCvForExport(cv))}>Exporter en Word</Button>
           </div>
         </CardContent>
       </Card>

@@ -211,6 +211,20 @@ export function promoYear(student: Student): string {
   return match ? match[0] : '2026';
 }
 
+export function nameFromEmail(email: string): string {
+  const local = email.split('@')[0] ?? '';
+  const name = local
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+  return name || 'Étudiant(e)';
+}
+
+export function slugify(name: string): string {
+  return name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 export const CURRENT_STUDENT_ID = 1;
 
 export interface CvData {

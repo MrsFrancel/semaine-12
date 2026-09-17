@@ -25,9 +25,11 @@ let nextHistoryId = 2;
 export function StudentSpace({
   onExit,
   initialCv,
+  studentName,
 }: {
   onExit: () => void;
   initialCv: CvData | null;
+  studentName: string;
 }) {
   const [active, setActive] = useState('dashboard');
   const [offresTab, setOffresTab] = useState<'ecole' | 'externes'>('ecole');
@@ -68,11 +70,12 @@ export function StudentSpace({
   const openMessagerie = () => { setActive('suivi'); setSuiviTab('messagerie'); };
 
   return (
-    <Shell spaceLabel="Espace Étudiant" roleLabel="Léa Bernard" navItems={NAV} activeId={active} onSelect={select} onExit={onExit}>
+    <Shell spaceLabel="Espace Étudiant" roleLabel={studentName} navItems={NAV} activeId={active} onSelect={select} onExit={onExit}>
       {openOffer ? (
         <CandidatureScreen
           offer={openOffer}
           profileCv={profileCv}
+          studentName={studentName}
           onPushProfileCv={updateProfileCv}
           onBack={() => setOpenOffer(null)}
           initialStatus={myCandidatures.find((c) => c.offerId === openOffer.id)?.status ?? 'a-preparer'}
@@ -90,7 +93,7 @@ export function StudentSpace({
       ) : active === 'offres' ? (
         <CatalogueScreen externalOffers={externalOffers} onAddExternalOffer={addExternalOffer} onOpenOffer={setOpenOffer} tab={offresTab} onTabChange={setOffresTab} />
       ) : active === 'cv' ? (
-        <MonCvScreen cv={profileCv} history={cvHistory} onUpdateCv={updateProfileCv} />
+        <MonCvScreen cv={profileCv} history={cvHistory} onUpdateCv={updateProfileCv} studentName={studentName} />
       ) : (
         <MonSuiviScreen conversations={conversations} onConversationsChange={setConversations} tab={suiviTab} onTabChange={setSuiviTab} />
       )}
