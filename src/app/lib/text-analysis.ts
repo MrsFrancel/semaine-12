@@ -20,6 +20,13 @@ function extractSkills(text: string, vocabulary: string[]): string[] {
   });
 }
 
+function truncateAtWord(text: string, maxLen: number): string {
+  if (text.length <= maxLen) return text;
+  const cut = text.slice(0, maxLen);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trim()}…`;
+}
+
 function extractTitle(text: string): string {
   const roleMatch = text.match(
     /(?:Alternance|Stage|alternant\(?e?\)?|stagiaire)\s+([A-ZÀ-Ü][^,.:\n]{3,60}?)(?=\s+(?:pour|à|chez|basé\(?e?\)?|disponible|de notre|,|\.|$))/i
@@ -29,10 +36,7 @@ function extractTitle(text: string): string {
     return `${isStage ? 'Stage' : 'Alternance'} ${roleMatch[1].trim()}`;
   }
   const firstSentence = text.split(/\n|(?<=[.!?])\s+/).map((s) => s.trim()).find(Boolean) ?? '';
-  if (firstSentence.length <= 70) return firstSentence;
-  const truncated = firstSentence.slice(0, 70);
-  const lastSpace = truncated.lastIndexOf(' ');
-  return `${(lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated).trim()}…`;
+  return truncateAtWord(firstSentence, 70);
 }
 
 function extractLocation(text: string): string {
@@ -82,14 +86,65 @@ export interface CvAnalysis {
   languages: string;
 }
 
+// Les CV réels varient trop dans leur formulation pour qu'une seule regex
+// fonctionne partout (ex. "Stage 6 mois, ..." vs "2024-2025 : Community
+// manager..."). On repère d'abord les en-têtes de section (Formation,
+// Expérience, Compétences, Langues) pour cadrer l'extraction ; seulement si
+// aucun en-tête n'est trouvé, on retombe sur une recherche libre dans tout
+// le texte.
+const SECTION_PATTERNS: Record<string, RegExp> = {
+  formation: /^(formation|éducation|education|diplômes?|parcours académique|scolarité)\b\s*:?\s*/i,
+  experience: /^(expériences?(\s+professionnelles?)?|parcours professionnel|stages? et alternances?)\b\s*:?\s*/i,
+  langues: /^(langues?|languages?)\b\s*:?\s*/i,
+};
+const NEXT_SECTION_HINT = /(compétences|formation|langues|savoir-être)/i;
+
+function splitIntoSections(text: string): Record<string, string[]> {
+  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+  const sections: Record<string, string[]> = {};
+  let current: string | null = null;
+  for (const line of lines) {
+    const found = Object.entries(SECTION_PATTERNS).find(([, re]) => re.test(line));
+    if (found) {
+      const [key, re] = found;
+      current = key;
+      const rest = line.replace(re, '').trim();
+      sections[key] = sections[key] ?? [];
+      if (rest) sections[key].push(rest);
+      continue;
+    }
+    if (current) (sections[current] ??= []).push(line);
+  }
+  return sections;
+}
+
+function cutBeforeNextSection(text: string): string {
+  const m = text.match(NEXT_SECTION_HINT);
+  return m ? text.slice(0, m.index).trim() : text;
+}
+
 export function analyzeCvText(text: string, vocabulary: string[]): CvAnalysis {
   const clean = text.trim();
-  const formation = clean.match(/(Bachelor|Master|BTS|Licence|BUT|DUT|Mastère)[^\n.]{0,60}/i)?.[0].trim() ?? '';
-  const experience = clean.match(/(Stage|Alternance)[^\n]{0,160}/i)?.[0].trim() ?? '';
+  const sections = splitIntoSections(clean);
+
+  let formation = sections.formation?.[0]?.trim() ?? '';
+  if (!formation) {
+    formation = clean.match(/(Bachelor|Master|BTS|Licence|BUT|DUT|Mastère)\s*[^\n,.;:)]{0,60}/i)?.[0].trim() ?? '';
+  }
+
+  let experience = sections.experience?.join(' ').trim() ?? '';
+  if (!experience) {
+    const m = clean.match(/(Stage|Alternance)[^\n]{0,300}/i)?.[0];
+    experience = m ? cutBeforeNextSection(m).trim() : '';
+  }
+  experience = truncateAtWord(experience, 320);
+
   const languages: string[] = [];
-  if (/anglais/i.test(clean)) languages.push('Anglais');
-  if (/espagnol/i.test(clean)) languages.push('Espagnol');
-  if (/allemand/i.test(clean)) languages.push('Allemand');
+  const languageSource = sections.langues?.join(' ') ?? clean;
+  for (const lang of ['Anglais', 'Espagnol', 'Allemand', 'Italien', 'Chinois', 'Portugais']) {
+    if (new RegExp(`\\b${lang}\\b`, 'i').test(languageSource)) languages.push(lang);
+  }
+
   return {
     formation,
     experience,

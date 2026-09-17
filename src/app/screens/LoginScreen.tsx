@@ -33,7 +33,7 @@ export function LoginScreen({
 
         <div className="rounded-xl border border-border bg-secondary p-4 flex items-center justify-between gap-4">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">Test AB — Agrégateur</p>
+            <p className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">Test AB — Dépôt d'offres</p>
             <p className="text-xs text-muted-foreground mt-0.5">Choisis la version avant d'entrer dans l'espace École.</p>
           </div>
           <div className="flex gap-1.5 flex-none">

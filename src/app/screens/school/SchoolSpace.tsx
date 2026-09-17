@@ -10,10 +10,13 @@ import { ParametresScreen } from './admin/ParametresScreen';
 import { CoachDashboardScreen } from './coach/CoachDashboardScreen';
 import { MesEtudiantsScreen } from './coach/MesEtudiantsScreen';
 import { CalendrierMessagerieScreen } from './coach/CalendrierMessagerieScreen';
+import { OFFERS as INITIAL_OFFERS, type Offer } from '../../lib/mock-data';
+
+let nextOfferId = 1000;
 
 const ADMIN_NAV: NavItem[] = [
   { id: 'dashboard', label: 'Tableau de bord' },
-  { id: 'offres', label: 'Agrégateur', sub: 'Offres & catalogue' },
+  { id: 'offres', label: "Dépôt d'offres", sub: 'Offres & catalogue' },
   { id: 'cvbook', label: 'CV Book' },
   { id: 'coachs', label: 'Coachs' },
   { id: 'etudiants', label: 'Étudiants' },
@@ -30,7 +33,13 @@ export function SchoolSpace({ role, onExit, abVersion }: { role: 'admin' | 'coac
   const [active, setActive] = useState('dashboard');
   const [coachMessageTarget, setCoachMessageTarget] = useState<number | null>(null);
   const [coachCalendarTab, setCoachCalendarTab] = useState<'calendrier' | 'messagerie'>('calendrier');
+  const [offers, setOffers] = useState<Offer[]>(INITIAL_OFFERS);
   const nav = role === 'admin' ? ADMIN_NAV : COACH_NAV;
+
+  const publishOffer = (draft: Omit<Offer, 'id'>) => {
+    setOffers((o) => [{ ...draft, id: nextOfferId++ }, ...o]);
+  };
+  const removeOffer = (id: number) => setOffers((o) => o.filter((x) => x.id !== id));
 
   const openMessagerie = (studentId: number) => {
     setCoachMessageTarget(studentId);
@@ -42,14 +51,16 @@ export function SchoolSpace({ role, onExit, abVersion }: { role: 'admin' | 'coac
     setActive('calendrier');
   };
 
+  const offresProps = { offers, onPublish: publishOffer, onRemoveOffer: removeOffer };
+
   const renderAdmin = () => {
     switch (active) {
-      case 'offres': return abVersion === 'B' ? <OffresScreenWizard /> : <OffresScreen />;
+      case 'offres': return abVersion === 'B' ? <OffresScreenWizard {...offresProps} /> : <OffresScreen {...offresProps} />;
       case 'cvbook': return <CvBookScreen />;
       case 'coachs': return <CoachsScreen />;
       case 'etudiants': return <EtudiantsScreen />;
       case 'parametres': return <ParametresScreen />;
-      default: return <AdminDashboardScreen />;
+      default: return <AdminDashboardScreen {...offresProps} />;
     }
   };
 

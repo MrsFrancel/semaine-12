@@ -1,7 +1,16 @@
+import { useRef, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
+import { Textarea } from '../../../components/ui/textarea';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../components/ui/tabs';
 import { InactivityAlert } from '../../../components/product/AlertCard';
-import { STUDENTS, COACHES, OFFERS } from '../../../lib/mock-data';
+import { STUDENTS, COACHES, type Offer } from '../../../lib/mock-data';
+import { findAbTestOffer } from '../../../lib/ab-test-offers';
+import { useSkillVocabulary } from '../../../lib/skill-vocabulary';
+import { analyzeOfferText } from '../../../lib/text-analysis';
+import { extractPdfText } from '../../../lib/pdf-extract';
 
 const totalCandidatures = STUDENTS.reduce((s, x) => s + x.candidatures, 0);
 const totalEntretiens = STUDENTS.reduce((s, x) => s + x.entretiens, 0);
@@ -19,16 +28,91 @@ const chartData = COACHES.map((c) => {
 const mostInactive = [...STUDENTS].filter((s) => s.inactiveDays > 0).sort((a, b) => b.inactiveDays - a.inactiveDays).slice(0, 5);
 const topByEntretiens = [...STUDENTS].sort((a, b) => b.entretiens - a.entretiens)[0];
 
-const ACTIVITY = [
-  { text: `Nouvelle offre publiée : ${OFFERS[0].title} chez ${OFFERS[0].company}`, when: 'il y a 2h' },
-  { text: `${topByEntretiens.name} a obtenu un entretien`, when: 'il y a 6h' },
-  { text: `${mostInactive[0]?.name ?? 'Un étudiant'} signalé pour inactivité (${mostInactive[0]?.inactiveDays ?? 0}j sans candidature)`, when: 'hier' },
-  { text: `Nouvelle offre publiée : ${OFFERS[1].title} chez ${OFFERS[1].company}`, when: 'il y a 2 jours' },
-  { text: `Bilan mensuel généré pour ${COACHES.length} coachs`, when: 'il y a 3 jours' },
-];
+type DepositStep = 'reception' | 'traitement' | 'verification' | 'publiee';
 
-export function AdminDashboardScreen() {
+export function AdminDashboardScreen({
+  offers,
+  onPublish,
+}: {
+  offers: Offer[];
+  onPublish: (draft: Omit<Offer, 'id'>) => void;
+}) {
   const avgInactive = (STUDENTS.reduce((s, x) => s + x.inactiveDays, 0) / STUDENTS.length).toFixed(1);
+
+  const ACTIVITY = [
+    ...(offers[0] ? [{ text: `Nouvelle offre publiée : ${offers[0].title} chez ${offers[0].company}`, when: 'il y a 2h' }] : []),
+    { text: `${topByEntretiens.name} a obtenu un entretien`, when: 'il y a 6h' },
+    { text: `${mostInactive[0]?.name ?? 'Un étudiant'} signalé pour inactivité (${mostInactive[0]?.inactiveDays ?? 0}j sans candidature)`, when: 'hier' },
+    ...(offers[1] ? [{ text: `Nouvelle offre publiée : ${offers[1].title} chez ${offers[1].company}`, when: 'il y a 2 jours' }] : []),
+    { text: `Bilan mensuel généré pour ${COACHES.length} coachs`, when: 'il y a 3 jours' },
+  ];
+
+  const [depositStep, setDepositStep] = useState<DepositStep>('reception');
+  const [text, setText] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const { vocabulary } = useSkillVocabulary();
+
+  const [title, setTitle] = useState('');
+  const [company, setCompany] = useState('');
+  const [location, setLocation] = useState('');
+  const [contractType, setContractType] = useState('');
+  const [description, setDescription] = useState('');
+  const [skills, setSkills] = useState('');
+  const [profile, setProfile] = useState('');
+
+  const canImport = text.trim().length > 0 || fileName.length > 0;
+
+  const startImport = async () => {
+    setDepositStep('traitement');
+    const match = findAbTestOffer({ text: text || undefined, fileName: fileName || undefined });
+    if (match) {
+      setTitle(match.title);
+      setCompany(match.company);
+      setLocation(match.location);
+      setContractType(match.contractType);
+      setDescription(match.description);
+      setSkills(match.skills);
+      setProfile(match.profile);
+    } else {
+      const content = file ? await extractPdfText(file) : text;
+      const analysis = analyzeOfferText(content, vocabulary);
+      setTitle(analysis.title);
+      setCompany('Entreprise partenaire');
+      setLocation(analysis.location);
+      setContractType(analysis.contractType);
+      setDescription(analysis.description);
+      setSkills(analysis.skills.join(', '));
+      setProfile(analysis.profile);
+    }
+    setDepositStep('verification');
+  };
+
+  const publishDraft = () => {
+    onPublish({
+      title,
+      company,
+      location,
+      type: contractType,
+      score: 70,
+      criteria: [
+        { name: 'Compétences techniques', level: 'mid', fill: 60, note: `Basé sur : ${skills || 'compétences non précisées'}.` },
+        { name: 'Expérience', level: 'mid', fill: 55, note: 'Pas encore évalué pour un profil précis.' },
+        { name: 'Mots-clés du secteur', level: 'mid', fill: 50, note: profile || 'Profil recherché non précisé.' },
+      ],
+      expectedSkills: skills.split(',').map((s) => s.trim()).filter(Boolean),
+      description,
+      missions: [],
+      exclusive: true,
+    });
+    setDepositStep('publiee');
+  };
+
+  const resetDeposit = () => {
+    setDepositStep('reception'); setText(''); setFileName(''); setFile(null);
+    setTitle(''); setCompany(''); setLocation(''); setContractType(''); setDescription(''); setSkills(''); setProfile('');
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -40,9 +124,91 @@ export function AdminDashboardScreen() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{STUDENTS.length}</p><p className="text-xs text-muted-foreground mt-1">Étudiants actifs</p></CardContent></Card>
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{COACHES.length}</p><p className="text-xs text-muted-foreground mt-1">Coachs</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{OFFERS.length}</p><p className="text-xs text-muted-foreground mt-1">Offres exclusives publiées</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{offers.length}</p><p className="text-xs text-muted-foreground mt-1">Offres exclusives publiées</p></CardContent></Card>
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{avgInactive}j</p><p className="text-xs text-muted-foreground mt-1">Inactivité moyenne</p></CardContent></Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <h3 className="text-base">Dépôt rapide d'une offre</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Colle un texte ou dépose un PDF, sans changer d'écran.</p>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          {depositStep === 'reception' && (
+            <>
+              <Tabs defaultValue="texte">
+                <TabsList>
+                  <TabsTrigger value="texte">Lien ou texte</TabsTrigger>
+                  <TabsTrigger value="pdf">Fichier PDF</TabsTrigger>
+                </TabsList>
+                <TabsContent value="texte" className="mt-3">
+                  <Textarea
+                    placeholder="Colle le lien de l'offre ou le texte du mail reçu de l'entreprise partenaire"
+                    value={text}
+                    onChange={(e) => { setText(e.target.value); setFileName(''); setFile(null); }}
+                  />
+                </TabsContent>
+                <TabsContent value="pdf" className="mt-3">
+                  <div className="flex items-center gap-3">
+                    <input
+                      ref={fileInput}
+                      type="file"
+                      accept="application/pdf"
+                      className="hidden"
+                      id="dashboard-offer-pdf"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) { setFileName(f.name); setFile(f); setText(''); } }}
+                    />
+                    <Button type="button" variant="outline" onClick={() => fileInput.current?.click()}>Choisir un PDF</Button>
+                    <span className="text-sm text-muted-foreground truncate">{fileName || 'Aucun fichier sélectionné'}</span>
+                  </div>
+                </TabsContent>
+              </Tabs>
+              <Button onClick={startImport} disabled={!canImport} className="w-fit">Importer l'offre</Button>
+            </>
+          )}
+
+          {depositStep === 'traitement' && <p className="text-sm text-muted-foreground py-4">Extraction en cours…</p>}
+
+          {depositStep === 'verification' && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <label className="text-xs text-muted-foreground">Titre du poste</label>
+                  <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs text-muted-foreground">Entreprise</label>
+                  <Input value={company} onChange={(e) => setCompany(e.target.value)} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs text-muted-foreground">Lieu</label>
+                  <Input value={location} onChange={(e) => setLocation(e.target.value)} />
+                </div>
+                <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <label className="text-xs text-muted-foreground">Type de contrat</label>
+                  <Input value={contractType} onChange={(e) => setContractType(e.target.value)} placeholder="Ex. Alternance · 12 mois" />
+                </div>
+                <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <label className="text-xs text-muted-foreground">Compétences attendues</label>
+                  <Input value={skills} onChange={(e) => setSkills(e.target.value)} />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">Vérifie et corrige avant de publier. Pour ajouter missions et description détaillée, utilise "Dépôt d'offres" dans la navigation.</p>
+              <Button onClick={publishDraft} disabled={!title || !company} className="w-fit">Publier au catalogue</Button>
+            </>
+          )}
+
+          {depositStep === 'publiee' && (
+            <div className="flex flex-col gap-3">
+              <div className="rounded-lg border border-border bg-accent p-4">
+                <p className="text-sm font-medium text-accent-foreground">Offre publiée au catalogue</p>
+                <p className="text-xs text-muted-foreground mt-1">Les étudiants concernés reçoivent un email.</p>
+              </div>
+              <Button variant="outline" size="sm" className="w-fit" onClick={resetDeposit}>Déposer une nouvelle offre</Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4 items-start">
         <Card>

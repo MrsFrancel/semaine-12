@@ -3,14 +3,12 @@ import { Card, CardContent, CardHeader } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
-import { StatusPill } from '../../components/product/StatusPill';
 import {
-  CANDIDATURES, OFFERS, EXTERNAL_OFFERS, STUDENTS, COACHES, EVENT_TYPES, WEEK_DAYS, WEEK_TIMES,
+  STUDENTS, COACHES, EVENT_TYPES, WEEK_DAYS, WEEK_TIMES,
   CURRENT_STUDENT_ID, type Conversation, type Rdv,
-  RDVS as INITIAL_RDVS, CONVERSATIONS as INITIAL_CONVERSATIONS,
+  RDVS as INITIAL_RDVS,
 } from '../../lib/mock-data';
 
-const ALL_OFFERS = [...OFFERS, ...EXTERNAL_OFFERS];
 const CURRENT_STUDENT = STUDENTS.find((s) => s.id === CURRENT_STUDENT_ID)!;
 const MY_COACH = COACHES.find((c) => c.id === CURRENT_STUDENT.coachId)!;
 
@@ -20,10 +18,13 @@ function initials(name: string): string {
 
 let nextRdvId = 1000;
 
-export function MonSuiviScreen() {
-  const myCandidatures = CANDIDATURES.filter((c) => c.studentId === CURRENT_STUDENT_ID);
-  const rows = myCandidatures.map((c) => ({ c, offer: ALL_OFFERS.find((o) => o.id === c.offerId)! })).filter((r) => r.offer);
-
+export function MonSuiviScreen({
+  conversations,
+  onConversationsChange,
+}: {
+  conversations: Conversation[];
+  onConversationsChange: (cs: Conversation[]) => void;
+}) {
   const [rdvs, setRdvs] = useState<Rdv[]>(INITIAL_RDVS);
   const myRdvs = rdvs.filter((r) => r.studentId === CURRENT_STUDENT_ID);
   const coachRdvs = rdvs.filter((r) => r.coachId === MY_COACH.id);
@@ -35,18 +36,17 @@ export function MonSuiviScreen() {
   };
   const cancelRdv = (id: number) => setRdvs((r) => r.filter((x) => x.id !== id));
 
-  const [conversations, setConversations] = useState<Conversation[]>(INITIAL_CONVERSATIONS);
   const myConversation = conversations.find((c) => c.studentId === CURRENT_STUDENT_ID);
   const [draft, setDraft] = useState('');
 
   const sendMessage = () => {
     if (!draft.trim()) return;
     const newMsg = { from: 'student' as const, text: draft.trim(), time: "À l'instant" };
-    setConversations((cs) => {
-      const exists = cs.some((c) => c.studentId === CURRENT_STUDENT_ID);
-      if (exists) return cs.map((c) => c.studentId === CURRENT_STUDENT_ID ? { ...c, messages: [...c.messages, newMsg] } : c);
-      return [...cs, { studentId: CURRENT_STUDENT_ID, messages: [newMsg] }];
-    });
+    const exists = conversations.some((c) => c.studentId === CURRENT_STUDENT_ID);
+    const next = exists
+      ? conversations.map((c) => c.studentId === CURRENT_STUDENT_ID ? { ...c, messages: [...c.messages, newMsg] } : c)
+      : [...conversations, { studentId: CURRENT_STUDENT_ID, messages: [newMsg] }];
+    onConversationsChange(next);
     setDraft('');
   };
 
@@ -54,29 +54,8 @@ export function MonSuiviScreen() {
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-2xl">Mon suivi</h2>
-        <p className="text-muted-foreground text-sm mt-1">Ton activité de recherche, sans jamais te noter.</p>
+        <p className="text-muted-foreground text-sm mt-1">Messagerie avec ton coach et prise de rendez-vous.</p>
       </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{myCandidatures.length}</p><p className="text-xs text-muted-foreground mt-1">Candidatures ce mois-ci</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{myCandidatures.filter(c => c.status === 'entretien' || c.status === 'reponse').length}</p><p className="text-xs text-muted-foreground mt-1">Entretiens obtenus</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{OFFERS.filter(o => o.score >= 75).length}</p><p className="text-xs text-muted-foreground mt-1">Bons matchs au catalogue</p></CardContent></Card>
-      </div>
-
-      <Card>
-        <CardHeader><h3 className="text-base">Mes candidatures</h3></CardHeader>
-        <CardContent className="flex flex-col gap-3">
-          {rows.map(({ c, offer }) => (
-            <div key={offer.id} className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0">
-              <div>
-                <p className="text-sm font-medium">{offer.title}</p>
-                <p className="text-xs text-muted-foreground">{offer.company} · mise à jour le {c.updatedAt}</p>
-              </div>
-              <StatusPill status={c.status} />
-            </div>
-          ))}
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader><h3 className="text-base">Messagerie &amp; rendez-vous</h3></CardHeader>

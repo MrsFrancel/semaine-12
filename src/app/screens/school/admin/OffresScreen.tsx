@@ -4,7 +4,7 @@ import { Input } from '../../../components/ui/input';
 import { Textarea } from '../../../components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../components/ui/tabs';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
-import { OFFERS as INITIAL_OFFERS, type Offer } from '../../../lib/mock-data';
+import { type Offer } from '../../../lib/mock-data';
 import { findAbTestOffer } from '../../../lib/ab-test-offers';
 import { useSkillVocabulary } from '../../../lib/skill-vocabulary';
 import { analyzeOfferText } from '../../../lib/text-analysis';
@@ -13,10 +13,15 @@ import { useOfferPreview, OfferPreviewDialog } from '../../../components/product
 
 type Step = 'reception' | 'traitement' | 'verification' | 'publiee';
 
-let nextId = 1000;
-
-export function OffresScreen() {
-  const [offers, setOffers] = useState<Offer[]>(INITIAL_OFFERS);
+export function OffresScreen({
+  offers,
+  onPublish,
+  onRemoveOffer,
+}: {
+  offers: Offer[];
+  onPublish: (draft: Omit<Offer, 'id'>) => void;
+  onRemoveOffer: (id: number) => void;
+}) {
   const [step, setStep] = useState<Step>('reception');
   const [text, setText] = useState('');
   const [fileName, setFileName] = useState('');
@@ -69,8 +74,7 @@ export function OffresScreen() {
   };
 
   const publish = () => {
-    const newOffer: Offer = {
-      id: nextId++,
+    onPublish({
       title,
       company,
       location,
@@ -85,12 +89,9 @@ export function OffresScreen() {
       description,
       missions: missions.split('\n').map((m) => m.trim()).filter(Boolean),
       exclusive: true,
-    };
-    setOffers((o) => [newOffer, ...o]);
+    });
     setStep('publiee');
   };
-
-  const removeOffer = (id: number) => setOffers((o) => o.filter((x) => x.id !== id));
 
   const reset = () => {
     setStep('reception'); setText(''); setFileName(''); setFile(null);
@@ -101,7 +102,7 @@ export function OffresScreen() {
   return (
     <div className="flex flex-col gap-6 max-w-2xl">
       <div>
-        <h2 className="text-2xl">Offres</h2>
+        <h2 className="text-2xl">Dépôt d'offres</h2>
         <p className="text-muted-foreground text-sm mt-1">L'IA pré-remplit la fiche à partir de ce que l'entreprise a envoyé. Un humain vérifie toujours avant publication.</p>
       </div>
 
@@ -208,7 +209,7 @@ export function OffresScreen() {
               <div className="flex items-center gap-3">
                 <span className="text-xs text-muted-foreground">{o.type}</span>
                 <Button variant="ghost" size="sm" onClick={() => offerPreview.setPreviewOffer(o)}>Voir</Button>
-                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => removeOffer(o.id)}>Retirer</Button>
+                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => onRemoveOffer(o.id)}>Retirer</Button>
               </div>
             </div>
           ))}

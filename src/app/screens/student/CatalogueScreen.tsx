@@ -10,7 +10,7 @@ import { extractPdfText } from '../../lib/pdf-extract';
 
 let nextExternalId = 200;
 
-function buildExternalOffer(analysis: OfferAnalysis): Offer {
+export function buildExternalOffer(analysis: OfferAnalysis): Offer {
   return {
     id: nextExternalId++,
     title: analysis.title || 'Offre externe',
