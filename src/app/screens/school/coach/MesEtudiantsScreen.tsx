@@ -3,26 +3,30 @@ import { Card, CardContent, CardHeader } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { StatusPill } from '../../../components/product/StatusPill';
 import { useCvPreview, CvPreviewDialogs } from '../../../components/product/CvPreview';
-import { STUDENTS, CURRENT_COACH_ID, CANDIDATURES, OFFERS, EXTERNAL_OFFERS, type Student } from '../../../lib/mock-data';
+import { STUDENTS, CURRENT_COACH_ID, CANDIDATURES, EXTERNAL_OFFERS, type Offer, type Student } from '../../../lib/mock-data';
 
 const mine = STUDENTS.filter((s) => s.coachId === CURRENT_COACH_ID);
-const ALL_OFFERS = [...OFFERS, ...EXTERNAL_OFFERS];
 
 export function MesEtudiantsScreen({
+  offers,
   onMessageStudent,
   onProposeRdv,
 }: {
+  offers: Offer[];
   onMessageStudent: (studentId: number) => void;
   onProposeRdv: () => void;
 }) {
   const [open, setOpen] = useState<Student | null>(null);
   const cvPreview = useCvPreview();
+  const allOffers = [...offers, ...EXTERNAL_OFFERS];
 
   if (open) {
     const candidatures = CANDIDATURES
       .filter((c) => c.studentId === open.id)
-      .map((c) => ({ c, offer: ALL_OFFERS.find((o) => o.id === c.offerId)! }))
+      .map((c) => ({ c, offer: allOffers.find((o) => o.id === c.offerId)! }))
       .filter((r) => r.offer);
+    const entretiensCount = candidatures.filter(({ c }) => c.status === 'entretien' || c.status === 'reponse').length;
+    const bonsMatchs = allOffers.filter((o) => o.score >= 75).length;
 
     return (
       <div className="flex flex-col gap-6 max-w-2xl">
@@ -31,9 +35,10 @@ export function MesEtudiantsScreen({
           <h2 className="text-2xl">{open.name}</h2>
           <p className="text-muted-foreground text-sm mt-1">{open.promo}</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card><CardContent className="pt-6"><p className="font-mono text-2xl font-semibold">{open.candidatures}</p><p className="text-xs text-muted-foreground mt-1">Candidatures</p></CardContent></Card>
-          <Card><CardContent className="pt-6"><p className="font-mono text-2xl font-semibold">{open.entretiens}</p><p className="text-xs text-muted-foreground mt-1">Entretiens</p></CardContent></Card>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <Card><CardContent className="pt-6"><p className="font-mono text-2xl font-semibold">{candidatures.length}</p><p className="text-xs text-muted-foreground mt-1">Candidatures</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="font-mono text-2xl font-semibold">{entretiensCount}</p><p className="text-xs text-muted-foreground mt-1">Entretiens</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="font-mono text-2xl font-semibold">{bonsMatchs}</p><p className="text-xs text-muted-foreground mt-1">Bons matchs au catalogue</p></CardContent></Card>
           <Card><CardContent className="pt-6"><p className="font-mono text-2xl font-semibold">{open.lastActivity}</p><p className="text-xs text-muted-foreground mt-1">Dernière activité</p></CardContent></Card>
         </div>
         <Card>
@@ -71,22 +76,28 @@ export function MesEtudiantsScreen({
       <Card>
         <CardHeader><h3 className="text-base">Tes étudiants ({mine.length})</h3></CardHeader>
         <CardContent className="flex flex-col gap-1 overflow-x-auto">
-          <div className="min-w-[420px] flex flex-col gap-1">
-            <div className="grid grid-cols-[1fr_90px_70px] gap-3 px-1 pb-2 border-b border-border font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
+          <div className="min-w-[520px] flex flex-col gap-1">
+            <div className="grid grid-cols-[1fr_90px_90px_70px] gap-3 px-1 pb-2 border-b border-border font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
               <span>Étudiant</span>
               <span className="text-right">Activité</span>
+              <span className="text-right">Fiche</span>
               <span className="text-right">CV</span>
             </div>
-            {mine.map((s) => (
-              <div key={s.id} className="grid grid-cols-[1fr_90px_70px] gap-3 items-center border-b border-border last:border-0 py-3">
-                <button onClick={() => setOpen(s)} className="text-left hover:opacity-80 min-w-0">
-                  <p className="text-sm font-medium truncate">{s.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{s.candidatures} candidatures · {s.entretiens} entretiens</p>
-                </button>
-                <span className="text-xs text-muted-foreground text-right">{s.inactiveDays === 0 ? 'Actif' : `${s.inactiveDays}j inactif`}</span>
-                <Button variant="ghost" size="sm" className="justify-self-end" onClick={() => cvPreview.setPreviewStudent(s)}>Voir</Button>
-              </div>
-            ))}
+            {mine.map((s) => {
+              const studentCandidatures = CANDIDATURES.filter((c) => c.studentId === s.id);
+              const studentEntretiens = studentCandidatures.filter((c) => c.status === 'entretien' || c.status === 'reponse').length;
+              return (
+                <div key={s.id} className="grid grid-cols-[1fr_90px_90px_70px] gap-3 items-center border-b border-border last:border-0 py-3">
+                  <button onClick={() => setOpen(s)} className="text-left hover:opacity-80 min-w-0">
+                    <p className="text-sm font-medium truncate">{s.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{studentCandidatures.length} candidatures · {studentEntretiens} entretiens</p>
+                  </button>
+                  <span className="text-xs text-muted-foreground text-right">{s.inactiveDays === 0 ? 'Actif' : `${s.inactiveDays}j inactif`}</span>
+                  <Button variant="ghost" size="sm" className="justify-self-end" onClick={() => setOpen(s)}>Fiche</Button>
+                  <Button variant="ghost" size="sm" className="justify-self-end" onClick={() => cvPreview.setPreviewStudent(s)}>Voir</Button>
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>

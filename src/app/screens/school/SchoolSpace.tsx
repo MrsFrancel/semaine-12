@@ -72,7 +72,7 @@ export function SchoolSpace({
 
   const renderCoach = () => {
     switch (active) {
-      case 'etudiants': return <MesEtudiantsScreen onMessageStudent={openMessagerie} onProposeRdv={openCalendrier} />;
+      case 'etudiants': return <MesEtudiantsScreen offers={offers} onMessageStudent={openMessagerie} onProposeRdv={openCalendrier} />;
       case 'calendrier': return (
         <CalendrierMessagerieScreen
           initialTab={coachCalendarTab}
