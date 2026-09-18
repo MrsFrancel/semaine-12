@@ -21,6 +21,15 @@ export function OfferPreviewDialog({
               <DialogTitle>{previewOffer.title}</DialogTitle>
             </DialogHeader>
             <p className="text-muted-foreground -mt-2">{previewOffer.company} · {previewOffer.location} · {previewOffer.type}</p>
+            {previewOffer.description && <p>{previewOffer.description}</p>}
+            {previewOffer.missions.length > 0 && (
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Missions</p>
+                <ul className="list-disc list-inside text-muted-foreground flex flex-col gap-1">
+                  {previewOffer.missions.map((m) => <li key={m}>{m}</li>)}
+                </ul>
+              </div>
+            )}
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Compétences attendues</p>
               <div className="flex flex-wrap gap-1.5">
@@ -29,26 +38,14 @@ export function OfferPreviewDialog({
                   : <p className="text-muted-foreground">Non précisées.</p>}
               </div>
             </div>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Offre complète</p>
-              <div className="max-h-80 overflow-y-auto pr-2 -mr-2 border border-border rounded-lg p-3">
-                {previewOffer.rawText?.trim() ? (
+            {previewOffer.rawText?.trim() && (
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Texte intégral reçu</p>
+                <div className="max-h-80 overflow-y-auto pr-2 -mr-2 border border-border rounded-lg p-3">
                   <FormattedText text={previewOffer.rawText} />
-                ) : (
-                  <div className="flex flex-col gap-4">
-                    {previewOffer.description && <p className="text-sm">{previewOffer.description}</p>}
-                    {previewOffer.missions.length > 0 && (
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Missions</p>
-                        <ul className="list-disc list-inside text-sm text-muted-foreground flex flex-col gap-1">
-                          {previewOffer.missions.map((m) => <li key={m}>{m}</li>)}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </DialogContent>
