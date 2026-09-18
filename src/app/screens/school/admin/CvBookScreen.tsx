@@ -3,7 +3,9 @@ import { Button } from '../../../components/ui/button';
 import { Textarea } from '../../../components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../components/ui/tabs';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../components/ui/dialog';
 import { useCvPreview, CvPreviewDialogs } from '../../../components/product/CvPreview';
+import { FormattedText } from '../../../components/product/FormattedText';
 import { STUDENTS, studentEmail, studentPhone, softSkillsFor, slugify, type Student } from '../../../lib/mock-data';
 import { useSkillVocabulary } from '../../../lib/skill-vocabulary';
 import { analyzeOfferText, type OfferAnalysis } from '../../../lib/text-analysis';
@@ -20,6 +22,9 @@ interface CvBookHistoryEntry {
   offerLocation: string;
   offerContractType: string;
   offerSkills: string[];
+  offerProfile: string;
+  offerDescription: string;
+  offerRawText: string;
   profiles: { studentId: number; score: number }[];
 }
 
@@ -54,7 +59,9 @@ export function CvBookScreen() {
   const fileInput = useRef<HTMLInputElement>(null);
   const [selected, setSelected] = useState<number[]>([]);
   const [analysis, setAnalysis] = useState<OfferAnalysis | null>(null);
+  const [rawText, setRawText] = useState('');
   const [history, setHistory] = useState<CvBookHistoryEntry[]>([]);
+  const [previewEntry, setPreviewEntry] = useState<CvBookHistoryEntry | null>(null);
   const cvPreview = useCvPreview();
   const { vocabulary } = useSkillVocabulary();
 
@@ -65,6 +72,7 @@ export function CvBookScreen() {
     const content = file ? await extractPdfText(file) : text;
     const result = analyzeOfferText(content, vocabulary);
     setAnalysis(result);
+    setRawText(content);
     setStep('apercu');
   };
 
@@ -76,7 +84,7 @@ export function CvBookScreen() {
   const toggle = (id: number) => setSelected((s) => s.includes(id) ? s.filter((x) => x !== id) : [...s, id]);
 
   const backToHome = () => {
-    setStep('reception'); setText(''); setFileName(''); setFile(null); setAnalysis(null); setSelected([]);
+    setStep('reception'); setText(''); setFileName(''); setFile(null); setAnalysis(null); setRawText(''); setSelected([]);
   };
 
   const downloadSelected = () => {
@@ -93,6 +101,9 @@ export function CvBookScreen() {
       offerLocation: analysis.location || 'Lieu non précisé',
       offerContractType: analysis.contractType || 'Contrat non précisé',
       offerSkills: analysis.skills,
+      offerProfile: analysis.profile,
+      offerDescription: analysis.description,
+      offerRawText: rawText,
       profiles: chosen.map(({ student, score }) => ({ studentId: student.id, score })),
     }, ...h]);
 
@@ -192,7 +203,10 @@ export function CvBookScreen() {
                       <p className="text-xs text-muted-foreground mt-1">Compétences recherchées : {entry.offerSkills.join(', ')}</p>
                     )}
                   </div>
-                  <span className="text-xs text-muted-foreground flex-none">{entry.date}</span>
+                  <div className="flex items-center gap-3 flex-none">
+                    <span className="text-xs text-muted-foreground">{entry.date}</span>
+                    <Button variant="ghost" size="sm" onClick={() => setPreviewEntry(entry)}>Voir l'offre</Button>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2 pt-2 border-t border-border">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground font-mono">
@@ -223,6 +237,34 @@ export function CvBookScreen() {
       )}
 
       <CvPreviewDialogs {...cvPreview} />
+
+      <Dialog open={!!previewEntry} onOpenChange={(open) => !open && setPreviewEntry(null)}>
+        <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
+          {previewEntry && (
+            <div className="flex flex-col gap-4 text-sm">
+              <DialogHeader className="text-left sm:text-left">
+                <DialogTitle>{previewEntry.offerTitle}</DialogTitle>
+              </DialogHeader>
+              <p className="text-muted-foreground -mt-2">{previewEntry.offerLocation} · {previewEntry.offerContractType}</p>
+              {previewEntry.offerProfile && <p>{previewEntry.offerProfile}</p>}
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Compétences recherchées</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {previewEntry.offerSkills.length
+                    ? previewEntry.offerSkills.map((s) => <span key={s} className="font-mono text-[11px] bg-secondary px-2 py-0.5 rounded">{s}</span>)
+                    : <p className="text-muted-foreground">Non précisées.</p>}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Offre complète</p>
+                {previewEntry.offerRawText
+                  ? <FormattedText text={previewEntry.offerRawText} />
+                  : <p className="text-muted-foreground">{previewEntry.offerDescription || 'Aucun texte disponible.'}</p>}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
