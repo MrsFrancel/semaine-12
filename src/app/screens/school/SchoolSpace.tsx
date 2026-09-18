@@ -10,9 +10,7 @@ import { ParametresScreen } from './admin/ParametresScreen';
 import { CoachDashboardScreen } from './coach/CoachDashboardScreen';
 import { MesEtudiantsScreen } from './coach/MesEtudiantsScreen';
 import { CalendrierMessagerieScreen } from './coach/CalendrierMessagerieScreen';
-import { OFFERS as INITIAL_OFFERS, type Offer } from '../../lib/mock-data';
-
-let nextOfferId = 1000;
+import { type Offer } from '../../lib/mock-data';
 
 const ADMIN_NAV: NavItem[] = [
   { id: 'dashboard', label: 'Tableau de bord' },
@@ -29,17 +27,25 @@ const COACH_NAV: NavItem[] = [
   { id: 'calendrier', label: 'Calendrier & messagerie' },
 ];
 
-export function SchoolSpace({ role, onExit, abVersion }: { role: 'admin' | 'coach'; onExit: () => void; abVersion: 'A' | 'B' }) {
+export function SchoolSpace({
+  role,
+  onExit,
+  abVersion,
+  offers,
+  onPublish,
+  onRemoveOffer,
+}: {
+  role: 'admin' | 'coach';
+  onExit: () => void;
+  abVersion: 'A' | 'B';
+  offers: Offer[];
+  onPublish: (draft: Omit<Offer, 'id'>) => void;
+  onRemoveOffer: (id: number) => void;
+}) {
   const [active, setActive] = useState('dashboard');
   const [coachMessageTarget, setCoachMessageTarget] = useState<number | null>(null);
   const [coachCalendarTab, setCoachCalendarTab] = useState<'calendrier' | 'messagerie'>('calendrier');
-  const [offers, setOffers] = useState<Offer[]>(INITIAL_OFFERS);
   const nav = role === 'admin' ? ADMIN_NAV : COACH_NAV;
-
-  const publishOffer = (draft: Omit<Offer, 'id'>) => {
-    setOffers((o) => [{ ...draft, id: nextOfferId++ }, ...o]);
-  };
-  const removeOffer = (id: number) => setOffers((o) => o.filter((x) => x.id !== id));
 
   const openMessagerie = (studentId: number) => {
     setCoachMessageTarget(studentId);
@@ -51,7 +57,7 @@ export function SchoolSpace({ role, onExit, abVersion }: { role: 'admin' | 'coac
     setActive('calendrier');
   };
 
-  const offresProps = { offers, onPublish: publishOffer, onRemoveOffer: removeOffer };
+  const offresProps = { offers, onPublish, onRemoveOffer };
 
   const renderAdmin = () => {
     switch (active) {

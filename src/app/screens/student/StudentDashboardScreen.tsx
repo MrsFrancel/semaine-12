@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/ta
 import { Textarea } from '../../components/ui/textarea';
 import { StatusPill } from '../../components/product/StatusPill';
 import {
-  OFFERS, EXTERNAL_OFFERS, STUDENTS, COACHES,
+  EXTERNAL_OFFERS, STUDENTS, COACHES,
   CURRENT_STUDENT_ID, type Offer, type Conversation, type Candidature,
 } from '../../lib/mock-data';
 import { useSkillVocabulary } from '../../lib/skill-vocabulary';
@@ -27,6 +27,9 @@ export function StudentDashboardScreen({
   myCandidatures,
   externalOffers,
   onOpenOffer,
+  offers,
+  newOffers,
+  onOpenOffresEcole,
 }: {
   onAddExternalOffer: (offer: Offer) => void;
   conversations: Conversation[];
@@ -34,8 +37,11 @@ export function StudentDashboardScreen({
   myCandidatures: Candidature[];
   externalOffers: Offer[];
   onOpenOffer: (offer: Offer) => void;
+  offers: Offer[];
+  newOffers: Offer[];
+  onOpenOffresEcole: () => void;
 }) {
-  const allOffers = [...OFFERS, ...EXTERNAL_OFFERS, ...externalOffers];
+  const allOffers = [...offers, ...EXTERNAL_OFFERS, ...externalOffers];
   const rows = myCandidatures.map((c) => ({ c, offer: allOffers.find((o) => o.id === c.offerId)! })).filter((r) => r.offer);
 
   const myConversation = conversations.find((c) => c.studentId === CURRENT_STUDENT_ID);
@@ -73,8 +79,31 @@ export function StudentDashboardScreen({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{myCandidatures.length}</p><p className="text-xs text-muted-foreground mt-1">Candidatures ce mois-ci</p></CardContent></Card>
         <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{myCandidatures.filter(c => c.status === 'entretien' || c.status === 'reponse').length}</p><p className="text-xs text-muted-foreground mt-1">Entretiens obtenus</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{OFFERS.filter(o => o.score >= 75).length}</p><p className="text-xs text-muted-foreground mt-1">Bons matchs au catalogue</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="font-mono text-3xl font-semibold">{offers.filter(o => o.score >= 75).length}</p><p className="text-xs text-muted-foreground mt-1">Bons matchs au catalogue</p></CardContent></Card>
       </div>
+
+      {newOffers.length > 0 && (
+        <Card>
+          <CardHeader className="flex-row items-center justify-between">
+            <h3 className="text-base">Notifications</h3>
+            <span className="font-mono text-[11px] bg-primary text-primary-foreground px-2 py-0.5 rounded-full">{newOffers.length}</span>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            {newOffers.map((o) => (
+              <button
+                key={o.id}
+                onClick={onOpenOffresEcole}
+                className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0 text-left hover:opacity-80"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">Nouvelle offre : {o.title}</p>
+                  <p className="text-xs text-muted-foreground truncate">{o.company} · {o.location}</p>
+                </div>
+              </button>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

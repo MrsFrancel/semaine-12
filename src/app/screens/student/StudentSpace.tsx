@@ -26,10 +26,16 @@ export function StudentSpace({
   onExit,
   initialCv,
   studentName,
+  offers,
+  seenOfferIds,
+  onMarkOffersSeen,
 }: {
   onExit: () => void;
   initialCv: CvData | null;
   studentName: string;
+  offers: Offer[];
+  seenOfferIds: Set<number>;
+  onMarkOffersSeen: () => void;
 }) {
   const [active, setActive] = useState('dashboard');
   const [offresTab, setOffresTab] = useState<'ecole' | 'externes'>('ecole');
@@ -45,7 +51,11 @@ export function StudentSpace({
     CANDIDATURES.filter((c) => c.studentId === CURRENT_STUDENT_ID)
   );
 
-  const select = (id: string) => { setOpenOffer(null); setActive(id); };
+  const select = (id: string) => {
+    setOpenOffer(null);
+    setActive(id);
+    if (id === 'offres') onMarkOffersSeen();
+  };
 
   const updateProfileCv = (cv: CvData, label: string) => {
     setProfileCv(cv);
@@ -69,6 +79,13 @@ export function StudentSpace({
 
   const openMessagerie = () => { setActive('suivi'); setSuiviTab('messagerie'); };
 
+  const newOffers = offers.filter((o) => !seenOfferIds.has(o.id));
+  const openOffresEcole = () => {
+    setActive('offres');
+    setOffresTab('ecole');
+    onMarkOffersSeen();
+  };
+
   return (
     <Shell spaceLabel="Espace Étudiant" roleLabel={studentName} navItems={NAV} activeId={active} onSelect={select} onExit={onExit}>
       {openOffer ? (
@@ -89,9 +106,12 @@ export function StudentSpace({
           myCandidatures={myCandidatures}
           externalOffers={externalOffers}
           onOpenOffer={setOpenOffer}
+          offers={offers}
+          newOffers={newOffers}
+          onOpenOffresEcole={openOffresEcole}
         />
       ) : active === 'offres' ? (
-        <CatalogueScreen externalOffers={externalOffers} onAddExternalOffer={addExternalOffer} onOpenOffer={setOpenOffer} tab={offresTab} onTabChange={setOffresTab} />
+        <CatalogueScreen offers={offers} externalOffers={externalOffers} onAddExternalOffer={addExternalOffer} onOpenOffer={setOpenOffer} tab={offresTab} onTabChange={setOffresTab} />
       ) : active === 'cv' ? (
         <MonCvScreen cv={profileCv} history={cvHistory} onUpdateCv={updateProfileCv} studentName={studentName} />
       ) : (

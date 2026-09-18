@@ -3,7 +3,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/ta
 import { Textarea } from '../../components/ui/textarea';
 import { Button } from '../../components/ui/button';
 import { OfferCard } from '../../components/product/OfferCard';
-import { OFFERS, type Offer } from '../../lib/mock-data';
+import { type Offer } from '../../lib/mock-data';
 import { useSkillVocabulary } from '../../lib/skill-vocabulary';
 import { analyzeOfferText, type OfferAnalysis } from '../../lib/text-analysis';
 import { extractPdfText } from '../../lib/pdf-extract';
@@ -38,12 +38,14 @@ export function buildExternalOffer(analysis: OfferAnalysis, rawText?: string): O
 }
 
 export function CatalogueScreen({
+  offers,
   externalOffers,
   onAddExternalOffer,
   onOpenOffer,
   tab,
   onTabChange,
 }: {
+  offers: Offer[];
   externalOffers: Offer[];
   onAddExternalOffer: (offer: Offer) => void;
   onOpenOffer: (offer: Offer) => void;
@@ -81,13 +83,13 @@ export function CatalogueScreen({
 
       <Tabs value={tab} onValueChange={(v) => onTabChange(v as 'ecole' | 'externes')}>
         <TabsList>
-          <TabsTrigger value="ecole">Offres école ({OFFERS.length})</TabsTrigger>
+          <TabsTrigger value="ecole">Offres école ({offers.length})</TabsTrigger>
           <TabsTrigger value="externes">Offres externes ({externalOffers.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="ecole" className="mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {OFFERS.map((o) => <OfferCard key={o.id} offer={o} onOpen={() => onOpenOffer(o)} />)}
+            {offers.map((o) => <OfferCard key={o.id} offer={o} onOpen={() => onOpenOffer(o)} />)}
           </div>
         </TabsContent>
 
