@@ -7,6 +7,7 @@ import { OFFERS, type Offer } from '../../lib/mock-data';
 import { useSkillVocabulary } from '../../lib/skill-vocabulary';
 import { analyzeOfferText, type OfferAnalysis } from '../../lib/text-analysis';
 import { extractPdfText } from '../../lib/pdf-extract';
+import { findAbTestOffer } from '../../lib/ab-test-offers';
 
 let nextExternalId = 200;
 
@@ -61,8 +62,23 @@ export function CatalogueScreen({
     if (!canCheck) return;
     setChecking(true);
     try {
-      const content = file ? await extractPdfText(file) : text;
-      const analysis = analyzeOfferText(content, vocabulary);
+      const match = findAbTestOffer({ text: text || undefined, fileName: file?.name || undefined });
+      let content: string;
+      let analysis: OfferAnalysis;
+      if (match) {
+        content = match.rawText;
+        analysis = {
+          title: match.title,
+          location: match.location,
+          contractType: match.contractType,
+          skills: match.skills.split(',').map((s) => s.trim()).filter(Boolean),
+          profile: match.profile,
+          description: match.description,
+        };
+      } else {
+        content = file ? await extractPdfText(file) : text;
+        analysis = analyzeOfferText(content, vocabulary);
+      }
       setChecking(false);
       setText('');
       setFile(null);

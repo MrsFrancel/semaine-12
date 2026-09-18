@@ -10,6 +10,7 @@ import { STUDENTS, studentEmail, studentPhone, softSkillsFor, slugify, type Stud
 import { useSkillVocabulary } from '../../../lib/skill-vocabulary';
 import { analyzeOfferText, type OfferAnalysis } from '../../../lib/text-analysis';
 import { extractPdfText } from '../../../lib/pdf-extract';
+import { findAbTestOffer } from '../../../lib/ab-test-offers';
 import { skillsOverlapScore } from '../../../lib/scoring';
 import { exportTextAsPdf } from '../../../lib/export';
 
@@ -74,10 +75,23 @@ export function CvBookScreen({
 
   const startImport = async () => {
     setStep('traitement');
-    const content = file ? await extractPdfText(file) : text;
-    const result = analyzeOfferText(content, vocabulary);
-    setAnalysis(result);
-    setRawText(content);
+    const match = findAbTestOffer({ text: text || undefined, fileName: fileName || undefined });
+    if (match) {
+      setAnalysis({
+        title: match.title,
+        location: match.location,
+        contractType: match.contractType,
+        skills: match.skills.split(',').map((s) => s.trim()).filter(Boolean),
+        profile: match.profile,
+        description: match.description,
+      });
+      setRawText(match.rawText);
+    } else {
+      const content = file ? await extractPdfText(file) : text;
+      const result = analyzeOfferText(content, vocabulary);
+      setAnalysis(result);
+      setRawText(content);
+    }
     setStep('apercu');
   };
 
