@@ -48,8 +48,13 @@ function extractLocation(text: string): string {
 
 function extractContractType(text: string): string {
   const duration = text.match(/(\d+\s*(?:à\s*\d+\s*)?mois)/i)?.[1];
-  const kindMatch = text.match(/\b(alternance|stage|cdi|cdd)\b/i)?.[1];
-  const kind = kindMatch ? kindMatch[0].toUpperCase() + kindMatch.slice(1).toLowerCase() : '';
+  // "alternance/alternant(e)" passe avant "stage" : une offre d'alternance mentionne
+  // souvent une expérience de stage souhaitée chez le candidat, sans être un stage elle-même.
+  let kind = '';
+  if (/alternance|alternant\(?e?\)?/i.test(text)) kind = 'Alternance';
+  else if (/\b(stage|stagiaire)\b/i.test(text)) kind = 'Stage';
+  else if (/\bcdi\b/i.test(text)) kind = 'CDI';
+  else if (/\bcdd\b/i.test(text)) kind = 'CDD';
   if (kind && duration) return `${kind} · ${duration}`;
   return kind || duration || '';
 }
