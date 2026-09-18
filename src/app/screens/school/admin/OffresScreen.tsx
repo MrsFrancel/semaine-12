@@ -48,7 +48,7 @@ export function OffresScreen({
     setProcessingLabel('Import du document…');
     await new Promise((r) => setTimeout(r, 500));
     setProcessingLabel("Extraction par l'IA…");
-    const match = file ? undefined : findAbTestOffer({ text: text || undefined });
+    const match = findAbTestOffer({ text: text || undefined, fileName: fileName || undefined });
     if (match) {
       await new Promise((r) => setTimeout(r, 600));
       setTitle(match.title);

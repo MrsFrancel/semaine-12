@@ -3,7 +3,7 @@ import { Shell, type NavItem } from '../../components/product/Shell';
 import { AdminDashboardScreen } from './admin/AdminDashboardScreen';
 import { OffresScreen } from './admin/OffresScreen';
 import { OffresScreenWizard } from './admin/OffresScreenWizard';
-import { CvBookScreen, type CvBookHistoryEntry } from './admin/CvBookScreen';
+import { CvBookScreen } from './admin/CvBookScreen';
 import { CoachsScreen } from './admin/CoachsScreen';
 import { EtudiantsScreen } from './admin/EtudiantsScreen';
 import { ParametresScreen } from './admin/ParametresScreen';
@@ -34,14 +34,12 @@ export function SchoolSpace({ role, onExit, abVersion }: { role: 'admin' | 'coac
   const [coachMessageTarget, setCoachMessageTarget] = useState<number | null>(null);
   const [coachCalendarTab, setCoachCalendarTab] = useState<'calendrier' | 'messagerie'>('calendrier');
   const [offers, setOffers] = useState<Offer[]>(INITIAL_OFFERS);
-  const [cvBookHistory, setCvBookHistory] = useState<CvBookHistoryEntry[]>([]);
   const nav = role === 'admin' ? ADMIN_NAV : COACH_NAV;
 
   const publishOffer = (draft: Omit<Offer, 'id'>) => {
     setOffers((o) => [{ ...draft, id: nextOfferId++ }, ...o]);
   };
   const removeOffer = (id: number) => setOffers((o) => o.filter((x) => x.id !== id));
-  const addCvBookHistoryEntry = (entry: CvBookHistoryEntry) => setCvBookHistory((h) => [entry, ...h]);
 
   const openMessagerie = (studentId: number) => {
     setCoachMessageTarget(studentId);
@@ -58,7 +56,7 @@ export function SchoolSpace({ role, onExit, abVersion }: { role: 'admin' | 'coac
   const renderAdmin = () => {
     switch (active) {
       case 'offres': return abVersion === 'B' ? <OffresScreenWizard {...offresProps} /> : <OffresScreen {...offresProps} />;
-      case 'cvbook': return <CvBookScreen history={cvBookHistory} onAddHistoryEntry={addCvBookHistoryEntry} />;
+      case 'cvbook': return <CvBookScreen />;
       case 'coachs': return <CoachsScreen />;
       case 'etudiants': return <EtudiantsScreen />;
       case 'parametres': return <ParametresScreen />;

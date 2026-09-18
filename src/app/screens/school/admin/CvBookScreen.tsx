@@ -10,13 +10,12 @@ import { STUDENTS, studentEmail, studentPhone, softSkillsFor, slugify, type Stud
 import { useSkillVocabulary } from '../../../lib/skill-vocabulary';
 import { analyzeOfferText, type OfferAnalysis } from '../../../lib/text-analysis';
 import { extractPdfText } from '../../../lib/pdf-extract';
-import { findAbTestOffer } from '../../../lib/ab-test-offers';
 import { skillsOverlapScore } from '../../../lib/scoring';
 import { exportTextAsPdf } from '../../../lib/export';
 
 type Step = 'reception' | 'traitement' | 'apercu' | 'classement';
 
-export interface CvBookHistoryEntry {
+interface CvBookHistoryEntry {
   id: number;
   date: string;
   offerTitle: string;
@@ -52,13 +51,7 @@ function formatStudentCvForExport(student: Student, score: number): string {
 
 let nextHistoryId = 1;
 
-export function CvBookScreen({
-  history,
-  onAddHistoryEntry,
-}: {
-  history: CvBookHistoryEntry[];
-  onAddHistoryEntry: (entry: CvBookHistoryEntry) => void;
-}) {
+export function CvBookScreen() {
   const [step, setStep] = useState<Step>('reception');
   const [text, setText] = useState('');
   const [fileName, setFileName] = useState('');
@@ -67,6 +60,7 @@ export function CvBookScreen({
   const [selected, setSelected] = useState<number[]>([]);
   const [analysis, setAnalysis] = useState<OfferAnalysis | null>(null);
   const [rawText, setRawText] = useState('');
+  const [history, setHistory] = useState<CvBookHistoryEntry[]>([]);
   const [previewEntry, setPreviewEntry] = useState<CvBookHistoryEntry | null>(null);
   const cvPreview = useCvPreview();
   const { vocabulary } = useSkillVocabulary();
@@ -75,23 +69,10 @@ export function CvBookScreen({
 
   const startImport = async () => {
     setStep('traitement');
-    const match = file ? undefined : findAbTestOffer({ text: text || undefined });
-    if (match) {
-      setAnalysis({
-        title: match.title,
-        location: match.location,
-        contractType: match.contractType,
-        skills: match.skills.split(',').map((s) => s.trim()).filter(Boolean),
-        profile: match.profile,
-        description: match.description,
-      });
-      setRawText(match.rawText);
-    } else {
-      const content = file ? await extractPdfText(file) : text;
-      const result = analyzeOfferText(content, vocabulary);
-      setAnalysis(result);
-      setRawText(content);
-    }
+    const content = file ? await extractPdfText(file) : text;
+    const result = analyzeOfferText(content, vocabulary);
+    setAnalysis(result);
+    setRawText(content);
     setStep('apercu');
   };
 
@@ -113,7 +94,7 @@ export function CvBookScreen({
     const body = chosen.map(({ student, score }) => formatStudentCvForExport(student, score)).join('\n\n──────────\n\n');
     exportTextAsPdf(`cv-book-${slugify(offerTitle)}`, `CV Book — ${offerTitle}`, body);
 
-    onAddHistoryEntry({
+    setHistory((h) => [{
       id: nextHistoryId++,
       date: "à l'instant",
       offerTitle,
@@ -124,7 +105,7 @@ export function CvBookScreen({
       offerDescription: analysis.description,
       offerRawText: rawText,
       profiles: chosen.map(({ student, score }) => ({ studentId: student.id, score })),
-    });
+    }, ...h]);
 
     backToHome();
   };
