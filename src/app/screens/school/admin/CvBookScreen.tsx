@@ -15,7 +15,7 @@ import { exportTextAsPdf } from '../../../lib/export';
 
 type Step = 'reception' | 'traitement' | 'apercu' | 'classement';
 
-interface CvBookHistoryEntry {
+export interface CvBookHistoryEntry {
   id: number;
   date: string;
   offerTitle: string;
@@ -51,7 +51,13 @@ function formatStudentCvForExport(student: Student, score: number): string {
 
 let nextHistoryId = 1;
 
-export function CvBookScreen() {
+export function CvBookScreen({
+  history,
+  onAddHistoryEntry,
+}: {
+  history: CvBookHistoryEntry[];
+  onAddHistoryEntry: (entry: CvBookHistoryEntry) => void;
+}) {
   const [step, setStep] = useState<Step>('reception');
   const [text, setText] = useState('');
   const [fileName, setFileName] = useState('');
@@ -60,7 +66,6 @@ export function CvBookScreen() {
   const [selected, setSelected] = useState<number[]>([]);
   const [analysis, setAnalysis] = useState<OfferAnalysis | null>(null);
   const [rawText, setRawText] = useState('');
-  const [history, setHistory] = useState<CvBookHistoryEntry[]>([]);
   const [previewEntry, setPreviewEntry] = useState<CvBookHistoryEntry | null>(null);
   const cvPreview = useCvPreview();
   const { vocabulary } = useSkillVocabulary();
@@ -94,7 +99,7 @@ export function CvBookScreen() {
     const body = chosen.map(({ student, score }) => formatStudentCvForExport(student, score)).join('\n\n──────────\n\n');
     exportTextAsPdf(`cv-book-${slugify(offerTitle)}`, `CV Book — ${offerTitle}`, body);
 
-    setHistory((h) => [{
+    onAddHistoryEntry({
       id: nextHistoryId++,
       date: "à l'instant",
       offerTitle,
@@ -105,7 +110,7 @@ export function CvBookScreen() {
       offerDescription: analysis.description,
       offerRawText: rawText,
       profiles: chosen.map(({ student, score }) => ({ studentId: student.id, score })),
-    }, ...h]);
+    });
 
     backToHome();
   };
