@@ -29,7 +29,7 @@ function truncateAtWord(text: string, maxLen: number): string {
 
 function extractTitle(text: string): string {
   const roleMatch = text.match(
-    /(?:Alternance|Stage|alternant\(?e?\)?|stagiaire)\s+([A-ZÀ-Ü][^,.:\n]{3,60}?)(?=\s+(?:pour|à|chez|basé\(?e?\)?|disponible|de notre|,|\.|$))/i
+    /(?:Alternance|Stage|alternant\(?e?\)?|stagiaire)\s+([A-ZÀ-Ü][^,.:\n]{3,60}?)(?=\n|\s+(?:pour|à|chez|basé\(?e?\)?|disponible|de notre)|[,.]|$)/i
   );
   if (roleMatch) {
     const isStage = /stage|stagiaire/i.test(roleMatch[0].split(/\s+/)[0]);

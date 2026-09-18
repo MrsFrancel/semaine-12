@@ -75,7 +75,7 @@ export function CvBookScreen({
 
   const startImport = async () => {
     setStep('traitement');
-    const match = findAbTestOffer({ text: text || undefined, fileName: fileName || undefined });
+    const match = file ? undefined : findAbTestOffer({ text: text || undefined });
     if (match) {
       setAnalysis({
         title: match.title,

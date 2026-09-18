@@ -76,7 +76,7 @@ export function AdminDashboardScreen({
 
   const startImport = async () => {
     setDepositStep('traitement');
-    const match = findAbTestOffer({ text: text || undefined, fileName: fileName || undefined });
+    const match = file ? undefined : findAbTestOffer({ text: text || undefined });
     if (match) {
       setTitle(match.title);
       setCompany(match.company);

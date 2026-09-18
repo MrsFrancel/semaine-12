@@ -62,7 +62,7 @@ export function CatalogueScreen({
     if (!canCheck) return;
     setChecking(true);
     try {
-      const match = findAbTestOffer({ text: text || undefined, fileName: file?.name || undefined });
+      const match = file ? undefined : findAbTestOffer({ text: text || undefined });
       let content: string;
       let analysis: OfferAnalysis;
       if (match) {
