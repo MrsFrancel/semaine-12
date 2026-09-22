@@ -14,7 +14,7 @@ function formatCvForExport(cv: CvData): string {
   const sections = [
     cv.title && `Titre\n${cv.title}`,
     cv.bio && `Présentation\n${cv.bio}`,
-    (cv.phone || cv.contactEmail) && `Contact\n${[cv.phone, cv.contactEmail].filter(Boolean).join(' · ')}`,
+    (cv.phone || cv.contactEmail) && `Contact\n${[cv.phone, cv.contactEmail].filter(Boolean).join(' / ')}`,
     `Formation\n${cv.formation}`,
     `Expérience\n${cv.experience}`,
     cv.personalProjects && `Projets personnels ou associatifs\n${cv.personalProjects}`,

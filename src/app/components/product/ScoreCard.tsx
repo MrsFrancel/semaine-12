@@ -19,7 +19,7 @@ export function ScoreCard({ offer, score, criteria }: { offer: Offer; score: num
       <CardHeader className="flex-row items-start justify-between gap-4 flex-wrap">
         <div>
           <h3 className="text-lg">{offer.title}</h3>
-          <p className="text-muted-foreground text-sm mt-0.5">{offer.company} · {offer.location} · {offer.type}</p>
+          <p className="text-muted-foreground text-sm mt-0.5">{offer.company}, {offer.location}, {offer.type}</p>
         </div>
         <div className="font-mono text-3xl font-semibold text-primary tabular-nums">
           {score}<span className="text-sm text-muted-foreground font-sans font-normal">% de match</span>

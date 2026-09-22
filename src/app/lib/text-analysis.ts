@@ -50,7 +50,7 @@ function extractContractType(text: string): string {
   const duration = text.match(/(\d+\s*(?:à\s*\d+\s*)?mois)/i)?.[1];
   const kindMatch = text.match(/\b(alternance|stage|cdi|cdd)\b/i)?.[1];
   const kind = kindMatch ? kindMatch[0].toUpperCase() + kindMatch.slice(1).toLowerCase() : '';
-  if (kind && duration) return `${kind} · ${duration}`;
+  if (kind && duration) return `${kind} de ${duration}`;
   return kind || duration || '';
 }
 

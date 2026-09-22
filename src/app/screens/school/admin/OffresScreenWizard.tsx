@@ -179,7 +179,7 @@ export function OffresScreenWizard({
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
-                    Étape {wizardIndex + 1}/4 · {STEP_LABEL[step]}
+                    Étape {wizardIndex + 1} sur 4 : {STEP_LABEL[step]}
                   </span>
                 </div>
                 <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
@@ -208,7 +208,7 @@ export function OffresScreenWizard({
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs text-muted-foreground">Type de contrat</label>
-                    <Input value={contractType} onChange={(e) => setContractType(e.target.value)} placeholder="Ex. Alternance · 12 mois" />
+                    <Input value={contractType} onChange={(e) => setContractType(e.target.value)} placeholder="Ex. Alternance de 12 mois" />
                   </div>
                   <Button onClick={goNext} disabled={!title || !company} className="w-fit">Valider et continuer</Button>
                 </>
@@ -263,7 +263,7 @@ export function OffresScreenWizard({
                   <div className="flex flex-col gap-3 text-sm rounded-lg border border-border p-4">
                     <div>
                       <p className="font-medium">{title || 'Titre du poste'}</p>
-                      <p className="text-xs text-muted-foreground">{company} · {location} · {contractType}</p>
+                      <p className="text-xs text-muted-foreground">{company}, {location}, {contractType}</p>
                     </div>
                     <p className="text-muted-foreground">{description}</p>
                     <div>

@@ -97,7 +97,7 @@ export function StudentDashboardScreen({
               >
                 <div className="min-w-0">
                   <p className="text-sm font-medium truncate">Nouvelle offre : {o.title}</p>
-                  <p className="text-xs text-muted-foreground truncate">{o.company} · {o.location}</p>
+                  <p className="text-xs text-muted-foreground truncate">{o.company}, {o.location}</p>
                 </div>
               </button>
             ))}
@@ -155,7 +155,7 @@ export function StudentDashboardScreen({
             >
               <div>
                 <p className="text-sm font-medium">{offer.title}</p>
-                <p className="text-xs text-muted-foreground">{offer.company} · mise à jour le {c.updatedAt}</p>
+                <p className="text-xs text-muted-foreground">{offer.company}, mise à jour le {c.updatedAt}</p>
               </div>
               <StatusPill status={c.status} />
             </button>

@@ -65,8 +65,8 @@ export function CvPreviewDialogs({
                     <DialogTitle className="text-xl">{fullStudent.name}</DialogTitle>
                   </DialogHeader>
                   {fullStudent.cv.title && <p className="text-sm mt-0.5">{fullStudent.cv.title}</p>}
-                  <p className="text-muted-foreground mt-1">{fullStudent.cv.formation} · {fullStudent.promo}</p>
-                  <p className="font-mono text-xs text-muted-foreground mt-2">{studentEmail(fullStudent)} · {studentPhone(fullStudent)}</p>
+                  <p className="text-muted-foreground mt-1">{fullStudent.cv.formation}, {fullStudent.promo}</p>
+                  <p className="font-mono text-xs text-muted-foreground mt-2">{studentEmail(fullStudent)} / {studentPhone(fullStudent)}</p>
                 </div>
               </div>
 
@@ -87,7 +87,7 @@ export function CvPreviewDialogs({
                     <p className="font-medium">{fullStudent.cv.experience}</p>
                   </div>
                   <div>
-                    <p className="font-medium">Projet fil rouge · HETIC ({promoYear(fullStudent)})</p>
+                    <p className="font-medium">Projet fil rouge, HETIC ({promoYear(fullStudent)})</p>
                     <p className="text-muted-foreground text-xs mt-0.5">Conception d'une stratégie marketing digital pour une marque fictive, en groupe de 4.</p>
                   </div>
                 </div>
@@ -131,7 +131,7 @@ export function CvPreviewDialogs({
 
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Langues</p>
-                <p>Français (natif) · Anglais (professionnel)</p>
+                <p>Français (natif), Anglais (professionnel)</p>
               </div>
 
               {fullStudent.cv.portfolioLinks && (

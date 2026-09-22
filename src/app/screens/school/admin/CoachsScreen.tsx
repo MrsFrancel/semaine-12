@@ -129,7 +129,7 @@ export function CoachsScreen() {
               <div key={s.id} className="flex items-center justify-between border-b border-border last:border-0 pb-2 last:pb-0">
                 <div>
                   <p className="font-medium">{s.name}</p>
-                  <p className="text-xs text-muted-foreground">{s.candidatures} candidatures · {s.entretiens} entretiens</p>
+                  <p className="text-xs text-muted-foreground">{s.candidatures} candidatures, {s.entretiens} entretiens</p>
                 </div>
                 <span className="text-xs text-muted-foreground">{s.inactiveDays === 0 ? 'Actif' : `${s.inactiveDays}j inactif`}</span>
               </div>

@@ -10,7 +10,7 @@ export function OfferCard({ offer, onOpen }: { offer: Offer; onOpen: () => void 
         </span>
       )}
       <h3 className="text-base font-semibold leading-snug">{offer.title}</h3>
-      <p className="text-muted-foreground text-sm">{offer.company} · {offer.type} · {offer.location}</p>
+      <p className="text-muted-foreground text-sm">{offer.company}, {offer.type}, {offer.location}</p>
       <div className="flex items-center justify-between pt-3 mt-1 border-t border-border">
         <span className="font-mono text-sm text-primary font-semibold">{offer.score}% match</span>
         <span className="text-sm text-muted-foreground">Voir →</span>

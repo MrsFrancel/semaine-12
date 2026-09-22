@@ -210,7 +210,7 @@ export function AdminDashboardScreen({
                 </div>
                 <div className="flex flex-col gap-1.5 sm:col-span-2">
                   <label className="text-xs text-muted-foreground">Type de contrat</label>
-                  <Input value={contractType} onChange={(e) => setContractType(e.target.value)} placeholder="Ex. Alternance · 12 mois" />
+                  <Input value={contractType} onChange={(e) => setContractType(e.target.value)} placeholder="Ex. Alternance de 12 mois" />
                 </div>
                 <div className="flex flex-col gap-1.5 sm:col-span-2">
                   <label className="text-xs text-muted-foreground">Compétences attendues</label>
@@ -229,7 +229,7 @@ export function AdminDashboardScreen({
             <>
               <div className="flex flex-col gap-1.5">
                 <span className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
-                  Étape {wizardIndex + 1}/{WIZARD_STEP_ORDER.length} · {WIZARD_STEP_LABEL[depositStep]}
+                  Étape {wizardIndex + 1} sur {WIZARD_STEP_ORDER.length} : {WIZARD_STEP_LABEL[depositStep]}
                 </span>
                 <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
                   <div
@@ -257,7 +257,7 @@ export function AdminDashboardScreen({
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs text-muted-foreground">Type de contrat</label>
-                    <Input value={contractType} onChange={(e) => setContractType(e.target.value)} placeholder="Ex. Alternance · 12 mois" />
+                    <Input value={contractType} onChange={(e) => setContractType(e.target.value)} placeholder="Ex. Alternance de 12 mois" />
                   </div>
                   <Button onClick={goNextWizardStep} disabled={!title || !company} className="w-fit">Valider et continuer</Button>
                 </>

@@ -49,7 +49,7 @@ export function MesEtudiantsScreen({
               <div key={offer.id} className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0">
                 <div>
                   <p className="text-sm font-medium">{offer.title}</p>
-                  <p className="text-xs text-muted-foreground">{offer.company} · mise à jour le {c.updatedAt}</p>
+                  <p className="text-xs text-muted-foreground">{offer.company}, mise à jour le {c.updatedAt}</p>
                 </div>
                 <StatusPill status={c.status} />
               </div>
@@ -90,7 +90,7 @@ export function MesEtudiantsScreen({
                 <div key={s.id} className="grid grid-cols-[1fr_90px_90px_70px] gap-3 items-center border-b border-border last:border-0 py-3">
                   <button onClick={() => setOpen(s)} className="text-left hover:opacity-80 min-w-0">
                     <p className="text-sm font-medium truncate">{s.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{studentCandidatures.length} candidatures · {studentEntretiens} entretiens</p>
+                    <p className="text-xs text-muted-foreground truncate">{studentCandidatures.length} candidatures, {studentEntretiens} entretiens</p>
                   </button>
                   <span className="text-xs text-muted-foreground text-right">{s.inactiveDays === 0 ? 'Actif' : `${s.inactiveDays}j inactif`}</span>
                   <Button variant="ghost" size="sm" className="justify-self-end" onClick={() => setOpen(s)}>Fiche</Button>

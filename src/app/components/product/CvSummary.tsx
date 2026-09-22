@@ -21,7 +21,7 @@ export function CvSummary({
       )}
       {cv.bio && <p className="text-sm text-muted-foreground">{cv.bio}</p>}
       {(cv.phone || cv.contactEmail) && (
-        <p className="font-mono text-xs text-muted-foreground">{[cv.phone, cv.contactEmail].filter(Boolean).join(' · ')}</p>
+        <p className="font-mono text-xs text-muted-foreground">{[cv.phone, cv.contactEmail].filter(Boolean).join(' / ')}</p>
       )}
       <div>
         <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1 font-mono">Formation</p>

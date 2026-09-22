@@ -165,7 +165,7 @@ export function OffresScreen({
                 </div>
                 <div className="flex flex-col gap-1.5 col-span-2">
                   <label className="text-xs text-muted-foreground">Type de contrat</label>
-                  <Input value={contractType} onChange={(e) => setContractType(e.target.value)} placeholder="Ex. Alternance · 12 mois" />
+                  <Input value={contractType} onChange={(e) => setContractType(e.target.value)} placeholder="Ex. Alternance de 12 mois" />
                 </div>
               </div>
               <div className="flex flex-col gap-1.5">

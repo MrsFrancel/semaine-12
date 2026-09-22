@@ -141,7 +141,7 @@ export function MonSuiviScreen({
                     <div key={r.id} className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0">
                       <div>
                         <p className="text-sm font-medium">{type?.label}</p>
-                        <p className="text-xs text-muted-foreground">{r.day} · {r.time} · {type?.duration} min avec {MY_COACH.name}</p>
+                        <p className="text-xs text-muted-foreground">{r.day} à {r.time} ({type?.duration} min) avec {MY_COACH.name}</p>
                       </div>
                       <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => cancelRdv(r.id)}>Annuler</Button>
                     </div>

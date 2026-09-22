@@ -19,7 +19,7 @@ export function OfferPreviewDialog({
             <DialogHeader className="text-left sm:text-left">
               <DialogTitle>{previewOffer.title}</DialogTitle>
             </DialogHeader>
-            <p className="text-muted-foreground -mt-2">{previewOffer.company} · {previewOffer.location} · {previewOffer.type}</p>
+            <p className="text-muted-foreground -mt-2">{previewOffer.company}, {previewOffer.location}, {previewOffer.type}</p>
             <p>{previewOffer.description}</p>
             {previewOffer.missions.length > 0 && (
               <div>

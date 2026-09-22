@@ -82,7 +82,7 @@ export function OnboardingScreen({ onDone }: { onDone: (cv: CvData, email: strin
       <Card className={`w-full p-2 ${step === 'verification' ? 'max-w-xl' : 'max-w-md'}`}>
         <CardContent className="pt-4 flex flex-col gap-5">
           <div>
-            <p className="text-[11px] uppercase tracking-widest text-primary">Match&amp;Go · Étudiant</p>
+            <p className="text-[11px] uppercase tracking-widest text-primary">Match&amp;Go, espace étudiant</p>
             <h1 className="text-2xl mt-1">Rejoindre ta plateforme</h1>
           </div>
 

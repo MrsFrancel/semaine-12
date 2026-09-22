@@ -105,7 +105,7 @@ export function CalendrierMessagerieScreen({
                 <div key={t.id} className="rounded-lg border border-border p-4 flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-medium">{t.label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{t.duration} min · {t.description}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t.duration} min : {t.description}</p>
                   </div>
                   <Switch checked={t.active} onCheckedChange={() => toggleType(t.id)} />
                 </div>
@@ -173,9 +173,9 @@ export function CalendrierMessagerieScreen({
                   <div key={r.id} className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0">
                     <div>
                       <p className="text-sm font-medium">{student?.name}</p>
-                      <p className="text-xs text-muted-foreground">{type?.label} · {type?.duration} min</p>
+                      <p className="text-xs text-muted-foreground">{type?.label} ({type?.duration} min)</p>
                     </div>
-                    <span className="text-xs text-muted-foreground">{r.day} · {r.time}</span>
+                    <span className="text-xs text-muted-foreground">{r.day} à {r.time}</span>
                   </div>
                 );
               })}

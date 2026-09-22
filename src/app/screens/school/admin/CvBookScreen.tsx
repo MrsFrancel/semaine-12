@@ -37,7 +37,7 @@ function formatStudentCvForExport(student: Student, score: number): string {
   const sections = [
     `${student.name} (${score}% de match)`,
     `${student.promo}`,
-    `${studentEmail(student)} · ${studentPhone(student)}`,
+    `${studentEmail(student)} / ${studentPhone(student)}`,
     student.cv.title && `Titre\n${student.cv.title}`,
     student.cv.bio && `Présentation\n${student.cv.bio}`,
     `Formation\n${student.cv.formation}`,
@@ -92,7 +92,7 @@ export function CvBookScreen() {
     const chosen = ranked.filter((r) => selected.includes(r.student.id));
     const offerTitle = analysis.title || 'Offre reçue';
     const body = chosen.map(({ student, score }) => formatStudentCvForExport(student, score)).join('\n\n──────────\n\n');
-    exportTextAsPdf(`cv-book-${slugify(offerTitle)}`, `CV Book · ${offerTitle}`, body);
+    exportTextAsPdf(`cv-book-${slugify(offerTitle)}`, `CV Book : ${offerTitle}`, body);
 
     setHistory((h) => [{
       id: nextHistoryId++,
@@ -148,7 +148,7 @@ export function CvBookScreen() {
               <>
                 <div className="rounded-lg border border-border p-4">
                   <p className="text-sm font-medium">{analysis.title || 'Offre reçue'}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{analysis.location || 'Lieu non précisé'} · {analysis.contractType || 'Contrat non précisé'}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{analysis.location || 'Lieu non précisé'}, {analysis.contractType || 'Contrat non précisé'}</p>
                   <p className="text-xs text-muted-foreground mt-2">
                     {analysis.skills.length ? `Compétences recherchées : ${analysis.skills.join(', ')}` : 'Aucune compétence connue repérée dans le texte.'}
                   </p>
@@ -198,7 +198,7 @@ export function CvBookScreen() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-medium">{entry.offerTitle}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{entry.offerLocation} · {entry.offerContractType}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{entry.offerLocation}, {entry.offerContractType}</p>
                     {entry.offerSkills.length > 0 && (
                       <p className="text-xs text-muted-foreground mt-1">Compétences recherchées : {entry.offerSkills.join(', ')}</p>
                     )}
@@ -245,7 +245,7 @@ export function CvBookScreen() {
               <DialogHeader className="text-left sm:text-left">
                 <DialogTitle>{previewEntry.offerTitle}</DialogTitle>
               </DialogHeader>
-              <p className="text-muted-foreground -mt-2">{previewEntry.offerLocation} · {previewEntry.offerContractType}</p>
+              <p className="text-muted-foreground -mt-2">{previewEntry.offerLocation}, {previewEntry.offerContractType}</p>
               {previewEntry.offerProfile && <p>{previewEntry.offerProfile}</p>}
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-mono">Compétences recherchées</p>
