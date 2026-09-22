@@ -26,7 +26,7 @@ export function Shell({
 }) {
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background">
-      <aside className="w-full md:w-56 flex-none bg-brand text-brand-foreground flex flex-col">
+      <aside className="w-full md:w-56 flex-none md:sticky md:top-0 md:h-screen bg-brand text-brand-foreground flex flex-col">
         <div className="px-4 md:px-5 py-4 border-b border-white/10 flex items-center gap-3">
           <Logomark className="size-8 flex-none text-brand-foreground" />
           <div className="min-w-0">
