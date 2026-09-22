@@ -28,7 +28,7 @@ const chartData = COACHES.map((c) => {
 const mostInactive = [...STUDENTS].filter((s) => s.inactiveDays > 0).sort((a, b) => b.inactiveDays - a.inactiveDays).slice(0, 5);
 const topByEntretiens = [...STUDENTS].sort((a, b) => b.entretiens - a.entretiens)[0];
 
-type DepositStep = 'reception' | 'traitement' | 'verification' | 'infos' | 'competences' | 'publiee';
+type DepositStep = 'reception' | 'traitement' | 'verification' | 'infos' | 'competences';
 
 const WIZARD_STEP_ORDER: DepositStep[] = ['infos', 'competences'];
 const WIZARD_STEP_LABEL: Partial<Record<DepositStep, string>> = {
@@ -39,10 +39,12 @@ const WIZARD_STEP_LABEL: Partial<Record<DepositStep, string>> = {
 export function AdminDashboardScreen({
   offers,
   onPublish,
+  onPublished,
   abVersion,
 }: {
   offers: Offer[];
   onPublish: (draft: Omit<Offer, 'id'>) => void;
+  onPublished: () => void;
   abVersion: 'A' | 'B';
 }) {
   const avgInactive = (STUDENTS.reduce((s, x) => s + x.inactiveDays, 0) / STUDENTS.length).toFixed(1);
@@ -131,12 +133,7 @@ export function AdminDashboardScreen({
       exclusive: true,
       rawText: rawText || undefined,
     });
-    setDepositStep('publiee');
-  };
-
-  const resetDeposit = () => {
-    setDepositStep('reception'); setText(''); setFileName(''); setFile(null);
-    setTitle(''); setCompany(''); setLocation(''); setContractType(''); setDescription(''); setSkills([]); setSkillInput(''); setProfile(''); setRawText('');
+    onPublished();
   };
 
   const wizardIndex = WIZARD_STEP_ORDER.indexOf(depositStep);
@@ -293,16 +290,6 @@ export function AdminDashboardScreen({
                 </>
               )}
             </>
-          )}
-
-          {depositStep === 'publiee' && (
-            <div className="flex flex-col gap-3">
-              <div className="rounded-lg border border-border bg-accent p-4">
-                <p className="text-sm font-medium text-accent-foreground">Offre publiée au catalogue</p>
-                <p className="text-xs text-muted-foreground mt-1">Les étudiants concernés reçoivent un email.</p>
-              </div>
-              <Button variant="outline" size="sm" className="w-fit" onClick={resetDeposit}>Déposer une nouvelle offre</Button>
-            </div>
           )}
         </CardContent>
       </Card>

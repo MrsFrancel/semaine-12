@@ -66,7 +66,7 @@ export function SchoolSpace({
       case 'coachs': return <CoachsScreen />;
       case 'etudiants': return <EtudiantsScreen />;
       case 'parametres': return <ParametresScreen />;
-      default: return <AdminDashboardScreen {...offresProps} abVersion={abVersion} />;
+      default: return <AdminDashboardScreen {...offresProps} abVersion={abVersion} onPublished={() => setActive('offres')} />;
     }
   };
 
