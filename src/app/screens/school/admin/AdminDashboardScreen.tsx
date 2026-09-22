@@ -142,7 +142,7 @@ export function AdminDashboardScreen({
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-2xl">Tableau de bord</h2>
-        <p className="text-muted-foreground text-sm mt-1">Vue d'ensemble de l'école : tout est déjà calculé, il n'y a rien à saisir.</p>
+        <p className="text-muted-foreground text-sm mt-1">Vue d'ensemble de l'école, mise à jour en continu.</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -229,7 +229,7 @@ export function AdminDashboardScreen({
             <>
               <div className="flex flex-col gap-1.5">
                 <span className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
-                  Étape {wizardIndex + 1}/{WIZARD_STEP_ORDER.length} — {WIZARD_STEP_LABEL[depositStep]}
+                  Étape {wizardIndex + 1}/{WIZARD_STEP_ORDER.length} · {WIZARD_STEP_LABEL[depositStep]}
                 </span>
                 <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
                   <div

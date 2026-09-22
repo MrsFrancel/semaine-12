@@ -88,7 +88,7 @@ export function CalendrierMessagerieScreen({
     <div className="flex flex-col gap-6 max-w-3xl">
       <div>
         <h2 className="text-2xl">Calendrier &amp; messagerie</h2>
-        <p className="text-muted-foreground text-sm mt-1">Tes disponibilités et tes échanges, au même endroit.</p>
+        <p className="text-muted-foreground text-sm mt-1">Gère tes disponibilités et discute avec tes étudiants ici.</p>
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as 'calendrier' | 'messagerie')}>

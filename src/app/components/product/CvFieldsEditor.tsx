@@ -69,10 +69,10 @@ export function CvFieldsEditor({ cv, onChange }: { cv: CvData; onChange: (update
           )}
         </div>
         <div className="flex-1 flex flex-col gap-4">
-          <Field label="Titre" hint="Optionnel — l'accroche que verra un recruteur en premier.">
+          <Field label="Titre" hint="Optionnel : l'accroche que verra un recruteur en premier.">
             <Input placeholder="Ex. Chargée de marketing digital en recherche d'alternance" value={cv.title} onChange={(e) => set('title', e.target.value)} />
           </Field>
-          <Field label="Présentation" hint="Optionnel — quelques lignes sur toi.">
+          <Field label="Présentation" hint="Optionnel : quelques lignes sur toi.">
             <Textarea className="min-h-16" value={cv.bio} onChange={(e) => set('bio', e.target.value)} />
           </Field>
         </div>
@@ -94,7 +94,7 @@ export function CvFieldsEditor({ cv, onChange }: { cv: CvData; onChange: (update
       <Field label="Expérience">
         <Textarea className="min-h-24" placeholder="Ex. Stage 6 mois, chargé de communication digitale. Missions principales." value={cv.experience} onChange={(e) => set('experience', e.target.value)} />
       </Field>
-      <Field label="Projets personnels ou associatifs" hint="Optionnel — un projet mené hors cadre scolaire ou pro.">
+      <Field label="Projets personnels ou associatifs" hint="Optionnel : un projet mené hors cadre scolaire ou pro.">
         <Textarea className="min-h-16" value={cv.personalProjects} onChange={(e) => set('personalProjects', e.target.value)} />
       </Field>
 
@@ -118,7 +118,7 @@ export function CvFieldsEditor({ cv, onChange }: { cv: CvData; onChange: (update
       </Field>
 
       <SectionLabel>Complémentaire</SectionLabel>
-      <Field label="Portfolio / liens" hint="Optionnel — LinkedIn, Behance, GitHub, site perso…">
+      <Field label="Portfolio / liens" hint="Optionnel : LinkedIn, Behance, GitHub, site perso…">
         <Textarea className="min-h-12" placeholder="Ex. linkedin.com/in/…, behance.net/…" value={cv.portfolioLinks} onChange={(e) => set('portfolioLinks', e.target.value)} />
       </Field>
       <Field label="Centres d'intérêt" hint="Optionnel">
@@ -127,14 +127,14 @@ export function CvFieldsEditor({ cv, onChange }: { cv: CvData; onChange: (update
       <div className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
         <div>
           <p className="text-sm">Permis de conduire</p>
-          <p className="text-[11px] text-muted-foreground">Optionnel — utile seulement si l'offre le demande.</p>
+          <p className="text-[11px] text-muted-foreground">Optionnel : utile seulement si l'offre le demande.</p>
         </div>
         <Switch checked={cv.drivingLicense} onCheckedChange={(v) => set('drivingLicense', v)} />
       </div>
       <Field label="Disponibilité / mobilité géographique" hint="Optionnel">
         <Input placeholder="Ex. Disponible dès septembre, mobile Île-de-France" value={cv.availability} onChange={(e) => set('availability', e.target.value)} />
       </Field>
-      <Field label="Note d'attention" hint="Optionnel — une note personnelle : ta présentation, ou ce que tu recherches.">
+      <Field label="Note d'attention" hint="Optionnel : une note personnelle, ta présentation ou ce que tu recherches.">
         <Textarea className="min-h-16" value={cv.attentionNote} onChange={(e) => set('attentionNote', e.target.value)} />
       </Field>
     </div>

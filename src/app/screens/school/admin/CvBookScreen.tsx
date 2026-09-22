@@ -92,7 +92,7 @@ export function CvBookScreen() {
     const chosen = ranked.filter((r) => selected.includes(r.student.id));
     const offerTitle = analysis.title || 'Offre reçue';
     const body = chosen.map(({ student, score }) => formatStudentCvForExport(student, score)).join('\n\n──────────\n\n');
-    exportTextAsPdf(`cv-book-${slugify(offerTitle)}`, `CV Book — ${offerTitle}`, body);
+    exportTextAsPdf(`cv-book-${slugify(offerTitle)}`, `CV Book · ${offerTitle}`, body);
 
     setHistory((h) => [{
       id: nextHistoryId++,

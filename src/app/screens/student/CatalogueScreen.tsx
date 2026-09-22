@@ -78,7 +78,7 @@ export function CatalogueScreen({
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-2xl">Offres</h2>
-        <p className="text-muted-foreground text-sm mt-1">Le catalogue école reste séparé de tes propres offres : les deux ne se mélangent jamais.</p>
+        <p className="text-muted-foreground text-sm mt-1">Le catalogue école reste séparé de tes propres offres.</p>
       </div>
 
       <Tabs value={tab} onValueChange={(v) => onTabChange(v as 'ecole' | 'externes')}>

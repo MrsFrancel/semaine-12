@@ -103,7 +103,7 @@ export function OnboardingScreen({ onDone }: { onDone: (cv: CvData, email: strin
                 <Switch checked={consent} onCheckedChange={setConsent} className="mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">J'autorise l'IA à me proposer des ajustements de CV</p>
-                  <p className="text-xs text-muted-foreground mt-1">Chaque suggestion te sera présentée pour validation, rien n'est modifié automatiquement.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Tu valides chaque suggestion avant qu'elle ne s'applique.</p>
                 </div>
               </div>
               <Button disabled={!consent} onClick={() => setStep('upload')}>Continuer</Button>
@@ -170,7 +170,7 @@ export function OnboardingScreen({ onDone }: { onDone: (cv: CvData, email: strin
 
           {step === 'verification' && (
             <div className="flex flex-col gap-4">
-              <p className="text-xs text-muted-foreground">Voici ce qu'on a retenu de ton CV. Corrige ce qui doit l'être, complète ce qui manque, rien n'est figé.</p>
+              <p className="text-xs text-muted-foreground">Voici ce qu'on a retenu de ton CV : corrige ou complète ce qui doit l'être.</p>
               <div className="max-h-[60vh] overflow-y-auto pr-2 -mr-2 border border-border rounded-lg p-3">
                 <CvFieldsEditor cv={cv} onChange={(updater) => setCv(updater)} />
               </div>

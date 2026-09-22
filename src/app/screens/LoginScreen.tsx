@@ -22,18 +22,18 @@ export function LoginScreen({
             <p className="text-xs text-muted-foreground">Nouvelle inscription, avec le parcours d'onboarding complet.</p>
           </Card>
           <Card className="p-5 gap-3 cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onPick('admin')}>
-            <h3 className="text-base">École — Admin</h3>
+            <h3 className="text-base">École · Admin</h3>
             <p className="text-xs text-muted-foreground">Gouvernance : accès, coachs, paramètres.</p>
           </Card>
           <Card className="p-5 gap-3 cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onPick('coach')}>
-            <h3 className="text-base">École — Coach</h3>
+            <h3 className="text-base">École · Coach</h3>
             <p className="text-xs text-muted-foreground">Terrain : suivi étudiants, messagerie, RDV.</p>
           </Card>
         </div>
 
         <div className="rounded-xl border border-border bg-secondary p-4 flex items-center justify-between gap-4">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">Test AB — Dépôt d'offres</p>
+            <p className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">Test AB · Dépôt d'offres</p>
             <p className="text-xs text-muted-foreground mt-0.5">Choisis la version avant d'entrer dans l'espace École.</p>
           </div>
           <div className="flex gap-1.5 flex-none">

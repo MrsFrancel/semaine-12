@@ -87,7 +87,7 @@ export function CvPreviewDialogs({
                     <p className="font-medium">{fullStudent.cv.experience}</p>
                   </div>
                   <div>
-                    <p className="font-medium">Projet fil rouge — HETIC ({promoYear(fullStudent)})</p>
+                    <p className="font-medium">Projet fil rouge · HETIC ({promoYear(fullStudent)})</p>
                     <p className="text-muted-foreground text-xs mt-0.5">Conception d'une stratégie marketing digital pour une marque fictive, en groupe de 4.</p>
                   </div>
                 </div>

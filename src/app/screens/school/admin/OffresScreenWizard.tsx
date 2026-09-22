@@ -133,7 +133,7 @@ export function OffresScreenWizard({
     <div className="flex flex-col gap-6 max-w-2xl">
       <div>
         <h2 className="text-2xl">Dépôt d'offres</h2>
-        <p className="text-muted-foreground text-sm mt-1">L'IA pré-remplit la fiche à partir de ce que l'entreprise a envoyé. Un humain vérifie toujours avant publication.</p>
+        <p className="text-muted-foreground text-sm mt-1">L'IA propose une fiche à partir du message reçu, à vérifier avant publication.</p>
       </div>
 
       <Card>
@@ -179,7 +179,7 @@ export function OffresScreenWizard({
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
-                    Étape {wizardIndex + 1}/4 — {STEP_LABEL[step]}
+                    Étape {wizardIndex + 1}/4 · {STEP_LABEL[step]}
                   </span>
                 </div>
                 <div className="h-1.5 rounded-full bg-secondary overflow-hidden">

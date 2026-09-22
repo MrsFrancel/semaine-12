@@ -64,7 +64,7 @@ export function MonCvScreen({
     <div className="flex flex-col gap-6 max-w-2xl">
       <div>
         <h2 className="text-2xl">Mon CV</h2>
-        <p className="text-muted-foreground text-sm mt-1">Ta mise en page d'origine reste intacte, l'IA ne touche jamais à la structure.</p>
+        <p className="text-muted-foreground text-sm mt-1">Le contenu est analysé, ta mise en page reste inchangée.</p>
       </div>
 
       <Card>

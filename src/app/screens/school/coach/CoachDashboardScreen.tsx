@@ -46,7 +46,7 @@ export function CoachDashboardScreen({ onMessageStudent }: { onMessageStudent: (
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-2xl">Tableau de bord</h2>
-        <p className="text-muted-foreground text-sm mt-1">Tes étudiants, en un coup d'œil. Rien à saisir de ton côté.</p>
+        <p className="text-muted-foreground text-sm mt-1">Le suivi de tes étudiants, calculé automatiquement.</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

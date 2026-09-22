@@ -87,7 +87,7 @@ export function SchoolSpace({
   return (
     <Shell
       spaceLabel="Espace École"
-      roleLabel={role === 'admin' ? 'Admin — Camille Dubois' : 'Coach — Karim Haddad'}
+      roleLabel={role === 'admin' ? 'Admin · Camille Dubois' : 'Coach · Karim Haddad'}
       navItems={nav}
       activeId={active}
       onSelect={setActive}

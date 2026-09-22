@@ -73,7 +73,7 @@ export function StudentDashboardScreen({
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-2xl">Tableau de bord</h2>
-        <p className="text-muted-foreground text-sm mt-1">Ton activité de recherche, sans jamais te noter.</p>
+        <p className="text-muted-foreground text-sm mt-1">Ta recherche d'alternance, sans note ni classement.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

@@ -107,7 +107,7 @@ export function OffresScreen({
     <div className="flex flex-col gap-6 max-w-2xl">
       <div>
         <h2 className="text-2xl">Dépôt d'offres</h2>
-        <p className="text-muted-foreground text-sm mt-1">L'IA pré-remplit la fiche à partir de ce que l'entreprise a envoyé. Un humain vérifie toujours avant publication.</p>
+        <p className="text-muted-foreground text-sm mt-1">L'IA propose une fiche à partir du message reçu, à vérifier avant publication.</p>
       </div>
 
       <Card>
